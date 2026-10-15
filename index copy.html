@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GO CARES by AIKCHOL NEXT — Enhancing Family Happiness | โรงพยาบาลเอกชล</title>
+  <meta name="description"
+    content="GO CARES by AIKCHOL NEXT บริการ Personal Caregiver & Companion ดูแลพาผู้สูงอายุและผู้ป่วยไปโรงพยาบาลแบบครบวงจร ภายใต้พันธกิจ Enhancing Family Happiness โดยโรงพยาบาลเอกชล ชลบุรี โทร 063 920 4765">
+
+  <!-- Google Fonts: Noto Sans Thai Looped (DESIGN-main.md), Plus Jakarta Sans, Caveat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Noto+Sans+Thai+Looped:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Lenis Ultra-Smooth Scrolling Library (Maven Clinic & Included Health Standard) -->
+  <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+
+  <!-- Stylesheet based on DESIGN-main.md, Included Health & Maven Clinic -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ======================================================================
+       1. Top Announcement Bar (DESIGN-main.md)
+       ====================================================================== -->
+  <aside class="ahc-topbar" aria-label="Announcement & Mission Bar">
+    <div class="ahc-container ahc-topbar-inner">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="ahc-mission-pill">AHC MISSION</span>
+        <span style="font-weight: 300;"><strong>Enhancing Family Happiness:</strong>
+          เติมเต็มความสุขและความอุ่นใจให้ทุกครอบครัวในจังหวัดชลบุรี</span>
+      </div>
+      <div class="ahc-topbar-right">
+        <a href="tel:0639204765" class="ahc-topbar-hotline">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+            </path>
+          </svg>
+          <span>สายด่วนจองบริการ: <strong>063 920 4765</strong></span>
+        </a>
+        <button id="ahcSeniorModeBtn" class="ahc-font-toggle-btn" aria-label="ปรับขนาดตัวอักษร">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <polyline points="4 7 4 4 20 4 20 7"></polyline>
+            <line x1="9" y1="20" x2="15" y2="20"></line>
+            <line x1="12" y1="4" x2="12" y2="20"></line>
+          </svg>
+          <span>A+ ตัวหนังสือใหญ่</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======================================================================
+       2. Maven Clinic Style: Floating Pill Navbar
+       ====================================================================== -->
+  <div class="ahc-floating-header-wrapper">
+    <header class="ahc-floating-header" id="ahcFloatingHeader">
+      <a href="#" class="ahc-logo-group">
+        <img src="assets/aikchol_next_logo.webp" alt="Aikchol Next Logo" class="ahc-brand-logo-img">
+        <div class="ahc-brand-separator"></div>
+        <div class="ahc-brand-text-block">
+          <span class="ahc-brand-name">GO CARES</span>
+          <span class="ahc-brand-sub">โรงพยาบาลเอกชล</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav (Clean, Generously Spaced Maven Clinic Style) -->
+      <nav aria-label="Primary Navigation">
+        <ul class="ahc-nav-menu" id="ahcNavMenu">
+          <li><a href="#care-moments" class="ahc-nav-link">บริการครบวงจร</a></li>
+          <li><a href="#video-tour" class="ahc-nav-link">วิดีโอแนะนำ</a></li>
+          <li><a href="#pricing" class="ahc-nav-link">อัตราค่าบริการ</a></li>
+          <li><a href="#coverage-area" class="ahc-nav-link">พื้นที่ชลบุรี</a></li>
+          <li><a href="#faq" class="ahc-nav-link">คำถามพบบ่อย</a></li>
+        </ul>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="ahc-header-actions">
+        <a href="tel:0639204765" class="ahc-hotline-pill" title="โทรสายด่วน">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+            </path>
+          </svg>
+          <span>063 920 4765</span>
+        </a>
+        <button class="ahc-btn ahc-btn-gold ahc-nav-cta-btn" data-open-booking data-pkg="pkg2">
+          <span>จองบริการ</span>
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+        <button class="ahc-mobile-toggle" id="ahcMobileToggle" aria-label="เปิดเมนู">
+          <svg class="ahc-icon ahc-icon-lg" viewBox="0 0 24 24">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+  </div>
+
+  <!-- ======================================================================
+       3. Included Health & Maven Style: Cinematic Hero Section
+       ====================================================================== -->
+  <section class="ahc-cinematic-hero-section">
+    <div class="ahc-container">
+      <div class="ahc-hero-cinematic-wrapper ahc-reveal">
+        <!-- Ambient Background Video -->
+        <video class="ahc-hero-bg-media" autoplay loop muted playsinline poster="assets/hero_companion.webp">
+          <source src="Hospital_02.mp4" type="video/mp4">
+        </video>
+
+        <div class="ahc-hero-scrim-gradient"></div>
+
+        <!-- Floating Frosted White Card Overlay -->
+        <div class="ahc-hero-floating-card">
+          <div class="ahc-hero-kicker-tag">
+            <span class="ahc-pulse-dot"></span>
+            <span>สำหรับทุกครอบครัวในชลบุรี • Enhancing Family Happiness</span>
+          </div>
+
+          <h1 class="ahc-hero-headline">
+            <span class="ahc-hero-brand-name">GO CARES</span>
+            <span class="ahc-hero-sub-brand">by AIKCHOL NEXT</span>
+            <span class="ahc-hero-script-tag">“Care Beyond the Hospital”</span>
+          </h1>
+
+          <ul class="ahc-hero-feature-bullets">
+            <li>
+              <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>รถรับ-ส่งถึงบ้าน พร้อมผู้ดูแลส่วนตัวตลอดการเดินทาง</span>
+            </li>
+            <li>
+              <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>ช่วยจดคำแนะนำแพทย์ ทวนการใช้ยา รายงานครอบครัวทันที</span>
+            </li>
+          </ul>
+
+          <div class="ahc-hero-btn-row">
+            <button class="ahc-btn ahc-btn-gold" data-open-booking data-pkg="pkg2">
+              <span>จองผู้ดูแลพร้อมรถ (แนะนำ)</span>
+              <svg class="ahc-icon ahc-icon-xs" viewBox="0 0 24 24">
+                <polygon
+                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                </polygon>
+              </svg>
+            </button>
+            <a href="tel:0639204765" class="ahc-btn ahc-btn-ghost-call" title="โทรปรึกษา: 063 920 4765">
+              <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                </path>
+              </svg>
+              <span>โทรปรึกษา</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Corner Floating Indicator -->
+        <div class="ahc-hero-corner-badge">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" style="color: var(--ahc-green);">
+            <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path>
+            <circle cx="17" cy="18" r="2"></circle>
+            <circle cx="7" cy="18" r="2"></circle>
+          </svg>
+          <span>รถรับ-ส่งเฉพาะ ปลอดภัย รองรับรถเข็น</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       4. Included Health Style: Complete Care Moments Interactive Slider
+       "Care for colds, bills, anxiety, and everything in between"
+       ====================================================================== -->
+  <section class="ahc-moments-section" id="care-moments">
+    <div class="ahc-container">
+      <div class="ahc-section-header ahc-reveal">
+        <span class="ahc-badge-medical" style="margin-bottom: 12px;">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>COMPLETE CARE FROM HOME TO HOSPITAL</span>
+        </span>
+        <h2 class="ahc-section-title">ดูแลครบวงจรตั้งแต่ก้าวออกจากบ้าน จนถึงกลับเข้าบ้าน</h2>
+        <p class="ahc-section-subtitle">
+          ทั้งการเดินทาง การพบแพทย์ การรับยา และความสบายใจของครอบครัว — ให้ทุกขั้นตอนราบรื่นด้วยผู้ดูแลมืออาชีพ
+        </p>
+      </div>
+
+      <!-- 5 Interactive Tabs -->
+      <div class="ahc-moments-tabs-nav ahc-reveal ahc-delay-1">
+        <button class="ahc-moment-tab-btn active" data-moment="book">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span>1. นัดหมาย & วางแผน</span>
+        </button>
+        <button class="ahc-moment-tab-btn" data-moment="mobility">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path>
+            <circle cx="17" cy="18" r="2"></circle>
+            <circle cx="7" cy="18" r="2"></circle>
+          </svg>
+          <span>2. รับส่งถึงบ้านปลอดภัย</span>
+        </button>
+        <button class="ahc-moment-tab-btn" data-moment="hospital">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>3. เคียงข้างในโรงพยาบาล</span>
+        </button>
+        <button class="ahc-moment-tab-btn" data-moment="consultation">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path>
+            <path d="m8.5 8.5 7 7"></path>
+          </svg>
+          <span>4. จดคำสั่ง & ทวนวิธีใช้ยา</span>
+        </button>
+        <button class="ahc-moment-tab-btn" data-moment="report">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+          </svg>
+          <span>5. รายงานสด & ส่งกลับบ้าน</span>
+        </button>
+      </div>
+
+      <!-- Dynamic Moments Display Card -->
+      <div class="ahc-moment-display-card ahc-reveal ahc-delay-2">
+        <div class="ahc-moment-card-content">
+          <span id="ahcMomentTag" class="ahc-badge-sea" style="margin-bottom: 14px;">Step 1: Book & Plan</span>
+          <h3 id="ahcMomentTitle"
+            style="font-size: 28px; font-weight: 500; color: var(--ahc-blue); margin-bottom: 14px; line-height: 1.3;">
+            นัดหมาย & วางแผนการเดินทางอย่างรัดกุม
+          </h3>
+          <p id="ahcMomentDesc"
+            style="font-size: 16px; font-weight: 300; color: var(--ahc-text-secondary); line-height: 1.65; margin-bottom: 24px;">
+            ทีมงานสอบถามประวัติและวางแผนการเดินทาง ยืนยันข้อมูลผู้รับบริการและเวลานัดหมายล่วงหน้า
+            ให้คุณมั่นใจตั้งแต่นาทีแรก
+          </p>
+
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px;">
+            <li
+              style="display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--ahc-text-secondary);">
+              <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" style="color: var(--ahc-green); margin-top: 3px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span id="ahcMomentBullet1">เจ้าหน้าที่ผู้เชี่ยวชาญประสานงานและจัดสรรผู้ดูแลที่เหมาะสมกับอาการ</span>
+            </li>
+            <li
+              style="display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--ahc-text-secondary);">
+              <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" style="color: var(--ahc-green); margin-top: 3px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span id="ahcMomentBullet2">ยืนยันวัน เวลา สถานที่ และเส้นทางล่วงหน้าอย่างโปร่งใส ไร้กังวล</span>
+            </li>
+          </ul>
+
+          <button class="ahc-btn ahc-btn-primary" data-open-booking data-pkg="pkg2">
+            <span>จองบริการขั้นตอนนี้นัดหมาย</span>
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div class="ahc-moment-card-media">
+          <img id="ahcMomentImg" src="assets/step_1_book_plan.webp" alt="Care Moment Preview"
+            class="ahc-moment-card-img">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       5. Featured Video Showcase & Synchronized Chapter Player (Hospital_02.mp4)
+       ====================================================================== -->
+  <section class="ahc-video-section" id="video-tour">
+    <div class="ahc-container">
+      <div class="ahc-section-header ahc-reveal">
+        <span class="ahc-badge-medical" style="margin-bottom: 12px;">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <span>VDO PRESENTATION • 19 วินาที</span>
+        </span>
+        <h2 class="ahc-section-title">สัมผัสประสบการณ์ GO CARES ใน 19 วินาที</h2>
+        <p class="ahc-section-subtitle">
+          วิดีโอจำลองเส้นทางการดูแลผู้รับบริการ ตั้งแต่โทรนัดหมาย วางแผนการเดินทาง รับจากบ้าน เข้าพบแพทย์
+          จนถึงส่งกลับบ้านอย่างปลอดภัย คลิกเลือกดูแต่ละขั้นตอนได้ทันที
+        </p>
+      </div>
+
+      <!-- Video Player Frame -->
+      <div class="ahc-video-player-container ahc-reveal ahc-delay-1">
+        <div class="ahc-video-ambient-glow"></div>
+
+        <div class="ahc-video-frame paused">
+          <video id="ahcMainVideo" class="ahc-main-video" poster="assets/hero_companion.webp" playsinline
+            preload="metadata">
+            <source src="Hospital_02.mp4" type="video/mp4">
+            เบราว์เซอร์ของคุณไม่รองรับการเล่นวิดีโอ HTML5
+          </video>
+
+          <!-- Big Play Button Overlay -->
+          <button id="ahcBigPlayBtn" class="ahc-big-play-btn" aria-label="เล่นวิดีโอ">
+            <svg class="ahc-icon ahc-icon-xl" viewBox="0 0 24 24" style="stroke: #ffffff; fill: #ffffff;">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </button>
+
+          <!-- Custom Overlays -->
+          <div class="ahc-video-controls-overlay">
+            <div class="ahc-video-top-bar">
+              <span class="ahc-video-current-chapter" id="ahcCurrentChapterPill">ขั้นตอนที่ 1: Book & Plan</span>
+              <button id="ahcRestartBtn" class="ahc-ctrl-icon-btn" title="เล่นใหม่ตั้งแต่ต้น">
+                <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                <span style="font-size: 12px; margin-left: 4px;">เล่นใหม่</span>
+              </button>
+            </div>
+
+            <div class="ahc-video-bottom-bar">
+              <div class="ahc-video-progress-track" id="ahcProgressTrack">
+                <div class="ahc-video-progress-fill" id="ahcProgressFill"></div>
+              </div>
+
+              <div class="ahc-video-control-buttons">
+                <div class="ahc-ctrl-left">
+                  <button id="ahcPlayIconBtn" class="ahc-ctrl-icon-btn" aria-label="Play/Pause">
+                    <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                  </button>
+                  <button id="ahcMuteBtn" class="ahc-ctrl-icon-btn" aria-label="Mute/Unmute">
+                    <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                  </button>
+                  <span id="ahcTimeDisplay" style="font-family: var(--ahc-font-latin); font-size: 13px;">0:00 /
+                    0:19</span>
+                </div>
+                <div class="ahc-ctrl-right">
+                  <span style="font-size: 12px; color: rgba(255,255,255,0.85);">Aikchol Hospital Care Journey</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Synchronized Chapter Navigation Pills -->
+        <div class="ahc-chapter-timeline-nav">
+          <button class="ahc-chapter-btn active" data-time="0.0">
+            <div class="ahc-chapter-step-num">
+              <span>Step 1</span>
+              <span class="ahc-chapter-step-time">0:00</span>
+            </div>
+            <div class="ahc-chapter-title">1. นัดหมาย & วางแผน</div>
+          </button>
+
+          <button class="ahc-chapter-btn" data-time="3.5">
+            <div class="ahc-chapter-step-num">
+              <span>Step 2</span>
+              <span class="ahc-chapter-step-time">0:03</span>
+            </div>
+            <div class="ahc-chapter-title">2. รับจากบ้านตรงเวลา</div>
+          </button>
+
+          <button class="ahc-chapter-btn" data-time="7.0">
+            <div class="ahc-chapter-step-num">
+              <span>Step 3</span>
+              <span class="ahc-chapter-step-time">0:07</span>
+            </div>
+            <div class="ahc-chapter-title">3. ถึง รพ. & ลงทะเบียน</div>
+          </button>
+
+          <button class="ahc-chapter-btn" data-time="10.5">
+            <div class="ahc-chapter-step-num">
+              <span>Step 4</span>
+              <span class="ahc-chapter-step-time">0:11</span>
+            </div>
+            <div class="ahc-chapter-title">4. เคียงข้างพบแพทย์</div>
+          </button>
+
+          <button class="ahc-chapter-btn" data-time="15.0">
+            <div class="ahc-chapter-step-num">
+              <span>Step 5</span>
+              <span class="ahc-chapter-step-time">0:15</span>
+            </div>
+            <div class="ahc-chapter-title">5. รับยา & ส่งกลับบ้าน</div>
+          </button>
+        </div>
+
+        <!-- Live Chapter Detail Dynamic Card -->
+        <div class="ahc-chapter-live-card">
+          <div class="ahc-live-card-body">
+            <img id="ahcLiveStepThumb" src="assets/step_1_book_plan.webp" alt="1. นัดหมาย & วางแผนการเดินทาง"
+              class="ahc-live-card-thumb">
+            <div class="ahc-live-card-info">
+              <h4 id="ahcLiveStepTitle">1. นัดหมาย & วางแผนการเดินทาง (Book & Plan)</h4>
+              <p id="ahcLiveStepDesc">ทีมงานสอบถามประวัติและวางแผนการเดินทาง
+                ยืนยันข้อมูลผู้รับบริการและเวลานัดหมายล่วงหน้า</p>
+            </div>
+          </div>
+          <button class="ahc-btn ahc-btn-green" data-open-booking data-pkg="pkg2">
+            <span>สอบถามขั้นตอนนี้</span>
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       6. Why GO CARES? (Risk vs Caregiver Solution Table)
+       ====================================================================== -->
+  <section class="ahc-comparison-section" id="why-gocares">
+    <div class="ahc-container">
+      <div class="ahc-section-header ahc-reveal">
+        <span class="ahc-badge-care" style="margin-bottom: 12px;">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span>ความเสี่ยงที่ครอบครัวกังวล</span>
+        </span>
+        <h2 class="ahc-section-title">ทำไมผู้สูงอายุไม่ควรไปโรงพยาบาลคนเดียว ?</h2>
+        <p class="ahc-section-subtitle">
+          ความเสี่ยงหลักไม่ใช่แค่การเดินทาง แต่คือสิ่งที่เกิดขึ้นหลังกลับบ้าน: จำคำแนะนำแพทย์ไม่ครบ ทานยาผิด
+          และอาจพลาดนัดครั้งต่อไป เหตุการณ์เหล่านี้ส่งผลต่อการควบคุมโรคประจำตัวโดยตรง
+        </p>
+      </div>
+
+      <!-- 3-Column Comparison Table -->
+      <div class="ahc-comparison-table-wrap ahc-reveal ahc-delay-1">
+        <div class="ahc-table-header-grid">
+          <div class="ahc-header-pill ahc-header-pill-danger">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>ความเสี่ยงเมื่อไปพบแพทย์คนเดียว</span>
+          </div>
+          <div class="ahc-header-pill ahc-header-pill-neutral">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 14 14"></polyline>
+            </svg>
+            <span>ผลกระทบที่อาจเกิดขึ้น</span>
+          </div>
+          <div class="ahc-header-pill ahc-header-pill-solution">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span>ผู้ดูแล GO CARES ช่วยตรงไหน</span>
+          </div>
+        </div>
+
+        <!-- Row 1: Fall -->
+        <div class="ahc-table-row-grid">
+          <div class="ahc-table-cell-risk">
+            <div class="ahc-risk-icon-wrap">
+              <svg class="ahc-icon" viewBox="0 0 24 24">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <span>1. ลื่นล้มระหว่างทาง หรือในโรงพยาบาล</span>
+          </div>
+          <div class="ahc-table-cell-impact">
+            การล้มเป็นสาเหตุการบาดเจ็บอันดับต้นในผู้สูงอายุ พื้นโรงพยาบาลที่ลื่นกับความแออัดยิ่งเพิ่มความเสี่ยงสูง
+          </div>
+          <div class="ahc-table-cell-solution">
+            <div class="ahc-solution-icon-wrap">
+              <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <span>ผู้ดูแลพยุงและเดินคู่ตลอด รวมถึงช่วยขึ้น-ลงรถและใช้ลิฟต์อย่างถูกวิธี ป้องกันอุบัติเหตุ 100%</span>
+          </div>
+        </div>
+
+        <!-- Row 2: Doctor instruction -->
+        <div class="ahc-table-row-grid">
+          <div class="ahc-table-cell-risk">
+            <div class="ahc-risk-icon-wrap">
+              <svg class="ahc-icon" viewBox="0 0 24 24">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                <line x1="9" y1="12" x2="15" y2="12"></line>
+                <line x1="9" y1="16" x2="13" y2="16"></line>
+              </svg>
+            </div>
+            <span>2. จำคำแนะนำแพทย์ได้ไม่ครบ</span>
+          </div>
+          <div class="ahc-table-cell-impact">
+            ในห้องตรวจมีข้อมูลจำนวนมากในเวลาสั้น ผู้สูงอายุไม่น้อยกลับบ้านโดยจำได้ไม่ครบ หรือเข้าใจคลาดเคลื่อน
+          </div>
+          <div class="ahc-table-cell-solution">
+            <div class="ahc-solution-icon-wrap">
+              <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <span>ผู้ดูแลเข้าห้องตรวจด้วย ช่วยจดบันทึกทุกคำแนะนำ ถามซ้ำจุดที่ไม่ชัด
+              และส่งสรุปให้ครอบครัวอ่านทันที</span>
+          </div>
+        </div>
+
+        <!-- Row 3: Wrong Medication -->
+        <div class="ahc-table-row-grid">
+          <div class="ahc-table-cell-risk">
+            <div class="ahc-risk-icon-wrap">
+              <svg class="ahc-icon" viewBox="0 0 24 24">
+                <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path>
+                <path d="m8.5 8.5 7 7"></path>
+              </svg>
+            </div>
+            <span>3. กินยาผิดหลังกลับบ้าน</span>
+          </div>
+          <div class="ahc-table-cell-impact">
+            จุดที่พลาดบ่อยที่สุดคือเมื่อแพทย์เปลี่ยนยาใหม่ แล้วผู้สูงอายุยังกินยาเดิมต่อพร้อมกันจนยาซ้ำซ้อน
+          </div>
+          <div class="ahc-table-cell-solution">
+            <div class="ahc-solution-icon-wrap">
+              <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <span>ผู้ดูแลทวนวิธีใช้ยากับเภสัชกร ถ่ายรูปฉลากยา และแจ้งครอบครัวชัดเจนว่ายาตัวไหนหยุด ตัวไหนเริ่ม</span>
+          </div>
+        </div>
+
+        <!-- Row 4: Queue confusion -->
+        <div class="ahc-table-row-grid">
+          <div class="ahc-table-cell-risk">
+            <div class="ahc-risk-icon-wrap">
+              <svg class="ahc-icon" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <span>4. สับสนขั้นตอน จนใช้เวลานานเกิน</span>
+          </div>
+          <div class="ahc-table-cell-impact">
+            ระบบโรงพยาบาลมีหลายจุด ตั้งแต่ยื่นบัตร เจาะเลือด รอผล ชำระเงิน ทำให้เดินวนและเหนื่อยล้าเกินจำเป็น
+          </div>
+          <div class="ahc-table-cell-solution">
+            <div class="ahc-solution-icon-wrap">
+              <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <span>ผู้ดูแลชำนาญขั้นตอนโรงพยาบาล จัดคิวและพาไปตามจุดต่างๆ อย่างราบรื่น ไม่ต้องนั่งรอเคว้งคนเดียว</span>
+          </div>
+        </div>
+
+        <!-- Row 5: Missed appointment -->
+        <div class="ahc-table-row-grid">
+          <div class="ahc-table-cell-risk">
+            <div class="ahc-risk-icon-wrap">
+              <svg class="ahc-icon" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <span>5. พลาดนัดครั้งต่อไป</span>
+          </div>
+          <div class="ahc-table-cell-impact">
+            การขาดนัดติดต่อกันทำให้โรคเบาหวาน ความดัน หรือโรคหัวใจขาดการติดตามจนอาการกำเริบ
+          </div>
+          <div class="ahc-table-cell-solution">
+            <div class="ahc-solution-icon-wrap">
+              <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <span>ผู้ดูแลบันทึกวันนัดครั้งถัดไปในระบบ และแจ้งเตือนครอบครัวล่วงหน้า สามารถจองคิวรถล่วงหน้าได้</span>
+          </div>
+        </div>
+
+        <!-- Row 6: Anxiety -->
+        <div class="ahc-table-row-grid">
+          <div class="ahc-table-cell-risk">
+            <div class="ahc-risk-icon-wrap">
+              <svg class="ahc-icon" viewBox="0 0 24 24">
+                <path
+                  d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z">
+                </path>
+              </svg>
+            </div>
+            <span>6. ความวิตกกังวล จนไม่อยากไป</span>
+          </div>
+          <div class="ahc-table-cell-impact">
+            ผู้สูงอายุจำนวนมากเลื่อนนัดเพราะกลัวผลตรวจ หรือกลัวเป็นภาระลูกหลานที่ต้องลางานพาไป
+          </div>
+          <div class="ahc-table-cell-solution">
+            <div class="ahc-solution-icon-wrap">
+              <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <span>ผู้ดูแลอยู่เป็นเพื่อน ให้กำลังใจดูแลอย่างอบอุ่น ทำให้ผู้สูงอายุรู้สึกอุ่นใจและไปพบแพทย์สม่ำเสมอ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       7. Target Personas ("บริการนี้เหมาะกับใคร ?")
+       ====================================================================== -->
+  <section class="ahc-personas-section">
+    <div class="ahc-container">
+      <div class="ahc-section-header ahc-reveal">
+        <span class="ahc-badge-sea" style="margin-bottom: 12px;">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>กลุ่มผู้ใช้บริการ</span>
+        </span>
+        <h2 class="ahc-section-title">บริการนี้เหมาะกับใคร ?</h2>
+        <p class="ahc-section-subtitle">
+          ออกแบบมาเพื่อช่วยแบ่งเบาภาระของทุกครอบครัว โดยเฉพาะกลุ่มที่การไปโรงพยาบาลเป็นเรื่องยากลำบาก
+        </p>
+      </div>
+
+      <div class="ahc-personas-grid">
+        <!-- Persona 1 -->
+        <div class="ahc-persona-card ahc-reveal ahc-delay-1">
+          <div class="ahc-persona-badge-row">
+            <div class="ahc-persona-circle-icon">
+              <svg class="ahc-icon ahc-icon-lg" viewBox="0 0 24 24">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
+            <div class="ahc-persona-number">1</div>
+          </div>
+          <h3 class="ahc-persona-title">ครอบครัวที่ลางานไม่ได้</h3>
+          <p class="ahc-persona-desc">
+            นัดโรงพยาบาลมักใช้เวลาครึ่งวันถึงเต็มวัน การลางานทุกครั้งกระทบทั้งหน้าที่การงานและรายได้ GO CARES
+            ช่วยให้คุณทำงานได้อย่างสบายใจ โดยมีผู้ดูแลมืออาชีพไปแทน
+          </p>
+        </div>
+
+        <!-- Persona 2 -->
+        <div class="ahc-persona-card ahc-reveal ahc-delay-2">
+          <div class="ahc-persona-badge-row">
+            <div class="ahc-persona-circle-icon">
+              <svg class="ahc-icon ahc-icon-lg" viewBox="0 0 24 24">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </div>
+            <div class="ahc-persona-number">2</div>
+          </div>
+          <h3 class="ahc-persona-title">ผู้สูงอายุที่อยู่คนเดียว</h3>
+          <p class="ahc-persona-desc">
+            ลูกหลานอยู่ต่างจังหวัดหรือต่างประเทศ ต้องการคนที่ไว้ใจได้ไปโรงพยาบาลด้วย คอยดูแลพาเดิน
+            และรายงานสถานะพร้อมรูปถ่ายให้ครอบครัวทราบตลอดวัน
+          </p>
+        </div>
+
+        <!-- Persona 3 -->
+        <div class="ahc-persona-card ahc-reveal ahc-delay-3">
+          <div class="ahc-persona-badge-row">
+            <div class="ahc-persona-circle-icon">
+              <svg class="ahc-icon ahc-icon-lg" viewBox="0 0 24 24">
+                <circle cx="12" cy="4" r="2"></circle>
+                <path d="m10.5 9 1 5h4"></path>
+                <path d="M7 19a5 5 0 1 0 5-5"></path>
+                <path d="M12 14v5"></path>
+              </svg>
+            </div>
+            <div class="ahc-persona-number">3</div>
+          </div>
+          <h3 class="ahc-persona-title">ผู้ที่เดินหรือทรงตัวลำบาก</h3>
+          <p class="ahc-persona-desc">
+            ต้องใช้ไม้เท้า วอล์กเกอร์ หรือนั่งรถเข็น ต้องการคนช่วยพยุงและช่วยขึ้น-ลงรถอย่างถูกวิธีตามหลักการยศาสตร์
+            ลดความเสี่ยงลื่นล้มหรือบาดเจ็บ
+          </p>
+        </div>
+
+        <!-- Persona 4 -->
+        <div class="ahc-persona-card ahc-reveal ahc-delay-4">
+          <div class="ahc-persona-badge-row">
+            <div class="ahc-persona-circle-icon">
+              <svg class="ahc-icon ahc-icon-lg" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <div class="ahc-persona-number">4</div>
+          </div>
+          <h3 class="ahc-persona-title">ผู้ที่ต้องไป รพ. ประจำ</h3>
+          <p class="ahc-persona-desc">
+            ผู้ป่วยฟอกไตสัปดาห์ละ 2-3 ครั้ง หรือรับยาเคมีบำบัดตามรอบ เป็นนัดหมายที่เลื่อนไม่ได้
+            ครอบครัวสามารถจองเป็นแพ็กเกจประจำล่วงหน้าได้ทั้งเดือน
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       8. Pricing Packages (DESIGN-main.md Section 4)
+       ====================================================================== -->
+  <section class="ahc-pricing-section" id="pricing">
+    <div class="ahc-container">
+      <div class="ahc-section-header ahc-reveal">
+        <span class="ahc-badge-medical" style="margin-bottom: 12px;">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          <span>อัตราค่าบริการที่โปร่งใส</span>
+        </span>
+        <h2 class="ahc-section-title">อัตราค่าบริการ GO CARES by AIKCHOL NEXT</h2>
+        <p class="ahc-section-subtitle">
+          ตั้งแต่ไปรับที่บ้าน จนถึงส่งกลับบ้านอย่างปลอดภัย เลือกแพ็กเกจและระยะเวลาที่เหมาะกับคุณ
+        </p>
+      </div>
+
+      <!-- Duration Toggle -->
+      <div class="ahc-pricing-toggle-wrap ahc-reveal ahc-delay-1">
+        <button class="ahc-pricing-toggle-btn active" data-hours="5">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>5 ชั่วโมง (ครึ่งวัน)</span>
+        </button>
+        <button class="ahc-pricing-toggle-btn" data-hours="8">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>8 ชั่วโมง (เต็มวัน)</span>
+        </button>
+      </div>
+
+      <!-- 3 Pricing Cards Grid -->
+      <div class="ahc-pricing-grid">
+        <!-- Package 1: Standard -->
+        <div class="ahc-price-card ahc-reveal ahc-delay-1">
+          <div class="ahc-price-card-header">
+            <div class="ahc-price-pkg-num">1</div>
+            <h3 class="ahc-price-card-title">แพ็กเกจมาตรฐาน</h3>
+            <p class="ahc-price-card-sub">พาผู้สูงอายุไปพบแพทย์ ณ โรงพยาบาล</p>
+          </div>
+
+          <div class="ahc-price-amount-box">
+            <div class="ahc-price-number" id="ahcPricePkg1">1,000 บาท</div>
+            <div class="ahc-price-unit" id="ahcUnitPkg1">/ บริการ 5 ชั่วโมง (ครึ่งวัน)</div>
+          </div>
+
+          <ul class="ahc-price-features-list">
+            <li class="ahc-price-feature-item">
+              <svg class="ahc-icon ahc-price-feature-icon" viewBox="0 0 24 24">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              </svg>
+              <span><strong>ไปรับถึงบ้าน:</strong> ผู้ดูแลไปช่วยเตรียมตัว ช่วยขึ้นลงรถ
+                และดูแลส่งเข้าบ้านเรียบร้อย</span>
+            </li>
+            <li class="ahc-price-feature-item">
+              <svg class="ahc-icon ahc-price-feature-icon" viewBox="0 0 24 24">
+                <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path>
+                <circle cx="17" cy="18" r="2"></circle>
+                <circle cx="7" cy="18" r="2"></circle>
+              </svg>
+              <span><strong>ฟรีค่าเดินทางไป-กลับ:</strong> จากโรงพยาบาลจนถึงที่พัก ในระยะทาง 10 กม.</span>
+            </li>
+            <li class="ahc-price-feature-item">
+              <svg class="ahc-icon ahc-price-feature-icon" viewBox="0 0 24 24">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span><strong>เคียงข้างตลอดการตรวจ:</strong> จัดคิว ยื่นบัตร จดคำแนะนำแพทย์ และช่วยรับยา</span>
+            </li>
+            <li class="ahc-price-feature-item">
+              <svg class="ahc-icon ahc-price-feature-icon" viewBox="0 0 24 24">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span><strong>รายงานครอบครัว:</strong> อัปเดตสถานะและสรุปผลตรวจผ่าน LINE</span>
+            </li>
+          </ul>
+
+          <button class="ahc-btn ahc-btn-outline" data-open-booking data-pkg="pkg1">เลือกแพ็กเกจนี้</button>
+        </div>
+
+        <!-- Package 2: Caregiver + Car (Recommended) -->
+        <div class="ahc-price-card ahc-price-card-recommended ahc-reveal ahc-delay-2">
+          <div class="ahc-recommended-crown-badge">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+              </polygon>
+            </svg>
+            <span>แนะนำ ยอดนิยม</span>
+          </div>
+
+          <div class="ahc-price-card-header">
+            <div class="ahc-price-pkg-num">2</div>
+            <h3 class="ahc-price-card-title">แพ็กเกจผู้ดูแล + รถ</h3>
+            <p class="ahc-price-card-sub">พาพบแพทย์ พร้อมรถรับ-ส่งเฉพาะตลอดเส้นทาง</p>
+          </div>
+
+          <div class="ahc-price-amount-box">
+            <div class="ahc-price-number" id="ahcPricePkg2">1,300 บาท</div>
+            <div class="ahc-price-unit" id="ahcUnitPkg2">/ บริการ 5 ชั่วโมง (ครึ่งวัน)</div>
+          </div>
+
+          <ul class="ahc-price-features-list">
+            <li class="ahc-price-feature-item">
+              <svg class="ahc-icon ahc-price-feature-icon" viewBox="0 0 24 24">
+                <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path>
+                <circle cx="17" cy="18" r="2"></circle>
+                <circle cx="7" cy="18" r="2"></circle>
+              </svg>
+              <span><strong>รถรับ-ส่งเฉพาะถึงหน้าบ้าน:</strong> ปลอดภัย สะอาด ได้มาตรฐาน แอร์เย็นสบาย
+                รองรับรถเข็น</span>
+            </li>
+            <li class="ahc-price-feature-item">
+              <svg class="ahc-icon ahc-price-feature-icon" viewBox="0 0 24 24">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <span><strong>รวมค่าเดินทาง 30 กม.:</strong> ครอบคลุมระยะทางไป-กลับจากโรงพยาบาลถึงที่พัก 30 กม.</span>
+            </li>
+            <li class="ahc-price-feature-item">
+              <svg class="ahc-icon ahc-price-feature-icon" viewBox="0 0 24 24">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span><strong>ผู้ดูแลส่วนตัวประกบตลอด:</strong> ตั้งแต่ก้าวออกจากบ้าน จนถึงกลับเข้าบ้านอย่างปลอดภัย</span>
+            </li>
+            <li class="ahc-price-feature-item">
+              <svg class="ahc-icon ahc-price-feature-icon" viewBox="0 0 24 24">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+              <span><strong>Service Report ฉบับสมบูรณ์:</strong> รายการยาที่ปรับเปลี่ยน ข้อควรระวัง
+                และรูปถ่ายฉลากยา</span>
+            </li>
+          </ul>
+
+          <button class="ahc-btn ahc-btn-primary" data-open-booking data-pkg="pkg2">
+            <span>จองแพ็กเกจผู้ดูแล + รถ</span>
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Package 3: Errands & Social -->
+        <div class="ahc-price-card ahc-reveal ahc-delay-3">
+          <div class="ahc-price-card-header">
+            <div class="ahc-price-pkg-num">3</div>
+            <h3 class="ahc-price-card-title">บริการพาทำกิจกรรมต่างๆ</h3>
+            <p class="ahc-price-card-sub">ธุระส่วนตัว ทำธุรกรรม ช้อปปิ้ง นัดสังสรรค์</p>
+          </div>
+
+          <div class="ahc-price-amount-box">
+            <div class="ahc-price-number">1,500 บาท</div>
+            <div class="ahc-price-unit">/ บริการ 8 ชั่วโมง (เริ่มต้น)</div>
+          </div>
+
+          <ul class="ahc-price-features-list">
+            <li class="ahc-price-feature-item">
+              <svg class="ahc-icon ahc-price-feature-icon" viewBox="0 0 24 24">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+              <span><strong>ดูแลทำธุระครบวงจร:</strong> พาไปธนาคาร ศูนย์ราชการ ซื้อของ หรือพบปะญาติมิตร</span>
+            </li>
+            <li class="ahc-price-feature-item">
+              <svg class="ahc-icon ahc-price-feature-icon" viewBox="0 0 24 24">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              <span><strong>ผู้ช่วยเคียงข้างดูแลความปลอดภัย:</strong> ช่วยถือของ ช่วยเดิน และคอยระมัดระวังตลอดวัน</span>
+            </li>
+            <li class="ahc-price-feature-item">
+              <svg class="ahc-icon ahc-price-feature-icon" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span><strong>หมายเหตุค่าเดินทาง:</strong> อัตรานี้ยังไม่รวมค่าเดินทางไป-กลับในการทำธุระต่างๆ</span>
+            </li>
+          </ul>
+
+          <button class="ahc-btn ahc-btn-outline" data-open-booking data-pkg="pkg3">ปรึกษาจัดทริปทำธุระ</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       9. What's Included (6 Step Cards + Disclaimers)
+       ====================================================================== -->
+  <section class="ahc-included-section" id="whats-included">
+    <div class="ahc-container">
+      <div class="ahc-section-header ahc-reveal">
+        <span class="ahc-badge-medical" style="margin-bottom: 12px;">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+            </polygon>
+          </svg>
+          <span>รายละเอียดความคุ้มค่า</span>
+        </span>
+        <h2 class="ahc-section-title">สิ่งที่รวมอยู่ในราคาค่าบริการ</h2>
+        <p class="ahc-section-subtitle">
+          ให้คุณมั่นใจว่าผู้สูงอายุจะได้รับการดูแลอย่างเอาใจใส่ในทุกนาที ตั้งแต่ต้นจนจบ
+        </p>
+      </div>
+
+      <!-- 6 Feature Cards Grid -->
+      <div class="ahc-included-grid">
+        <!-- 1 -->
+        <div class="ahc-included-card ahc-reveal ahc-delay-1">
+          <div class="ahc-included-card-img-wrap">
+            <img src="assets/step_feature_1.webp" alt="ไปรับที่บ้านและพากลับ" class="ahc-included-card-img">
+            <span class="ahc-included-step-badge">ขั้นตอนที่ 1</span>
+          </div>
+          <div class="ahc-included-card-body">
+            <h3 class="ahc-included-card-title">1. ไปรับที่บ้านและพากลับ</h3>
+            <p class="ahc-included-card-desc">ผู้ดูแลไปถึงบ้านตามเวลานัด ช่วยเตรียมตัวและช่วยขึ้นลงรถ
+              จนพากลับถึงบ้านและดูให้เข้าบ้านเรียบร้อย</p>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="ahc-included-card ahc-reveal ahc-delay-2">
+          <div class="ahc-included-card-img-wrap">
+            <img src="assets/step_feature_2.webp" alt="วัดสัญญาณชีพก่อนออกเดินทาง" class="ahc-included-card-img">
+            <span class="ahc-included-step-badge">ขั้นตอนที่ 2</span>
+          </div>
+          <div class="ahc-included-card-body">
+            <h3 class="ahc-included-card-title">2. วัดสัญญาณชีพก่อนเดินทาง</h3>
+            <p class="ahc-included-card-desc">วัดความดันโลหิต ชีพจร และประเมินความพร้อมเบื้องต้น
+              หากพบสิ่งผิดปกติจะแจ้งครอบครัวและปรึกษาพยาบาลทันที</p>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="ahc-included-card ahc-reveal ahc-delay-3">
+          <div class="ahc-included-card-img-wrap">
+            <img src="assets/step_feature_3.webp" alt="อยู่ด้วยตลอดในโรงพยาบาล" class="ahc-included-card-img">
+            <span class="ahc-included-step-badge">ขั้นตอนที่ 3</span>
+          </div>
+          <div class="ahc-included-card-body">
+            <h3 class="ahc-included-card-title">3. อยู่ด้วยตลอดในโรงพยาบาล</h3>
+            <p class="ahc-included-card-desc">จัดคิว ยื่นเอกสาร พาไปตามจุดต่างๆ และอยู่เป็นเพื่อนระหว่างรอ
+              ไม่ปล่อยให้ผู้สูงอยู่นั่งรอตามลำพัง</p>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="ahc-included-card ahc-reveal ahc-delay-1">
+          <div class="ahc-included-card-img-wrap">
+            <img src="assets/step_feature_4.webp" alt="จดบันทึกคำแนะนำแพทย์" class="ahc-included-card-img">
+            <span class="ahc-included-step-badge">ขั้นตอนที่ 4</span>
+          </div>
+          <div class="ahc-included-card-body">
+            <h3 class="ahc-included-card-title">4. จดบันทึกคำแนะนำแพทย์</h3>
+            <p class="ahc-included-card-desc">เข้าห้องตรวจด้วยเมื่อได้รับความยินยอม จดสิ่งที่แพทย์สั่ง
+              ถามซ้ำจุดที่ไม่ชัด และบันทึกวันนัดครั้งถัดไป</p>
+          </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="ahc-included-card ahc-reveal ahc-delay-2">
+          <div class="ahc-included-card-img-wrap">
+            <img src="assets/step_feature_5.webp" alt="รับยาและทวนวิธีใช้" class="ahc-included-card-img">
+            <span class="ahc-included-step-badge">ขั้นตอนที่ 5</span>
+          </div>
+          <div class="ahc-included-card-body">
+            <h3 class="ahc-included-card-title">5. รับยาและทวนวิธีใช้</h3>
+            <p class="ahc-included-card-desc">รับยาแทนได้ ทวนวิธีใช้ยากับเภสัชกร ถ่ายรูปฉลากยา
+              และแจ้งชัดเจนว่ายาตัวไหนหยุด ตัวไหนเริ่มใหม่</p>
+          </div>
+        </div>
+
+        <!-- 6 -->
+        <div class="ahc-included-card ahc-reveal ahc-delay-3">
+          <div class="ahc-included-card-img-wrap">
+            <img src="assets/step_feature_6.webp" alt="รายงานครอบครัวผ่าน LINE" class="ahc-included-card-img">
+            <span class="ahc-included-step-badge">ขั้นตอนที่ 6</span>
+          </div>
+          <div class="ahc-included-card-body">
+            <h3 class="ahc-included-card-title">6. รายงานครอบครัวผ่าน LINE</h3>
+            <p class="ahc-included-card-desc">อัปเดตเป็นระยะระหว่างวัน และสรุปทั้งหมดหลังกลับถึงบ้าน
+              ครอบครัวที่ทำงานอยู่สามารถติดตามได้ตลอดเวลา</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Disclaimers & Transparency Cards -->
+      <div class="ahc-disclaimers-grid ahc-reveal ahc-delay-2">
+        <div class="ahc-notice-card ahc-notice-card-danger">
+          <div class="ahc-notice-icon">
+            <svg class="ahc-icon ahc-icon-lg" viewBox="0 0 24 24" style="color: var(--ahc-danger-text);">
+              <circle cx="12" cy="4" r="2"></circle>
+              <path d="m10.5 9 1 5h4"></path>
+              <path d="M7 19a5 5 0 1 0 5-5"></path>
+              <path d="M12 14v5"></path>
+            </svg>
+          </div>
+          <div class="ahc-notice-content">
+            <h4>กรณีใช้รถพยาบาลฉุกเฉิน</h4>
+            <p>กรณีผู้ที่ต้องใช้รถเข็นพิเศษหรือเคลื่อนย้ายลำบาก และครอบครัวที่ไม่สะดวกจัดรถเอง ต้องใช้รถพยาบาล
+              คิดค่าใช้จ่ายแยกจากค่าบริการตามระดับการดูแล</p>
+          </div>
+        </div>
+
+        <div class="ahc-notice-card ahc-notice-card-danger">
+          <div class="ahc-notice-icon">
+            <svg class="ahc-icon ahc-icon-lg" viewBox="0 0 24 24" style="color: var(--ahc-danger-text);">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <div class="ahc-notice-content">
+            <h4>สิ่งที่ไม่รวมในราคา</h4>
+            <ul>
+              <li>ค่ารักษาพยาบาลและค่ายาที่โรงพยาบาลเรียกเก็บ</li>
+              <li>ค่าที่จอดรถ</li>
+              <li>ค่าอาหารระหว่างวัน</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="ahc-notice-card ahc-notice-card-info">
+          <div class="ahc-notice-icon">
+            <svg class="ahc-icon ahc-icon-lg" viewBox="0 0 24 24" style="color: var(--ahc-blue);">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          <div class="ahc-notice-content">
+            <h4>ความโปร่งใสด้านราคา แจ้งล่วงหน้าเสมอ</h4>
+            <p>หากงานใช้เวลานานกว่าที่ประเมินไว้มาก หรือต้องการการดูแลระดับสูงกว่าปกติ ทีมจะแจ้งส่วนต่างให้ทราบก่อนเสมอ
+              ไม่เรียกเก็บเพิ่มภายหลังโดยไม่แจ้งล่วงหน้า</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       10. Covered Medical Appointments (8 Types)
+       ====================================================================== -->
+  <section class="ahc-appointments-section">
+    <div class="ahc-container">
+      <div class="ahc-section-header ahc-reveal">
+        <span class="ahc-badge-medical" style="margin-bottom: 12px;">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <path d="M12 2v20M2 12h20"></path>
+          </svg>
+          <span>ครอบคลุมทุกแผนกการรักษา</span>
+        </span>
+        <h2 class="ahc-section-title">ประเภทนัดหมายที่ GO CARES ดูแลได้</h2>
+        <p class="ahc-section-subtitle">
+          ดูแลได้ทุกประเภทนัด ทั้งโรงพยาบาลรัฐและเอกชน รวมถึงคลินิกเฉพาะทาง ไม่จำกัดว่าต้องเป็นโรงพยาบาลใด
+          สิ่งที่ต่างกันคือระยะเวลาที่ใช้ ซึ่งทีมงานจะประเมินให้ตอนจอง
+        </p>
+      </div>
+
+      <div class="ahc-appointments-grid">
+        <div class="ahc-apt-card ahc-reveal ahc-delay-1">
+          <div class="ahc-apt-badge-wrap">
+            <img src="assets/step_feature_3.webp" alt="ตรวจสุขภาพประจำปี" class="ahc-apt-img">
+          </div>
+          <div class="ahc-apt-content">
+            <h3 class="ahc-apt-title">1. ตรวจสุขภาพประจำปี</h3>
+            <p class="ahc-apt-desc">ดูแลช่วงงดน้ำงดอาหาร พาไปตรวจครบทุกจุด และรับผลตรวจครบก่อนกลับ</p>
+          </div>
+        </div>
+
+        <div class="ahc-apt-card ahc-reveal ahc-delay-2">
+          <div class="ahc-apt-badge-wrap">
+            <img src="assets/appointment_type_2.webp" alt="นัดโรคประจำตัว" class="ahc-apt-img">
+          </div>
+          <div class="ahc-apt-content">
+            <h3 class="ahc-apt-title">2. โรคประจำตัว เบาหวาน ความดัน</h3>
+            <p class="ahc-apt-desc">จดผลระดับน้ำตาลและความดัน ให้ครอบครัวเห็นแนวโน้ม และทวนยาใหม่ทุกครั้ง</p>
+          </div>
+        </div>
+
+        <div class="ahc-apt-card ahc-reveal ahc-delay-3">
+          <div class="ahc-apt-badge-wrap">
+            <img src="assets/appointment_type_3.webp" alt="ฟอกไต" class="ahc-apt-img">
+          </div>
+          <div class="ahc-apt-content">
+            <h3 class="ahc-apt-title">3. ฟอกไต (Hemodialysis)</h3>
+            <p class="ahc-apt-desc">ไป-กลับตามรอบสัปดาห์ละ 2-3 ครั้ง สังเกตอาการอ่อนเพลีย และพากลับปลอดภัย</p>
+          </div>
+        </div>
+
+        <div class="ahc-apt-card ahc-reveal ahc-delay-4">
+          <div class="ahc-apt-badge-wrap">
+            <img src="assets/appointment_type_4.webp" alt="เคมีบำบัดและฉายรังสี" class="ahc-apt-img">
+          </div>
+          <div class="ahc-apt-content">
+            <h3 class="ahc-apt-title">4. เคมีบำบัด & ฉายรังสี</h3>
+            <p class="ahc-apt-desc">อยู่เป็นเพื่อนรอบยาว สังเกตอาการข้างเคียง และดูแลระหว่างเดินทางกลับ</p>
+          </div>
+        </div>
+
+        <div class="ahc-apt-card ahc-reveal ahc-delay-1">
+          <div class="ahc-apt-badge-wrap">
+            <img src="assets/appointment_type_5.webp" alt="กายภาพบำบัด" class="ahc-apt-img">
+          </div>
+          <div class="ahc-apt-content">
+            <h3 class="ahc-apt-title">5. กายภาพบำบัด</h3>
+            <p class="ahc-apt-desc">พาไปทำคอร์สฟื้นฟูต่อเนื่อง หรือพิจารณาเปลี่ยนเป็นกายภาพที่บ้านแทนได้</p>
+          </div>
+        </div>
+
+        <div class="ahc-apt-card ahc-reveal ahc-delay-2">
+          <div class="ahc-apt-badge-wrap">
+            <img src="assets/appointment_type_6.webp" alt="หญิงตั้งครรภ์" class="ahc-apt-img">
+          </div>
+          <div class="ahc-apt-content">
+            <h3 class="ahc-apt-title">6. คุณแม่ตั้งครรภ์</h3>
+            <p class="ahc-apt-desc">ระวังภาวะเสี่ยง ครรภ์เป็นพิษ ลื่นล้ม ประสานงานจุดตรวจและฟังผลแพทย์ครบถ้วน</p>
+          </div>
+        </div>
+
+        <div class="ahc-apt-card ahc-reveal ahc-delay-3">
+          <div class="ahc-apt-badge-wrap">
+            <img src="assets/appointment_type_7.webp" alt="ทันตกรรมและจักษุ" class="ahc-apt-img">
+          </div>
+          <div class="ahc-apt-content">
+            <h3 class="ahc-apt-title">7. ทันตกรรม & จักษุ</h3>
+            <p class="ahc-apt-desc">ดูแลหลังหัตถการที่มองไม่ชัดชั่วคราวหรือชาปาก ซึ่งเป็นช่วงที่เดินทางกลับเองลำบาก</p>
+          </div>
+        </div>
+
+        <div class="ahc-apt-card ahc-reveal ahc-delay-4">
+          <div class="ahc-apt-badge-wrap">
+            <img src="assets/appointment_type_8.webp" alt="นัดแพทย์สาขาต่างๆ" class="ahc-apt-img">
+          </div>
+          <div class="ahc-apt-content">
+            <h3 class="ahc-apt-title">8. นัดแพทย์เฉพาะทางทุกสาขา</h3>
+            <p class="ahc-apt-desc">กระดูกและข้อ ระบบประสาท ทางเดินปัสสาวะ ฯลฯ จัดผู้ดูแลที่เหมาะสมกับอาการ</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       11. Chonburi Coverage Map & Preparation Checklist
+       ====================================================================== -->
+  <section class="ahc-coverage-prep-section" id="coverage-area">
+    <div class="ahc-container ahc-two-col-grid">
+      <!-- Left: Chonburi Map Card -->
+      <div class="ahc-map-card ahc-reveal ahc-delay-1">
+        <span class="ahc-badge-medical" style="margin-bottom: 12px;">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <span>พื้นที่ให้บริการ</span>
+        </span>
+        <h3 style="font-size: 24px; color: var(--ahc-blue); margin-bottom: 8px;">จังหวัดชลบุรี ครอบคลุม 8 อำเภอ</h3>
+        <p style="font-size: 14px; color: var(--ahc-text-secondary); margin-bottom: 20px;">
+          คลิกเลือกอำเภอที่ท่านพักอาศัย เพื่อดูรายละเอียดระยะทางและการเดินทาง
+        </p>
+
+        <div class="ahc-map-img-wrap" id="ahcMapContainer">
+          <img src="assets/chonburi_map.webp" alt="แผนที่ให้บริการจังหวัดชลบุรี GO CARES" class="ahc-map-img"
+            id="ahcMapImg">
+
+          <!-- Spotlight overlay focusing on selected district -->
+          <div class="ahc-map-spotlight" id="ahcMapSpotlight"></div>
+
+          <!-- Hotspots for clicking districts directly on the map -->
+          <div class="ahc-map-hotspots" id="ahcMapHotspots">
+            <button type="button" class="ahc-map-hotspot active" data-district="mueang"
+              style="left: 31.08%; top: 24.03%;" title="อำเภอเมืองชลบุรี" aria-label="อำเภอเมืองชลบุรี"></button>
+            <button type="button" class="ahc-map-hotspot" data-district="phanthong" style="left: 41.06%; top: 13.26%;"
+              title="อำเภอพานทอง" aria-label="อำเภอพานทอง"></button>
+            <button type="button" class="ahc-map-hotspot" data-district="phanat" style="left: 54.49%; top: 9.53%;"
+              title="อำเภอพนัสนิคม" aria-label="อำเภอพนัสนิคม"></button>
+            <button type="button" class="ahc-map-hotspot" data-district="banbueng" style="left: 47.97%; top: 26.93%;"
+              title="อำเภอบ้านบึง" aria-label="อำเภอบ้านบึง"></button>
+            <button type="button" class="ahc-map-hotspot" data-district="bothong" style="left: 77.13%; top: 27.75%;"
+              title="อำเภอบ่อทอง" aria-label="อำเภอบ่อทอง"></button>
+            <button type="button" class="ahc-map-hotspot" data-district="sriracha" style="left: 34.15%; top: 39.35%;"
+              title="อำเภอศรีราชา" aria-label="อำเภอศรีราชา"></button>
+            <button type="button" class="ahc-map-hotspot" data-district="nongyai" style="left: 59.86%; top: 45.98%;"
+              title="อำเภอหนองใหญ่" aria-label="อำเภอหนองใหญ่"></button>
+            <button type="button" class="ahc-map-hotspot" data-district="banglamung" style="left: 32.62%; top: 59.24%;"
+              title="อำเภอบางละมุง (พัทยา)" aria-label="อำเภอบางละมุง (พัทยา)"></button>
+          </div>
+
+          <!-- Single Active Pin Element (Positions dynamically according to selected district) -->
+          <div class="ahc-map-active-pin" id="ahcMapActivePin" style="left: 31.08%; top: 24.03%;">
+            <div class="ahc-pin-pulse"></div>
+            <div class="ahc-pin-glow"></div>
+            <div class="ahc-pin-marker">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+                <path
+                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+              </svg>
+            </div>
+            <div class="ahc-pin-badge" id="ahcPinBadge">
+              <span class="ahc-pin-badge-title" id="ahcPinTitle">อำเภอเมืองชลบุรี</span>
+              <span class="ahc-pin-badge-sub"><span class="ahc-live-dot"></span>พื้นที่ให้บริการ GO CARES</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8 District Interactive Chips -->
+        <div class="ahc-district-chips">
+          <button class="ahc-district-chip active" data-district="mueang">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>เมืองชลบุรี</span>
+          </button>
+          <button class="ahc-district-chip" data-district="phanthong">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>พานทอง</span>
+          </button>
+          <button class="ahc-district-chip" data-district="banbueng">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>บ้านบึง</span>
+          </button>
+          <button class="ahc-district-chip" data-district="phanat">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>พนัสนิคม</span>
+          </button>
+          <button class="ahc-district-chip" data-district="bothong">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>บ่อทอง</span>
+          </button>
+          <button class="ahc-district-chip" data-district="nongyai">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>หนองใหญ่</span>
+          </button>
+          <button class="ahc-district-chip" data-district="sriracha">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>ศรีราชา</span>
+          </button>
+          <button class="ahc-district-chip" data-district="banglamung">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>บางละมุง (พัทยา)</span>
+          </button>
+        </div>
+
+        <!-- District Info Box -->
+        <div
+          style="margin-top: 20px; padding: 16px; background: #ffffff; border-radius: var(--ahc-radius-md); border: 1.5px solid var(--ahc-border);">
+          <strong id="ahcDistrictName" style="color: var(--ahc-blue); font-size: 16px;">อำเภอเมืองชลบุรี</strong>
+          <p id="ahcDistrictDetail" style="font-size: 13px; color: var(--ahc-text-secondary); margin-top: 4px;">
+            ครอบคลุมใจกลางเมือง โรงพยาบาลเอกชล 1 และเอกชล 2 รถรับ-ส่งถึงบ้านอย่างรวดเร็วภายใน 15-20 นาที
+          </p>
+          <span id="ahcDistrictDistance"
+            style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--ahc-line-green); font-weight: 600; margin-top: 6px;">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>ฟรีระยะทาง 10 - 30 กม. ตามแพ็กเกจที่เลือก</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Right: Preparation Checklist -->
+      <div class="ahc-checklist-card ahc-reveal ahc-delay-2" id="checklist">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="ahc-badge-care">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            </svg>
+            <span>สิ่งที่ต้องเตรียมให้เรา</span>
+          </span>
+          <span id="ahcChecklistCount" style="font-size: 13px; font-weight: 600; color: var(--ahc-blue);">เตรียมพร้อม
+            0/5 อย่าง</span>
+        </div>
+
+        <h3 style="font-size: 24px; color: var(--ahc-blue); margin: 12px 0 6px;">เตรียม 5 อย่างก่อนเดินทาง</h3>
+        <p style="font-size: 14px; color: var(--ahc-text-secondary); line-height: 1.5;">
+          ที่มักลืมกันมากที่สุดคือยาที่กินอยู่ ซึ่งแพทย์จำเป็นต้องเห็นก่อนสั่งยาใหม่เพื่อไม่ให้ยาตีกัน
+          คลิกเพื่อตรวจเช็กความพร้อม:
+        </p>
+
+        <div class="ahc-checklist-items">
+          <!-- Item 1 -->
+          <div class="ahc-check-item">
+            <div class="ahc-check-num" style="background: var(--ahc-blue);">1</div>
+            <div class="ahc-check-text">
+              <h5>บัตรประชาชน และบัตรโรงพยาบาล</h5>
+              <p>วางไว้ในจุดที่หยิบง่าย และแจ้งผู้ดูแลว่าอยู่ตรงไหน</p>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="ahc-check-item">
+            <div class="ahc-check-num" style="background: var(--ahc-green-dark);">2</div>
+            <div class="ahc-check-text">
+              <h5>ใบนัด หรือข้อมูลนัดหมาย</h5>
+              <p>ระบุแผนก ชื่อแพทย์ และเวลานัด สามารถถ่ายรูปส่งมาทาง LINE ตอนจองได้</p>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="ahc-check-item">
+            <div class="ahc-check-num" style="background: var(--ahc-yellow-dark);">3</div>
+            <div class="ahc-check-text">
+              <h5>ยาที่ใช้อยู่ทั้งหมด (สำคัญที่สุด)</h5>
+              <p>รวมวิตามินและอาหารเสริม จัดใส่ถุงเดียวไปด้วย เพื่อให้แพทย์เห็นครบก่อนสั่งยาใหม่</p>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="ahc-check-item">
+            <div class="ahc-check-num" style="background: #ef4444;">4</div>
+            <div class="ahc-check-text">
+              <h5>สิทธิการรักษาที่ใช้</h5>
+              <p>บัตรทอง, ประกันสังคม, ข้าราชการ หรือประกันสุขภาพเอกชน แจ้งล่วงหน้าเพื่อยื่นเอกสารได้ถูกช่อง</p>
+            </div>
+          </div>
+
+          <!-- Item 5 -->
+          <div class="ahc-check-item">
+            <div class="ahc-check-num" style="background: #8b5cf6;">5</div>
+            <div class="ahc-check-text">
+              <h5>เบอร์ติดต่อฉุกเฉิน</h5>
+              <p>เบอร์ญาติที่สามารถตัดสินใจแทนได้ เผื่อกรณีที่แพทย์ต้องการปรึกษาครอบครัวโดยตรง</p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style="background: var(--ahc-blue-light); border: 1.5px dashed var(--ahc-blue); padding: 14px 18px; border-radius: var(--ahc-radius-md); font-size: 13px; color: var(--ahc-text-navy); display: flex; align-items: center; gap: 8px;">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" style="color: var(--ahc-blue); flex-shrink: 0;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span><strong>แจ้งเพิ่มเติมถ้ามี:</strong> ประวัติแพ้ยา, ต้องงดน้ำงดอาหารก่อนตรวจ, ใช้รถเข็นหรือออกซิเจน,
+            หรือมีภาวะความจำถดถอย</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       12. Family Service Report Simulation (Mockup)
+       ====================================================================== -->
+  <section class="ahc-report-section">
+    <div class="ahc-container ahc-report-grid">
+      <div class="ahc-phone-mockup-wrap ahc-reveal ahc-delay-1">
+        <img src="assets/mobile_report_mockup.webp" alt="Aikchol GO CARES Mobile Service Report" class="ahc-phone-img">
+      </div>
+
+      <div class="ahc-report-details ahc-reveal ahc-delay-2">
+        <span class="ahc-badge-medical" style="margin-bottom: 12px;">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+          </svg>
+          <span>ความสบายใจของลูกหลาน</span>
+        </span>
+        <h2 style="font-size: 36px; color: var(--ahc-blue); line-height: 1.25; margin-bottom: 16px;">
+          รู้ความคืบหน้าตลอดวัน<br>ผ่าน LINE Service Report
+        </h2>
+        <p style="font-size: 16px; color: var(--ahc-text-secondary); line-height: 1.6; margin-bottom: 24px;">
+          แม้คุณต้องทำงานหรือติดประชุม คุณจะไม่พลาดทุกช่วงเวลาสำคัญของผู้ใหญ่ที่คุณรัก ด้วยการรายงานสดผ่าน LINE
+          และสรุปรายงานกิจกรรมฉบับสมบูรณ์หลังจบเคส
+        </p>
+
+        <!-- Simulated Feed -->
+        <div class="ahc-timeline-feed">
+          <div class="ahc-feed-node">
+            <div class="ahc-feed-time">08:00 น. — ถึงบ้านผู้รับบริการ</div>
+            <div class="ahc-feed-title">Pick Up & วัดสัญญาณชีพ</div>
+            <div class="ahc-feed-desc">วัดความดัน 126/82 มม.ปรอท ชีพจร 74 ปกติ พร้อมออกเดินทางด้วยรถ GO CARES</div>
+          </div>
+
+          <div class="ahc-feed-node">
+            <div class="ahc-feed-time">08:35 น. — ถึงโรงพยาบาลเอกชล</div>
+            <div class="ahc-feed-title">Arrival & ลงทะเบียน</div>
+            <div class="ahc-feed-desc">เปิดสิทธิการรักษา รับบัตรคิวพบ นพ.สมชาย แผนกอายุรกรรม คิวที่ 14</div>
+          </div>
+
+          <div class="ahc-feed-node">
+            <div class="ahc-feed-time">09:15 น. — เข้าห้องตรวจแพทย์</div>
+            <div class="ahc-feed-title">Consultation & บันทึกคำสั่ง</div>
+            <div class="ahc-feed-desc">คุณหมอสั่งปรับลดยาความดันตัวเดิมลง และนัดเจาะเลือดตรวจน้ำตาลสะสมอีก 3 เดือน</div>
+          </div>
+
+          <div class="ahc-feed-node">
+            <div class="ahc-feed-time">10:00 น. — รับยาและส่งกลับบ้าน</div>
+            <div class="ahc-feed-title">Medication & Send Back</div>
+            <div class="ahc-feed-desc">รับยาเรียบร้อย ถ่ายรูปฉลากยา 3 ตัวส่งให้ในแชท และส่งคุณแม่ถึงบ้านปลอดภัยเวลา
+              11:30 น.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       13. Maven Clinic Style: Interactive FAQ Accordion
+       ====================================================================== -->
+  <section class="ahc-faq-section" id="faq">
+    <div class="ahc-container ahc-faq-container">
+      <div class="ahc-section-header ahc-reveal">
+        <span class="ahc-badge-sea" style="margin-bottom: 12px;">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span>FREQUENTLY ASKED QUESTIONS</span>
+        </span>
+        <h2 class="ahc-section-title">คำถามที่พบบ่อยเกี่ยวกับ GO CARES</h2>
+        <p class="ahc-section-subtitle">
+          ตอบทุกข้อสงสัยเกี่ยวกับบริการดูแลผู้ป่วยและผู้สูงอายุจากบ้านสู่โรงพยาบาล
+        </p>
+      </div>
+
+      <div class="ahc-faq-list ahc-reveal ahc-delay-1">
+        <!-- FAQ 1 -->
+        <div class="ahc-faq-item open">
+          <div class="ahc-faq-header">
+            <h4 class="ahc-faq-question">1. ผู้ดูแลของ GO CARES เป็นใคร มีความเชี่ยวชาญระดับใด ?</h4>
+            <svg class="ahc-icon ahc-faq-chevron" viewBox="0 0 24 24">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="ahc-faq-body">
+            ผู้ดูแลของ GO CARES ทุกคนผ่านการคัดกรองประวัติอย่างเข้มงวด และผ่านหลักสูตรฝึกอบรมการดูแลผู้สูงอายุ
+            การพยาบาลเบื้องต้น การปฐมพยาบาล CPR และการเคลื่อนย้ายผู้ป่วยตามมาตรฐานของโรงพยาบาลเอกชล
+            จึงมั่นใจได้ในความสุภาพ อบอุ่น และความปลอดภัยสูงสุด
+          </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="ahc-faq-item">
+          <div class="ahc-faq-header">
+            <h4 class="ahc-faq-question">2. ต้องจองบริการล่วงหน้านานเท่าใด ?</h4>
+            <svg class="ahc-icon ahc-faq-chevron" viewBox="0 0 24 24">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="ahc-faq-body">
+            แนะนำให้จองล่วงหน้าอย่างน้อย 1-2 วัน เพื่อให้ทีมงานจัดเตรียมผู้ดูแลและรอบรถที่เหมาะสมที่สุด
+            สำหรับกรณีผู้ป่วยที่มีนัดประจำ เช่น ฟอกไต หรือเคมีบำบัด
+            สามารถจองเป็นแพ็กเกจประจำสัปดาห์หรือรายเดือนล่วงหน้าได้
+          </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="ahc-faq-item">
+          <div class="ahc-faq-header">
+            <h4 class="ahc-faq-question">3. บริการนี้พาไปเฉพาะโรงพยาบาลเอกชล หรือโรงพยาบาลอื่นได้ด้วย ?</h4>
+            <svg class="ahc-icon ahc-faq-chevron" viewBox="0 0 24 24">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="ahc-faq-body">
+            GO CARES ให้บริการพาไปได้ทุกโรงพยาบาล ทั้งโรงพยาบาลรัฐ โรงพยาบาลเอกชน และคลินิกเฉพาะทางในจังหวัดชลบุรี
+            ไม่จำกัดเฉพาะโรงพยาบาลเอกชล โดยทีมงานจะประเมินเวลาและระยะทางล่วงหน้าอย่างโปร่งใส
+          </div>
+        </div>
+
+        <!-- FAQ 4 -->
+        <div class="ahc-faq-item">
+          <div class="ahc-faq-header">
+            <h4 class="ahc-faq-question">4. หากเวลาตรวจเกินกว่า 5 หรือ 8 ชั่วโมง คิดค่าบริการอย่างไร ?</h4>
+            <svg class="ahc-icon ahc-faq-chevron" viewBox="0 0 24 24">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="ahc-faq-body">
+            หากขั้นตอนการตรวจรักษาใช้เวลานานกว่าแพ็กเกจที่จองไว้ ทีมงานจะประสานแจ้งครอบครัวให้ทราบล่วงหน้า
+            โดยคิดค่าบริการล่วงเวลาตามชั่วโมงจริงอย่างโปร่งใส ไม่มีการเรียกเก็บส่วนต่างโดยไม่แจ้งล่วงหน้า
+          </div>
+        </div>
+
+        <!-- FAQ 5 -->
+        <div class="ahc-faq-item">
+          <div class="ahc-faq-header">
+            <h4 class="ahc-faq-question">5. ครอบครัวจะทราบความคืบหน้าระหว่างวันได้อย่างไร ?</h4>
+            <svg class="ahc-icon ahc-faq-chevron" viewBox="0 0 24 24">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="ahc-faq-body">
+            ผู้ดูแลจะอัปเดตสถานะแบบเรียลไทม์ผ่านกลุ่ม LINE ครอบครัว เช่น เมื่อถึงบ้านผู้รับบริการ ผลวัดความดัน
+            คิวพบแพทย์ ถ่ายรูปฉลากยาใหม่ และแจ้งเวลาเดินทางถึงบ้าน พร้อมส่งรายงานสรุปกิจกรรมฉบับสมบูรณ์หลังจบเคส
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       14. Included Health Climax CTA Banner ("Healthcare without the headaches")
+       ====================================================================== -->
+  <section class="ahc-climax-cta-section">
+    <div class="ahc-climax-ambient-glow"></div>
+    <div class="ahc-container ahc-climax-inner ahc-reveal">
+      <span class="ahc-badge-care" style="margin-bottom: 16px;">ENHANCING FAMILY HAPPINESS</span>
+      <h2 class="ahc-climax-title">ดูแลคนที่คุณรัก ไร้กังวลทุกการเดินทาง</h2>
+      <p class="ahc-climax-sub">
+        เริ่มต้นวางแผนการดูแลสุขภาพที่ดีกว่าเดิม ให้ผู้สูงอายุเข้าถึงการรักษาอย่างอบอุ่น ปลอดภัย
+        โดยทีมงานมืออาชีพจากโรงพยาบาลเอกชล
+      </p>
+
+      <div class="ahc-climax-btns">
+        <button class="ahc-btn ahc-btn-gold" data-open-booking data-pkg="pkg2">
+          <span>จองบริการทันที</span>
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+        <a href="tel:0639204765" class="ahc-btn ahc-btn-outline-white">
+          <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+            <path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+            </path>
+          </svg>
+          <span>โทรสายด่วน 063 920 4765</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       15. Interactive Booking Modal / Dialog
+       ====================================================================== -->
+  <div class="ahc-modal-backdrop" id="ahcBookingModal" role="dialog" aria-modal="true" aria-labelledby="ahcModalTitle">
+    <div class="ahc-modal-card">
+      <div class="ahc-modal-header">
+        <h3 id="ahcModalTitle">จองบริการ GO CARES by AIKCHOL NEXT</h3>
+        <button class="ahc-modal-close-btn" id="ahcModalClose" aria-label="ปิดหน้าต่าง">
+          <svg class="ahc-icon" viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <form id="ahcBookingForm" class="ahc-modal-body">
+        <input type="hidden" id="ahcSelectedPackage" value="แพ็กเกจผู้ดูแล + รถ (แนะนำ)">
+
+        <!-- Package Choice Grid -->
+        <div class="ahc-form-group">
+          <label class="ahc-form-label">เลือกแพ็กเกจที่ต้องการ:</label>
+          <div class="ahc-package-select-grid">
+            <div class="ahc-pkg-choice" data-pkg="pkg1">
+              <div>มาตรฐาน</div>
+              <div style="font-size: 11px; color: var(--ahc-text-muted);">เริ่ม 1,000 บ.</div>
+            </div>
+            <div class="ahc-pkg-choice selected" data-pkg="pkg2">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" style="color: var(--ahc-yellow);">
+                  <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                  </polygon>
+                </svg>
+                <span>ผู้ดูแล + รถ</span>
+              </div>
+              <div style="font-size: 11px; color: var(--ahc-blue); font-weight: 700;">เริ่ม 1,300 บ.</div>
+            </div>
+            <div class="ahc-pkg-choice" data-pkg="pkg3">
+              <div>ทำกิจกรรม</div>
+              <div style="font-size: 11px; color: var(--ahc-text-muted);">เริ่ม 1,500 บ.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Name -->
+        <div class="ahc-form-group">
+          <label class="ahc-form-label" for="ahcCustName">ชื่อ-นามสกุล ผู้รับบริการ / ผู้ประสานงาน:</label>
+          <input type="text" id="ahcCustName" class="ahc-form-input" placeholder="เช่น คุณสมศรี / ลูกสาว (คุณวิภา)"
+            required>
+        </div>
+
+        <!-- Phone -->
+        <div class="ahc-form-group">
+          <label class="ahc-form-label" for="ahcCustPhone">เบอร์โทรศัพท์สำหรับติดต่อกลับ:</label>
+          <input type="tel" id="ahcCustPhone" class="ahc-form-input" placeholder="08X-XXX-XXXX" required>
+        </div>
+
+        <!-- District -->
+        <div class="ahc-form-group">
+          <label class="ahc-form-label" for="ahcCustDistrict">อำเภอที่พักอาศัย (ในชลบุรี):</label>
+          <select id="ahcCustDistrict" class="ahc-form-select" required>
+            <option value="อำเภอเมืองชลบุรี">อำเภอเมืองชลบุรี</option>
+            <option value="อำเภอพานทอง">อำเภอพานทอง</option>
+            <option value="อำเภอบ้านบึง">อำเภอบ้านบึง</option>
+            <option value="อำเภอพนัสนิคม">อำเภอพนัสนิคม</option>
+            <option value="อำเภอศรีราชา">อำเภอศรีราชา</option>
+            <option value="อำเภอบางละมุง">อำเภอบางละมุง (พัทยา)</option>
+            <option value="อำเภอบ่อทอง">อำเภอบ่อทอง</option>
+            <option value="อำเภอหนองใหญ่">อำเภอหนองใหญ่</option>
+          </select>
+        </div>
+
+        <!-- Destination Hospital -->
+        <div class="ahc-form-group">
+          <label class="ahc-form-label" for="ahcCustHospital">โรงพยาบาลปลายทาง:</label>
+          <select id="ahcCustHospital" class="ahc-form-select">
+            <option value="โรงพยาบาลเอกชล (ชลบุรี)">โรงพยาบาลเอกชล (ชลบุรี)</option>
+            <option value="โรงพยาบาลเอกชล (อ่างศิลา)">โรงพยาบาลเอกชล (อ่างศิลา)</option>
+
+          </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 10px;">
+          <button type="submit" class="ahc-btn ahc-btn-primary" style="width: 100%;">
+            <span>ยืนยันข้อมูลและส่งต่อทาง LINE ทันที</span>
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+          <p style="font-size: 12px; color: var(--ahc-text-muted); text-align: center; margin-top: 8px;">
+            หรือโทรสายด่วนโดยตรงได้ที่ <a href="tel:0639204765" style="color: var(--ahc-blue); font-weight: 700;">063
+              920 4765</a> ตลอดเวลาทำการ
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       16. Mobile Sticky Bottom Action Bar
+       ====================================================================== -->
+  <aside class="ahc-mobile-sticky-bar" aria-label="แถบการกระทำด่วนบนมือถือ">
+    <div class="ahc-mobile-bar-inner">
+      <a href="tel:0639204765" class="ahc-btn ahc-btn-outline ahc-mobile-bar-btn">
+        <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+          <path
+            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+          </path>
+        </svg>
+        <span>โทรด่วน</span>
+      </a>
+      <a href="https://line.me/R/ti/p/~@aikcholnext" target="_blank" class="ahc-btn ahc-btn-line ahc-mobile-bar-btn">
+        <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>แชท LINE</span>
+      </a>
+      <button class="ahc-btn ahc-btn-primary ahc-mobile-bar-btn" data-open-booking data-pkg="pkg2">
+        <span>จองผู้ดูแล</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ======================================================================
+       17. Footer (DESIGN-main.md)
+       ====================================================================== -->
+  <footer class="ahc-footer">
+    <div class="ahc-container">
+      <div class="ahc-footer-grid">
+        <div class="ahc-footer-brand">
+          <h4>AIKCHOL HOSPITAL (AHC)</h4>
+          <p style="font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.75); margin-bottom: 16px;">
+            โรงพยาบาลเอกชล มุ่งมั่นสู่พันธกิจ <strong>"Enhancing Family Happiness"</strong> ด้วยบริการ GO CARES
+            ดูแลพาผู้สูงอายุและผู้ป่วยไปโรงพยาบาลแบบครบวงจร
+          </p>
+          <div style="font-size: 13px; color: var(--ahc-green); display: flex; align-items: center; gap: 6px;">
+            <svg class="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+              </path>
+            </svg>
+            <strong>สายด่วน GO CARES: 063 920 4765</strong>
+          </div>
+        </div>
+
+        <div class="ahc-footer-col">
+          <h5>เมนูลัดบริการ</h5>
+          <ul class="ahc-footer-links">
+            <li><a href="#care-moments" class="ahc-footer-link">บริการครบวงจร 4 มิติ</a></li>
+            <li><a href="#video-tour" class="ahc-footer-link">วิดีโอจำลองการเดินทาง 19 วิ</a></li>
+            <li><a href="#why-gocares" class="ahc-footer-link">ความเสี่ยงผู้สูงอายุเมื่อไปคนเดียว</a></li>
+            <li><a href="#pricing" class="ahc-footer-link">แพ็กเกจและอัตราค่าบริการ</a></li>
+            <li><a href="#coverage-area" class="ahc-footer-link">พื้นที่ให้บริการ 8 อำเภอ</a></li>
+          </ul>
+        </div>
+
+        <div class="ahc-footer-col">
+          <h5>โรงพยาบาลในเครือเอกชล</h5>
+          <ul class="ahc-footer-links">
+            <li><a href="https://www.aikchol.com" target="_blank" class="ahc-footer-link">โรงพยาบาลเอกชล (ชลบุรี)</a>
+            </li>
+            <li><a href="https://www.aikchol.com" target="_blank" class="ahc-footer-link">โรงพยาบาลเอกชล (อ่างศิลา)</a>
+            </li>
+            <li><a href="#" class="ahc-footer-link">AIKCHOL NEXT Health Ecosystem</a></li>
+          </ul>
+        </div>
+
+        <div class="ahc-footer-col">
+          <h5>ที่ตั้งและติดต่อ</h5>
+          <p style="font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.6;">
+            โรงพยาบาลเอกชล จำกัด (มหาชน)<br>
+            ถนนสุขุมวิท ตำบลเสม็ด อำเภอเมืองชลบุรี จังหวัดชลบุรี 20000<br>
+            โทรศัพท์: 038 939 999 หรือ 063 920 4765<br>
+            LINE Official: @aikcholnext
+          </p>
+        </div>
+      </div>
+
+      <div class="ahc-footer-bottom">
+        <div>© 2026 AIKCHOL HOSPITAL PUBLIC COMPANY LIMITED. All Rights Reserved.</div>
+        <div>Enhancing Family Happiness • Care Beyond the Hospital</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts: Lenis Controller & Application Logic -->
+  <script src="app.js"></script>
+</body>
+
+</html>
