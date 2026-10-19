@@ -1,4 +1,4 @@
-﻿/**
+/**
  * AIKCHOL HOSPITAL (AHC) — GO CARES Controller
  * Inspiration: Included Health & Maven Clinic (Clean, Interactive, High-Motion)
  * Base Design: DESIGN-main.md ("Enhancing Family Happiness")
@@ -219,11 +219,11 @@ function initVideoController() {
   if (!video) return;
 
   const chapters = [
-    { start: 0.0, end: 3.5, num: 1, title: 'Book & Plan', thTitle: '1. นัดหมาย & วางแผนการเดินทาง', desc: 'ทีมงานสอบถามประวัติและวางแผนการเดินทาง ยืนยันข้อมูลผู้รับบริการและเวลานัดหมายล่วงหน้า', img: 'assets/step_1_book_plan.webp' },
-    { start: 3.5, end: 7.0, num: 2, title: 'Pick Up at Home', thTitle: '2. รับจากบ้าน ตรงเวลา ปลอดภัย', desc: 'ผู้ดูแลส่วนตัวเดินทางไปถึงบ้านตรงเวลา ช่วยเตรียมตัว ช่วยพยุงขึ้นรถตู้ GO CARES อย่างถูกวิธี', img: 'assets/step_2_pickup_home.webp' },
-    { start: 7.0, end: 10.5, num: 3, title: 'Arrival & Registration', thTitle: '3. ถึงโรงพยาบาลเอกชล & ช่วยลงทะเบียน', desc: 'พยุงลงจากรถ ดูแลนั่งรถเข็น อำนวยความสะดวกเปิดสิทธิการรักษา ประสานงานรับบัตรคิวทุกจุด', img: 'assets/step_3_arrival_aikchol.webp' },
-    { start: 10.5, end: 15.0, num: 4, title: 'During Consultation', thTitle: '4. เคียงข้างระหว่างพบแพทย์', desc: 'เข้าห้องตรวจร่วมกับผู้ป่วย ช่วยจดบันทึกคำสั่งแพทย์และแนวทางการรักษา ไม่ตกหล่นทุกรายละเอียด', img: 'assets/step_4_doctor_consult.webp' },
-    { start: 15.0, end: 20.0, num: 5, title: 'Send Back & Service Report', thTitle: '5. ส่งกลับบ้าน & สรุปรายงาน', desc: 'ส่งกลับถึงบ้านอย่างปลอดภัย ตรวจความเรียบร้อย และส่งรายงานสรุปกิจกรรมให้ครอบครัวผ่าน LINE ทันที', img: 'assets/step_5_service_report.webp' }
+    { start: 0.0, end: 21.0, num: 1, title: 'Book & Plan', thTitle: '1. นัดหมาย & วางแผนการเดินทาง', desc: 'ทีมงานสอบถามประวัติและวางแผนการเดินทาง ยืนยันข้อมูลผู้รับบริการและเวลานัดหมายล่วงหน้า', img: 'assets/step_1_book_plan.webp' },
+    { start: 21.0, end: 42.0, num: 2, title: 'Pick Up at Home', thTitle: '2. รับจากบ้าน ตรงเวลา ปลอดภัย', desc: 'ผู้ดูแลส่วนตัวเดินทางไปถึงบ้านตรงเวลา ช่วยเตรียมตัว ช่วยพยุงขึ้นรถตู้ GO CARES อย่างถูกวิธี', img: 'assets/step_2_pickup_home.webp' },
+    { start: 42.0, end: 64.0, num: 3, title: 'Arrival & Registration', thTitle: '3. ถึงโรงพยาบาลเอกชล & ช่วยลงทะเบียน', desc: 'พยุงลงจากรถ ดูแลนั่งรถเข็น อำนวยความสะดวกเปิดสิทธิการรักษา ประสานงานรับบัตรคิวทุกจุด', img: 'assets/step_3_arrival_aikchol.webp' },
+    { start: 64.0, end: 86.0, num: 4, title: 'During Consultation', thTitle: '4. เคียงข้างระหว่างพบแพทย์', desc: 'เข้าห้องตรวจร่วมกับผู้ป่วย ช่วยจดบันทึกคำสั่งแพทย์และแนวทางการรักษา ไม่ตกหล่นทุกรายละเอียด', img: 'assets/step_4_doctor_consult.webp' },
+    { start: 86.0, end: 115.0, num: 5, title: 'Send Back & Service Report', thTitle: '5. ส่งกลับบ้าน & สรุปรายงาน', desc: 'ส่งกลับถึงบ้านอย่างปลอดภัย ตรวจความเรียบร้อย และส่งรายงานสรุปกิจกรรมให้ครอบครัวผ่าน LINE ทันที', img: 'assets/step_5_service_report.webp' }
   ];
 
   // Set initial chapter live card
@@ -284,20 +284,22 @@ function initVideoController() {
     progressTrack.addEventListener('click', (e) => {
       const rect = progressTrack.getBoundingClientRect();
       const clickPos = (e.clientX - rect.left) / rect.width;
-      video.currentTime = clickPos * video.duration;
+      video.currentTime = clickPos * (video.duration || 107.2);
     });
   }
 
   video.addEventListener('timeupdate', () => {
-    const cur = video.currentTime;
-    const dur = video.duration || 19.7;
+    const cur = video.currentTime || 0;
+    const dur = (video.duration && !isNaN(video.duration)) ? video.duration : 107.2;
     const pct = (cur / dur) * 100;
     if (progressFill) progressFill.style.width = pct + '%';
 
     if (timeDisplay) {
-      const mins = Math.floor(cur / 60);
-      const secs = Math.floor(cur % 60);
-      timeDisplay.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs} / 0:19`;
+      const curM = Math.floor(cur / 60);
+      const curS = Math.floor(cur % 60);
+      const durM = Math.floor(dur / 60);
+      const durS = Math.floor(dur % 60);
+      timeDisplay.textContent = `${curM}:${curS < 10 ? '0' : ''}${curS} / ${durM}:${durS < 10 ? '0' : ''}${durS}`;
     }
 
     const currentChapter = chapters.find(ch => cur >= ch.start && cur < ch.end) || chapters[chapters.length - 1];

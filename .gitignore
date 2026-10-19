@@ -27,7 +27,10 @@ yarn-error.log*
 .env*.local
 
 # Temporary / Agent workspaces
+# Temporary / Agent workspaces
 scratch/
 .agents/
 .claude/
 
+# Large Master Videos (>100MB)
+ahc next03.mp4
