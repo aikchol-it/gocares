@@ -29,6 +29,7 @@ export default function ChatMessage({
 }: ChatMessageComponentProps) {
   const [copied, setCopied] = useState(false);
   const isAssistant = message.sender === 'assistant';
+  const sanitizedContent = (message.content || '').replace(/<br\s*\/?>/gi, '\n');
 
   const handleCopy = async () => {
     try {
@@ -128,7 +129,8 @@ export default function ChatMessage({
                 h1: ({ ...props }) => <h3 style={{ margin: '8px 0 4px', fontSize: '15px', color: '#004680', fontWeight: 700 }} {...props} />,
                 h2: ({ ...props }) => <h4 style={{ margin: '8px 0 4px', fontSize: '14.5px', color: '#004680', fontWeight: 700 }} {...props} />,
                 h3: ({ ...props }) => <h5 style={{ margin: '6px 0 4px', fontSize: '13.5px', color: '#004680', fontWeight: 600 }} {...props} />,
-                p: ({ ...props }) => <p style={{ margin: '5px 0' }} {...props} />,
+                h4: ({ ...props }) => <h6 style={{ margin: '6px 0 2px', fontSize: '13px', color: '#004680', fontWeight: 700 }} {...props} />,
+                hr: ({ ...props }) => <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '8px 0' }} {...props} />,
                 ul: ({ ...props }) => <ul style={{ paddingLeft: '18px', margin: '5px 0' }} {...props} />,
                 ol: ({ ...props }) => <ol style={{ paddingLeft: '18px', margin: '5px 0' }} {...props} />,
                 li: ({ ...props }) => <li style={{ margin: '2px 0' }} {...props} />,
@@ -193,7 +195,7 @@ export default function ChatMessage({
                 )
               }}
             >
-              {message.content}
+              {sanitizedContent}
             </ReactMarkdown>
 
             {/* Action CTA Button */}
