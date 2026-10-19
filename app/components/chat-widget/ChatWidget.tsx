@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import ChatMessage, { MessageProps } from './ChatMessage';
 import { QUICK_PROMPTS } from './knowledge-base';
-
+import { searchKnowledgeBase } from './search-engine';
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -156,63 +156,101 @@ export default function ChatWidget() {
     abortControllerRef.current = new AbortController();
 
     try {
-      const response = await fetch('/api/chat-widget', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: text,
-          currentPathname: typeof window !== 'undefined' ? window.location.pathname : '/'
-        }),
-        signal: abortControllerRef.current.signal
-      });
-
-      if (!response.body) {
-        throw new Error('ReadableStream not supported');
-      }
-
-      let suggestions: string[] = [];
-      let actionLabel = '';
-      let actionUrl = '';
-      let actionType: 'booking' | 'line' | 'call' | 'url' | undefined;
+      let isApiProcessed = false;
 
       try {
-        const sugHeader = response.headers.get('x-suggestions');
-        if (sugHeader) suggestions = JSON.parse(decodeURIComponent(sugHeader));
-        actionLabel = decodeURIComponent(response.headers.get('x-action-label') || '');
-        actionUrl = decodeURIComponent(response.headers.get('x-action-url') || '');
-        const rawActionType = response.headers.get('x-action-type');
-        if (rawActionType === 'booking' || rawActionType === 'line' || rawActionType === 'call' || rawActionType === 'url') {
-          actionType = rawActionType;
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '/ahc-go-care';
+        const apiUrl = `${basePath}/api/chat-widget`;
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: text,
+            currentPathname: typeof window !== 'undefined' ? window.location.pathname : '/'
+          }),
+          signal: abortControllerRef.current?.signal
+        });
+
+        if (response.ok && response.body) {
+          let suggestions: string[] = [];
+          let actionLabel = '';
+          let actionUrl = '';
+          let actionType: 'booking' | 'line' | 'call' | 'url' | undefined;
+
+          try {
+            const sugHeader = response.headers.get('x-suggestions');
+            if (sugHeader) suggestions = JSON.parse(decodeURIComponent(sugHeader));
+            actionLabel = decodeURIComponent(response.headers.get('x-action-label') || '');
+            actionUrl = decodeURIComponent(response.headers.get('x-action-url') || '');
+            const rawActionType = response.headers.get('x-action-type');
+            if (rawActionType === 'booking' || rawActionType === 'line' || rawActionType === 'call' || rawActionType === 'url') {
+              actionType = rawActionType;
+            }
+          } catch (e: unknown) {
+            console.error('Header parsing error:', e);
+          }
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let accumulatedText = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            accumulatedText += chunk;
+
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === assistantMsgId
+                  ? {
+                      ...msg,
+                      content: accumulatedText,
+                      suggestions,
+                      actionLabel,
+                      actionUrl,
+                      actionType
+                    }
+                  : msg
+              )
+            );
+          }
+          isApiProcessed = true;
         }
-      } catch (e: unknown) {
-        console.error('Header parsing error:', e);
+      } catch (fetchErr: unknown) {
+        // Fall back to client-side engine (works under static Apache / XAMPP)
       }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let accumulatedText = '';
+      // Client-Side Search Fallback for static hosting environments
+      if (!isApiProcessed && !abortControllerRef.current?.signal.aborted) {
+        const localResult = searchKnowledgeBase(text);
+        const tokens = localResult.answer.match(/[\s\n]+|[^\s\n]{1,4}/g) || [localResult.answer];
+        let accumulatedText = '';
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        for (const token of tokens) {
+          if (abortControllerRef.current?.signal.aborted) break;
+          accumulatedText += token;
 
-        const chunk = decoder.decode(value, { stream: true });
-        accumulatedText += chunk;
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantMsgId
+                ? {
+                    ...msg,
+                    content: accumulatedText,
+                    suggestions: localResult.followUpSuggestions,
+                    actionLabel: localResult.actionLabel,
+                    actionUrl: localResult.actionUrl,
+                    actionType: localResult.actionType
+                  }
+                : msg
+            )
+          );
 
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === assistantMsgId
-              ? {
-                  ...msg,
-                  content: accumulatedText,
-                  suggestions,
-                  actionLabel,
-                  actionUrl,
-                  actionType
-                }
-              : msg
-          )
-        );
+          const delay = Promise.withResolvers<void>();
+          setTimeout(delay.resolve, 15);
+          await delay.promise;
+        }
       }
     } catch (err: unknown) {
       const isAbort = err instanceof Error && err.name === 'AbortError';
