@@ -99,18 +99,34 @@ export default function AdminDashboardPage() {
   const [campaigns, setCampaigns] = useState<ContentItem[]>([]);
 
   /* ======================================================================
-     DATA FETCHING
+     DATA FETCHING (API with LocalStorage fallback for static hosting)
      ====================================================================== */
+  const getApiUrl = (endpoint: string) => {
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '/ahc-go-care';
+    return `${basePath}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  };
+
   const fetchLeads = useCallback(async () => {
     setLoadingLeads(true);
     try {
-      const res = await fetch('/api/booking');
+      const res = await fetch(getApiUrl('/api/booking'));
       if (res.ok) {
         const data = (await res.json()) as { leads: Lead[] };
-        setLeads(data.leads || []);
+        if (data.leads && data.leads.length > 0) {
+          setLeads(data.leads);
+          return;
+        }
       }
     } catch {
-      // silent
+      // silent fallback
+    }
+
+    // LocalStorage fallback (XAMPP / offline)
+    try {
+      const local = JSON.parse(localStorage.getItem('ahc_leads') || '[]') as Lead[];
+      setLeads(local);
+    } catch {
+      setLeads([]);
     } finally {
       setLoadingLeads(false);
     }
@@ -120,14 +136,26 @@ export default function AdminDashboardPage() {
     setLoadingContent(true);
     try {
       const url = contentFilter ? `/api/content?type=${contentFilter}` : '/api/content';
-      const res = await fetch(url);
+      const res = await fetch(getApiUrl(url));
       if (res.ok) {
         const data = (await res.json()) as { items: ContentItem[] };
         setContentItems(data.items || []);
         setCampaigns((data.items || []).filter((i) => i.type === 'campaign'));
+        return;
       }
     } catch {
-      // silent
+      // silent fallback
+    }
+
+    // LocalStorage fallback for CMS
+    try {
+      const local = JSON.parse(localStorage.getItem('ahc_cms_content') || '[]') as ContentItem[];
+      const filtered = contentFilter ? local.filter((i) => i.type === contentFilter) : local;
+      setContentItems(filtered);
+      setCampaigns(local.filter((i) => i.type === 'campaign'));
+    } catch {
+      setContentItems([]);
+      setCampaigns([]);
     } finally {
       setLoadingContent(false);
     }
@@ -136,18 +164,49 @@ export default function AdminDashboardPage() {
   const fetchTracking = useCallback(async () => {
     setLoadingTracking(true);
     try {
-      const res = await fetch('/api/tracking?limit=1000');
+      const res = await fetch(getApiUrl('/api/tracking?limit=1000'));
       if (res.ok) {
         const data = (await res.json()) as TrackingData;
-        setTrackingData(data);
+        if (data && data.total > 0) {
+          setTrackingData(data);
+          return;
+        }
       }
     } catch {
-      // silent
+      // silent fallback
+    }
+
+    // LocalStorage fallback
+    try {
+      const localEvents = JSON.parse(localStorage.getItem('ahc_marketing_events') || '[]') as Array<{
+        event: string;
+        timestamp?: string;
+        data?: Record<string, unknown>;
+      }>;
+      const counts: Record<string, number> = {};
+      const daily: Record<string, number> = {};
+      for (const ev of localEvents) {
+        counts[ev.event] = (counts[ev.event] || 0) + 1;
+        const date = ev.timestamp ? ev.timestamp.slice(0, 10) : new Date().toISOString().slice(0, 10);
+        daily[date] = (daily[date] || 0) + 1;
+      }
+      setTrackingData({
+        total: localEvents.length,
+        eventCounts: counts,
+        dailyCounts: daily,
+        events: localEvents.map((ev, i) => ({
+          id: `local-${i}`,
+          event: ev.event,
+          timestamp: ev.timestamp || new Date().toISOString(),
+          data: ev.data
+        }))
+      });
+    } catch {
+      setTrackingData(null);
     } finally {
       setLoadingTracking(false);
     }
   }, []);
-
   useEffect(() => {
     fetchLeads();
   }, [fetchLeads]);
@@ -183,11 +242,28 @@ export default function AdminDashboardPage() {
     setSavingContent(true);
     try {
       const method = contentModal === 'edit' ? 'PUT' : 'POST';
-      const res = await fetch('/api/content', {
+      const res = await fetch(getApiUrl('/api/content'), {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingItem),
       });
+      // Also persist to localStorage for offline/XAMPP
+      try {
+        const local = JSON.parse(localStorage.getItem('ahc_cms_content') || '[]') as ContentItem[];
+        if (contentModal === 'edit' && editingItem.id) {
+          const idx = local.findIndex((i) => i.id === editingItem.id);
+          if (idx >= 0) local[idx] = { ...local[idx], ...editingItem, updatedAt: new Date().toISOString() } as ContentItem;
+        } else {
+          const newItem: ContentItem = {
+            id: `cms-${Date.now()}`,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            ...(editingItem as unknown as ContentItem)
+          };
+          local.unshift(newItem);
+        }
+        localStorage.setItem('ahc_cms_content', JSON.stringify(local));
+      } catch {}
       if (res.ok) {
         setContentMsg('✅ บันทึกเรียบร้อยแล้ว');
         closeModal();
