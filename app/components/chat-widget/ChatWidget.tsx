@@ -159,7 +159,7 @@ export default function ChatWidget() {
       let isApiProcessed = false;
 
       try {
-        const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '/ahc-go-care';
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
         const apiUrl = `${basePath}/api/chat-widget`;
         const response = await fetch(apiUrl, {
           method: 'POST',

@@ -102,7 +102,7 @@ export default function AdminDashboardPage() {
      DATA FETCHING (API with LocalStorage fallback for static hosting)
      ====================================================================== */
   const getApiUrl = (endpoint: string) => {
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '/ahc-go-care';
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
     return `${basePath}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
   };
 

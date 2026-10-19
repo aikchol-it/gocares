@@ -19,7 +19,7 @@ export default function LegacyScripts() {
     win.__legacyLoaded = true;
     (async () => {
       await loadScript('https://unpkg.com/lenis@1.1.20/dist/lenis.min.js');
-      const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '/ahc-go-care';
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
       await loadScript(`${basePath}/app.js`);
       const vid = document.getElementById('ahcHeroBgVideo') as HTMLVideoElement | null;
       const btn = document.getElementById('ahcVideoToggle');
