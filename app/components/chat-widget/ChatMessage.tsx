@@ -3,16 +3,30 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Copy, Check, Bot, User } from 'lucide-react';
+import { Copy, Check, Bot, User, Sparkles, ArrowRight, ExternalLink } from 'lucide-react';
 
 export interface MessageProps {
   id: string;
   sender: 'user' | 'assistant';
   content: string;
   timestamp: string;
+  suggestions?: string[];
+  actionLabel?: string;
+  actionUrl?: string;
+  actionType?: 'booking' | 'line' | 'call' | 'url';
 }
 
-export default function ChatMessage({ message }: { message: MessageProps }) {
+interface ChatMessageComponentProps {
+  message: MessageProps;
+  onSelectSuggestion?: (text: string) => void;
+  onTriggerAction?: (actionUrl: string, actionType?: string) => void;
+}
+
+export default function ChatMessage({
+  message,
+  onSelectSuggestion,
+  onTriggerAction
+}: ChatMessageComponentProps) {
   const [copied, setCopied] = useState(false);
   const isAssistant = message.sender === 'assistant';
 
@@ -63,7 +77,7 @@ export default function ChatMessage({ message }: { message: MessageProps }) {
             >
               <Bot size={11} />
             </div>
-            <span style={{ fontWeight: 600, color: '#004680' }}>AI Assistant</span>
+            <span style={{ fontWeight: 600, color: '#004680' }}>ผู้ช่วยอัจฉริยะ GO CARES</span>
           </>
         ) : (
           <>
@@ -91,13 +105,13 @@ export default function ChatMessage({ message }: { message: MessageProps }) {
       <div
         style={{
           position: 'relative',
-          maxWidth: '88%',
+          maxWidth: '92%',
           borderRadius: isAssistant ? '16px 16px 16px 4px' : '16px 16px 4px 16px',
-          padding: '10px 14px',
-          backgroundColor: isAssistant ? '#f8fafc' : '#004680',
+          padding: '12px 14px',
+          backgroundColor: isAssistant ? '#ffffff' : '#004680',
           color: isAssistant ? '#1e293b' : '#ffffff',
           boxShadow: isAssistant
-            ? '0 2px 6px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)'
+            ? '0 2px 8px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03)'
             : '0 2px 8px rgba(0, 70, 128, 0.25)',
           border: isAssistant ? '1px solid #e2e8f0' : 'none',
           fontSize: '13.5px',
@@ -111,16 +125,16 @@ export default function ChatMessage({ message }: { message: MessageProps }) {
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
-                h1: ({ ...props }) => <h3 style={{ margin: '6px 0 4px', fontSize: '15px', color: '#004680' }} {...props} />,
-                h2: ({ ...props }) => <h4 style={{ margin: '6px 0 4px', fontSize: '14.5px', color: '#004680' }} {...props} />,
-                h3: ({ ...props }) => <h5 style={{ margin: '4px 0 4px', fontSize: '13.5px', color: '#004680' }} {...props} />,
-                p: ({ ...props }) => <p style={{ margin: '4px 0' }} {...props} />,
-                ul: ({ ...props }) => <ul style={{ paddingLeft: '18px', margin: '4px 0' }} {...props} />,
-                ol: ({ ...props }) => <ol style={{ paddingLeft: '18px', margin: '4px 0' }} {...props} />,
+                h1: ({ ...props }) => <h3 style={{ margin: '8px 0 4px', fontSize: '15px', color: '#004680', fontWeight: 700 }} {...props} />,
+                h2: ({ ...props }) => <h4 style={{ margin: '8px 0 4px', fontSize: '14.5px', color: '#004680', fontWeight: 700 }} {...props} />,
+                h3: ({ ...props }) => <h5 style={{ margin: '6px 0 4px', fontSize: '13.5px', color: '#004680', fontWeight: 600 }} {...props} />,
+                p: ({ ...props }) => <p style={{ margin: '5px 0' }} {...props} />,
+                ul: ({ ...props }) => <ul style={{ paddingLeft: '18px', margin: '5px 0' }} {...props} />,
+                ol: ({ ...props }) => <ol style={{ paddingLeft: '18px', margin: '5px 0' }} {...props} />,
                 li: ({ ...props }) => <li style={{ margin: '2px 0' }} {...props} />,
                 a: ({ ...props }) => (
                   <a
-                    style={{ color: '#0284c7', textDecoration: 'underline', fontWeight: 500 }}
+                    style={{ color: '#0284c7', textDecoration: 'underline', fontWeight: 600 }}
                     target="_blank"
                     rel="noopener noreferrer"
                     {...props}
@@ -145,10 +159,11 @@ export default function ChatMessage({ message }: { message: MessageProps }) {
                   <th
                     style={{
                       border: '1px solid #cbd5e1',
-                      padding: '5px 8px',
+                      padding: '6px 8px',
                       background: '#f1f5f9',
                       fontWeight: 600,
-                      textAlign: 'left'
+                      textAlign: 'left',
+                      color: '#004680'
                     }}
                     {...props}
                   />
@@ -157,7 +172,7 @@ export default function ChatMessage({ message }: { message: MessageProps }) {
                   <td
                     style={{
                       border: '1px solid #e2e8f0',
-                      padding: '5px 8px'
+                      padding: '6px 8px'
                     }}
                     {...props}
                   />
@@ -180,6 +195,94 @@ export default function ChatMessage({ message }: { message: MessageProps }) {
             >
               {message.content}
             </ReactMarkdown>
+
+            {/* Action CTA Button */}
+            {message.actionLabel && message.actionUrl && (
+              <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+                <button
+                  type="button"
+                  onClick={() => onTriggerAction?.(message.actionUrl!, message.actionType)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    background: 'linear-gradient(135deg, #004680 0%, #002d54 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '12.5px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 6px rgba(0, 70, 128, 0.25)',
+                    transition: 'all 0.15s'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.92')}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                >
+                  <span>{message.actionLabel}</span>
+                  <ArrowRight size={13} />
+                </button>
+              </div>
+            )}
+
+            {/* Interactive Follow-up Suggestion Chips */}
+            {message.suggestions && message.suggestions.length > 0 && (
+              <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px dashed #e2e8f0' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    fontSize: '11.5px',
+                    color: '#004680',
+                    fontWeight: 600,
+                    marginBottom: '6px'
+                  }}
+                >
+                  <Sparkles size={12} color="#2DCCD3" />
+                  <span>คำถามที่แนะนำสอบถามต่อ:</span>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {message.suggestions.map((sug, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => onSelectSuggestion?.(sug)}
+                      style={{
+                        background: '#f8fafc',
+                        color: '#004680',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '16px',
+                        padding: '4px 10px',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        transition: 'all 0.15s',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#004680';
+                        e.currentTarget.style.background = '#eef6ff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#cbd5e1';
+                        e.currentTarget.style.background = '#f8fafc';
+                      }}
+                    >
+                      <span>💬</span>
+                      <span>{sug}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div style={{ whiteSpace: 'pre-wrap' }}>{message.content}</div>
@@ -191,7 +294,7 @@ export default function ChatMessage({ message }: { message: MessageProps }) {
             style={{
               display: 'flex',
               justifyContent: 'flex-end',
-              marginTop: '4px',
+              marginTop: '6px',
               paddingTop: '4px'
             }}
           >
@@ -221,4 +324,3 @@ export default function ChatMessage({ message }: { message: MessageProps }) {
     </div>
   );
 }
-

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 
 interface HeaderProps {
   onOpenBooking: (pkg?: string) => void;
-  onOpenSearch: () => void;
+  onOpenSearch?: () => void;
 }
 
 export default function Header({ onOpenBooking, onOpenSearch }: HeaderProps) {
@@ -44,20 +44,6 @@ export default function Header({ onOpenBooking, onOpenSearch }: HeaderProps) {
 
         {/* Action Buttons */}
         <div className="ahc-header-actions">
-          {/* AI Search Trigger (CR.md Item 3) */}
-          <button
-            type="button"
-            className="ahc-search-trigger-btn"
-            onClick={onOpenSearch}
-            aria-label="ค้นหาบริการหรือสอบถามคำถาม AI"
-            title="ค้นหาบริการ / FAQ (Ctrl+K)"
-          >
-            <svg className="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <span className="ahc-search-trigger-label">ค้นหา AI</span>
-          </button>
 
           {/* Hotline */}
           <a href="tel:0639204765" className="ahc-hotline-pill" title="โทรสายด่วน">

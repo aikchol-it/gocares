@@ -31,8 +31,14 @@ export default function ChatWidget() {
 
 ยินดีให้ข้อมูลและตอบคำถามเกี่ยวกับบริการรับ-ส่งผู้สูงอายุ พาไปโรงพยาบาล แพ็กเกจราคา และการดูแลตลอดเส้นทางครับ
 
-ท่านสามารถเลือกดู **คำถามแนะนำด้านล่าง** หรือพิมพ์คำถามที่ต้องการได้เลยครับ!`,
-      timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+ท่านสามารถเลือกคลิกดู **คำถามแนะนำด้านล่าง** หรือพิมพ์คำถามที่ต้องการได้เลยครับ!`,
+      timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+      suggestions: [
+        'อัตราค่าบริการและแพ็กเกจมีอะไรบ้าง?',
+        'มีบริการรับ-ส่งผู้ป่วยฟอกไตไหม?',
+        'พื้นที่ให้บริการครอบคลุมที่ไหนบ้างในชลบุรี?',
+        'ต้องจองล่วงหน้ากี่วันและติดต่อช่องทางไหน?'
+      ]
     }
   ]);
 
@@ -121,11 +127,15 @@ export default function ChatWidget() {
 
     setMessages((prev) => [...prev, newUserMessage]);
 
-    // Simulated Thinking State (2 steps, total ~800ms)
-    setThinkingStep('กำลังตรวจสอบฐานข้อมูล...');
-    await new Promise((res) => setTimeout(res, 400));
+    // Simulated Thinking State
+    setThinkingStep('กำลังค้นหาข้อมูลในระบบ...');
+    const delay1 = Promise.withResolvers<void>();
+    setTimeout(delay1.resolve, 200);
+    await delay1.promise;
     setThinkingStep('กำลังสรุปคำตอบ...');
-    await new Promise((res) => setTimeout(res, 400));
+    const delay2 = Promise.withResolvers<void>();
+    setTimeout(delay2.resolve, 200);
+    await delay2.promise;
     setThinkingStep(null);
 
     // Prepare assistant message
@@ -160,6 +170,24 @@ export default function ChatWidget() {
         throw new Error('ReadableStream not supported');
       }
 
+      let suggestions: string[] = [];
+      let actionLabel = '';
+      let actionUrl = '';
+      let actionType: 'booking' | 'line' | 'call' | 'url' | undefined;
+
+      try {
+        const sugHeader = response.headers.get('x-suggestions');
+        if (sugHeader) suggestions = JSON.parse(decodeURIComponent(sugHeader));
+        actionLabel = decodeURIComponent(response.headers.get('x-action-label') || '');
+        actionUrl = decodeURIComponent(response.headers.get('x-action-url') || '');
+        const rawActionType = response.headers.get('x-action-type');
+        if (rawActionType === 'booking' || rawActionType === 'line' || rawActionType === 'call' || rawActionType === 'url') {
+          actionType = rawActionType;
+        }
+      } catch (e: unknown) {
+        console.error('Header parsing error:', e);
+      }
+
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let accumulatedText = '';
@@ -173,12 +201,22 @@ export default function ChatWidget() {
 
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === assistantMsgId ? { ...msg, content: accumulatedText } : msg
+            msg.id === assistantMsgId
+              ? {
+                  ...msg,
+                  content: accumulatedText,
+                  suggestions,
+                  actionLabel,
+                  actionUrl,
+                  actionType
+                }
+              : msg
           )
         );
       }
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
+    } catch (err: unknown) {
+      const isAbort = err instanceof Error && err.name === 'AbortError';
+      if (isAbort) {
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === assistantMsgId
@@ -218,10 +256,48 @@ export default function ChatWidget() {
       {
         id: 'welcome-msg-reset',
         sender: 'assistant',
-        content: `🔄 **ล้างประวัติการสนทนาเรียบร้อยครับ**\n\nสามารถเลือกหัวข้อคำถามใหม่ หรือพิมพ์สอบถามบริการได้เลยครับ!`,
-        timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+        content: `🔄 **ล้างประวัติการสนทนาเรียบร้อยครับ**\n\nสามารถเลือกคลิกดูคำถามแนะนำด้านล่าง หรือพิมพ์สอบถามบริการได้เลยครับ!`,
+        timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+        suggestions: [
+          'อัตราค่าบริการและแพ็กเกจมีอะไรบ้าง?',
+          'มีบริการรับ-ส่งผู้ป่วยฟอกไตไหม?',
+          'พื้นที่ให้บริการครอบคลุมที่ไหนบ้างในชลบุรี?',
+          'ต้องจองล่วงหน้ากี่วันและติดต่อช่องทางไหน?'
+        ]
       }
     ]);
+  };
+
+  const handleTriggerAction = (actionUrl: string, actionType?: string) => {
+    if (!actionUrl) return;
+
+    if (actionType === 'booking' || actionUrl === '#booking') {
+      const bookingTrigger = document.querySelector('[data-open-booking]') as HTMLElement | null;
+      if (bookingTrigger) {
+        bookingTrigger.click();
+      } else {
+        const el = document.getElementById('pricing') || document.getElementById('ahcBookingModal');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
+
+    if (actionType === 'line' || actionUrl.startsWith('https://lin.ee') || actionUrl.startsWith('https://line.me')) {
+      window.open(actionUrl, '_blank');
+      return;
+    }
+
+    if (actionType === 'call' || actionUrl.startsWith('tel:')) {
+      window.location.href = actionUrl;
+      return;
+    }
+
+    if (actionUrl.startsWith('http')) {
+      window.open(actionUrl, '_blank');
+    } else if (actionUrl.startsWith('#')) {
+      const targetEl = document.querySelector(actionUrl);
+      if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -428,7 +504,12 @@ export default function ChatWidget() {
                   }}
                 >
                   {messages.map((msg) => (
-                    <ChatMessage key={msg.id} message={msg} />
+                    <ChatMessage
+                      key={msg.id}
+                      message={msg}
+                      onSelectSuggestion={handleSendMessage}
+                      onTriggerAction={handleTriggerAction}
+                    />
                   ))}
 
                   {/* Thinking Status Indicator */}
