@@ -509,10 +509,6 @@ export default function V2Home({ content }: { content: SiteContent }) {
               <br />
               <span className="v2-underline">ไม่มีบวกเพิ่มทีหลัง</span>
             </h2>
-            <p className="v2-section-lead">
-              เลือกตามเวลาและระยะทางของแต่ละนัด เกินเวลา 150 บาท/ชม. เกินระยะ 12 บาท/กม.
-              ทีมงานแจ้งก่อนคิดทุกครั้ง
-            </p>
           </div>
 
           <div className="v2-price-grid">
@@ -528,7 +524,6 @@ export default function V2Home({ content }: { content: SiteContent }) {
                 >
                   {featured && <span className="v2-crown">แนะนำ · ยอดนิยม</span>}
                   <div className="v2-price-head">
-                    <span className="v2-price-num">{String(i + 1).padStart(2, '0')}</span>
                     <h3>{pkg.name}</h3>
                     <p>{pkg.sub}</p>
                   </div>

@@ -51,10 +51,6 @@ export default function PricingSection({ content }: { content: SiteContent }) {
             <span>ราคาเริ่มต้น 500 บาท</span>
           </span>
           <h2 className="ahc-section-title">ค่าบริการ GO CARES by AIKCHOL NEXT</h2>
-          <p className="ahc-section-subtitle">
-            ราคาขึ้นกับเวลาที่ใช้และระยะทางจากบ้านถึงโรงพยาบาล ถ้าเกินเวลา 150 บาท/ชม.
-            เกินระยะ 12 บาท/กม. ทีมงานแจ้งก่อนคิดทุกครั้ง
-          </p>
         </div>
 
         <div className="ahc-pricing-grid">
@@ -76,7 +72,6 @@ export default function PricingSection({ content }: { content: SiteContent }) {
                 )}
 
                 <div className="ahc-price-card-header">
-                  <div className="ahc-price-pkg-num">{i + 1}</div>
                   <h3 className="ahc-price-card-title">{pkg.name}</h3>
                   <p className="ahc-price-card-sub">{pkg.sub}</p>
                 </div>
