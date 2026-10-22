@@ -124,7 +124,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     pkg1: {
       id: 'pkg1',
       name: 'Economic',
-      sub: 'นัดสั้น ใกล้บ้าน · รหัส GOC0001',
+      sub: 'นัดสั้น ใกล้บ้าน',
       price: '500',
       hours: '3',
       distance: 'ฟรี 10 กม.',
@@ -132,7 +132,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     pkg2: {
       id: 'pkg2',
       name: 'Standard I',
-      sub: 'นัดครึ่งวันทั่วไป · รหัส GOC0002',
+      sub: 'นัดครึ่งวันทั่วไป',
       price: '900',
       hours: '5',
       distance: 'ฟรี 10 กม.',
@@ -140,7 +140,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     pkg3: {
       id: 'pkg3',
       name: 'Standard II',
-      sub: 'นัดครึ่งวันที่ไปไกลขึ้น · รหัส GOC0003',
+      sub: 'นัดครึ่งวันที่ไปไกลขึ้น',
       price: '1,200',
       hours: '5',
       distance: 'รวม 30 กม.',
@@ -148,7 +148,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     pkg4: {
       id: 'pkg4',
       name: 'บริการอื่นๆ',
-      sub: 'ธุระส่วนตัว ราชการ หรือพาเที่ยว · รหัส GOC0004',
+      sub: 'ธุระส่วนตัว ราชการ หรือพาเที่ยว',
       price: '1,400',
       hours: '8',
       distance: 'ฟรี 10 กม. แรก',
