@@ -1,0 +1,899 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { SiteContent } from '../lib/site-content-types';
+
+type Hours = '5' | '8';
+type PkgKey = 'pkg1' | 'pkg2' | 'pkg3';
+
+const PKG_KEYS: PkgKey[] = ['pkg1', 'pkg2', 'pkg3'];
+
+const DISTRICTS = [
+  'อำเภอเมืองชลบุรี',
+  'อำเภอพานทอง',
+  'อำเภอบ้านบึง',
+  'อำเภอพนัสนิคม',
+  'อำเภอศรีราชา',
+  'อำเภอบางละมุง (พัทยา)',
+  'อำเภอบ่อทอง',
+  'อำเภอหนองใหญ่',
+];
+
+const HOSPITALS = [
+  'โรงพยาบาลเอกชล (ถ.พระยาสัจจา)',
+  'โรงพยาบาลเอกชล อ่างศิลา (ถ.อ่างศิลา)',
+  'โรงพยาบาลชลบุรี (รพ.รัฐ)',
+  'โรงพยาบาลสมเด็จพระบรมราชเทวี ณ ศรีราชา',
+  'โรงพยาบาลมหาวิทยาลัยบูรพา',
+  'โรงพยาบาลสมเด็จพระนางเจ้าสิริกิติ์',
+  'อื่นๆ',
+];
+
+const PILLARS = [
+  {
+    num: 'I',
+    title: 'ผู้ดูแลจากมาตรฐานโรงพยาบาล',
+    desc: 'คัดกรองประวัติอย่างเข้มงวด ผ่านการอบรมการดูแลผู้สูงอายุ การปฐมพยาบาล และการเคลื่อนย้ายผู้ป่วยตามมาตรฐานโรงพยาบาลเอกชล',
+  },
+  {
+    num: 'II',
+    title: 'รถรับ-ส่งเฉพาะ ไม่ใช่รถโดยสาร',
+    desc: 'รถตู้ GO CARES สะอาด แอร์เย็น รองรับรถเข็น พร้อมผู้ดูแลช่วยพยุงขึ้น-ลงอย่างถูกวิธีในทุกเที่ยว',
+  },
+  {
+    num: 'III',
+    title: 'รายงานตรงถึงครอบครัว ผ่าน LINE',
+    desc: 'อัปเดตทุกขั้นตอนระหว่างวัน พร้อม Service Report สรุปผลตรวจ รายการยา และรูปถ่ายฉลากยาหลังจบเคส',
+  },
+];
+
+const FEATURES: Record<PkgKey, string[]> = {
+  pkg1: [
+    'ไปรับถึงบ้าน และดูแลส่งเข้าบ้าน',
+    'ฟรีค่าเดินทางไป-กลับ 10 กม.',
+    'อยู่เคียงข้างตลอดการตรวจ',
+    'รายงานครอบครัวผ่าน LINE',
+  ],
+  pkg2: [
+    'รถรับ-ส่งเฉพาะ ถึงหน้าบ้าน',
+    'รวมค่าเดินทางไป-กลับ 30 กม.',
+    'ผู้ดูแลส่วนตัว 1:1 ตลอดเส้นทาง',
+    'Service Report ฉบับสมบูรณ์',
+  ],
+  pkg3: [
+    'ดูแลธุระ ธนาคาร ซื้อของ ครบวงจร',
+    'ผู้ช่วยเคียงข้างดูแลความปลอดภัย',
+    'รองรับนัดหมายและกิจกรรมส่วนตัว',
+    'ค่าเดินทางคิดตามระยะจริง',
+  ],
+};
+
+const RISKS = [
+  {
+    risk: 'ลื่นล้มระหว่างทาง หรือในโรงพยาบาล',
+    impact:
+      'การล้มคือสาเหตุการบาดเจ็บอันดับต้นของผู้สูงอายุ พื้นโรงพยาบาลที่ลื่นยิ่งเพิ่มความเสี่ยง',
+    fix: 'ผู้ดูแลพยุงและเดินเคียงข้างตลอด รวมถึงช่วยขึ้น-ลงรถและใช้ลิฟต์อย่างถูกวิธี',
+  },
+  {
+    risk: 'จำคำสั่งแพทย์ได้ไม่ครบ',
+    impact:
+      'ในห้องตรวจมีข้อมูลจำนวนมากในเวลาสั้น ผู้สูงอายุอาจเข้าใจคลาดเคลื่อนหรือลืมสิ่งที่แพทย์กำชับ',
+    fix: 'ผู้ดูแลเข้าห้องตรวจด้วย จดทุกคำแนะนำ ถามซ้ำจุดที่ไม่ชัด และส่งให้ครอบครัวอ่านทันที',
+  },
+  {
+    risk: 'กินยาผิดหลังกลับบ้าน',
+    impact:
+      'แพทย์ปรับยาใหม่แล้วยังกินยาเดิมซ้ำซ้อน เป็นความผิดพลาดที่พบบ่อยที่สุดหลังกลับบ้าน',
+    fix: 'ผู้ดูแลทวนวิธีใช้ยากับเภสัชกร ถ่ายรูปฉลากยา และระบุชัดเจนว่าตัวไหนหยุด ตัวไหนเริ่มใหม่',
+  },
+];
+
+const TIMELINE = [
+  { time: '08:00', title: 'รับที่บ้าน', desc: 'ผู้ดูแลถึงบ้านตรงเวลา ตรวจความดันและชีพจรก่อนออกเดินทาง' },
+  { time: '08:30', title: 'ถึงโรงพยาบาล', desc: 'อำนวยความสะดวกเปิดสิทธิ รับบัตรคิว และพาไปยังจุดตรวจ' },
+  { time: '09:15', title: 'เข้าห้องตรวจ', desc: 'อยู่ข้าง ๆ ร่วมฟัง และจดคำแนะนำของแพทย์อย่างละเอียด' },
+  { time: '10:30', title: 'รับยา', desc: 'ทวนวิธีใช้กับเภสัชกร ถ่ายรูปฉลากยา และแจ้งยาที่หยุดหรือเริ่มใหม่' },
+  { time: '11:30', title: 'ส่งกลับบ้าน', desc: 'ดูแลจนเข้าบ้านเรียบร้อย พร้อมส่ง Service Report ให้ครอบครัว' },
+];
+
+const CHECKLIST = [
+  'บัตรประชาชน และบัตรโรงพยาบาล',
+  'ใบนัด หรือข้อมูลนัดหมาย',
+  'ยาที่ใช้อยู่ทั้งหมด (สำคัญที่สุด)',
+  'สิทธิการรักษาที่ใช้',
+  'เบอร์ติดต่อฉุกเฉินของญาติ',
+];
+
+const FAQS = [
+  {
+    q: 'ผู้ดูแลของ GO CARES เป็นใคร',
+    a: 'ผู้ดูแลทุกคนผ่านการคัดกรองประวัติอย่างเข้มงวด และผ่านหลักสูตรการดูแลผู้สูงอายุ การพยาบาลเบื้องต้น การปฐมพยาบาล CPR และการเคลื่อนย้ายผู้ป่วยตามมาตรฐานของโรงพยาบาลเอกชล',
+  },
+  {
+    q: 'ต้องจองล่วงหน้านานเท่าไร',
+    a: 'แนะนำให้จองล่วงหน้า 1-2 วัน เพื่อจัดเตรียมผู้ดูแลและรอบรถที่เหมาะสม สำหรับผู้ป่วยที่นัดประจำ เช่น ฟอกไต หรือเคมีบำบัด สามารถจองเป็นแพ็กเกจรายสัปดาห์หรือรายเดือนได้',
+  },
+  {
+    q: 'ไปโรงพยาบาลอื่นได้หรือไม่',
+    a: 'ได้ ทั้งโรงพยาบาลรัฐ เอกชน และคลินิกเฉพาะทางในจังหวัดชลบุรี ทีมงานจะประเมินเวลาและระยะทางล่วงหน้าอย่างโปร่งใสก่อนยืนยัน',
+  },
+  {
+    q: 'หากใช้เวลาเกิน 5 หรือ 8 ชั่วโมง',
+    a: 'ทีมงานจะแจ้งครอบครัวให้ทราบล่วงหน้า และคิดค่าบริการล่วงเวลาตามชั่วโมงจริง ไม่มีการเรียกเก็บส่วนต่างโดยไม่แจ้งก่อน',
+  },
+  {
+    q: 'ครอบครัวจะติดตามความคืบหน้าได้อย่างไร',
+    a: 'ผู้ดูแลอัปเดตสถานะผ่านกลุ่ม LINE ครอบครัว เช่น ถึงบ้านแล้ว ผลวัดความดัน คิวพบแพทย์ ฉลากยาใหม่ และเวลาเดินทางกลับ พร้อมรายงานสรุปหลังจบเคส',
+  },
+];
+
+const img = (src: string) => '/' + src.replace(/^\/+/, '');
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+      <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export default function V2Home({ content }: { content: SiteContent }) {
+  const [navSolid, setNavSolid] = useState(false);
+  const [step, setStep] = useState(0);
+  const [hours, setHours] = useState<Hours>('5');
+  const [openFaq, setOpenFaq] = useState(0);
+  const [drawer, setDrawer] = useState<{ open: boolean; pkg: PkgKey; hours: Hours }>({
+    open: false,
+    pkg: 'pkg2',
+    hours: '5',
+  });
+  const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
+  const [hospital, setHospital] = useState(HOSPITALS[0]);
+
+  const tel = `tel:${content.contact.hotlinePhone.replace(/\s+/g, '')}`;
+  const lineUrl = content.contact.lineOaUrl;
+  const moments = content.moments;
+  const moment = moments[step] || moments[0];
+  const heroPhoto = content.personas[1]?.image || content.images.heroPoster;
+  const heroInset = moments[2]?.image || content.images.reportMockup;
+  const finalPhoto = moments[1]?.image || content.images.heroPoster;
+  const headlineTail = 'ไปหาหมอ';
+  const headlineBreak = content.hero.headline.endsWith(headlineTail);
+
+  useEffect(() => {
+    const onScroll = () => setNavSolid(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>('.v2 [data-reveal]'));
+    if (!('IntersectionObserver' in window)) {
+      nodes.forEach((n) => n.classList.add('is-in'));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-in');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
+    );
+    nodes.forEach((n) => io.observe(n));
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!drawer.open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDrawer((d) => ({ ...d, open: false }));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [drawer.open]);
+
+  const openBooking = (pkg: PkgKey = 'pkg2', hrs: Hours = '5') => {
+    setStatus('idle');
+    setDrawer({ open: true, pkg, hours: hrs });
+  };
+  const closeBooking = () => setDrawer((d) => ({ ...d, open: false }));
+
+  async function submitBooking(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const isOther = hospital === 'อื่นๆ';
+    const payload = {
+      patientName: data.get('patientName'),
+      patientRelation: data.get('patientRelation'),
+      contactName: data.get('contactName'),
+      contactPhone: data.get('contactPhone'),
+      contactLineId: data.get('contactLineId') || undefined,
+      district: data.get('district'),
+      hospital: isOther ? data.get('otherHospital') : hospital,
+      isOtherHospital: isOther,
+      package: `${content.packages[drawer.pkg].name} · ${drawer.hours} ชั่วโมง`,
+      submittedAt: new Date().toISOString(),
+    };
+    setStatus('sending');
+    try {
+      const res = await fetch('/api/booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('request failed');
+      setStatus('done');
+      form.reset();
+    } catch {
+      setStatus('error');
+    }
+  }
+
+  return (
+    <div className="v2">
+      <header className={`v2-nav${navSolid ? ' is-solid' : ''}`}>
+        <div className="v2-container v2-nav-inner">
+          <a className="v2-brand" href="#top" aria-label="GO CARES by AIKCHOL NEXT">
+            <img src={img(content.images.logo)} alt="" width={42} height={42} />
+            <span className="v2-brand-text">
+              <strong>GO CARES</strong>
+              <span>โดยโรงพยาบาลเอกชล</span>
+            </span>
+          </a>
+          <nav className="v2-nav-links" aria-label="เมนูหลัก">
+            <a href="#standard">มาตรฐานการดูแล</a>
+            <a href="#journey">หนึ่งวันกับเรา</a>
+            <a href="#pricing">ค่าบริการ</a>
+            <a href="#coverage">พื้นที่ให้บริการ</a>
+            <a href="#faq">คำถาม</a>
+          </nav>
+          <div className="v2-nav-actions">
+            <a className="v2-nav-phone" href={tel}>
+              {content.contact.hotlinePhone}
+            </a>
+            <button className="v2-btn v2-btn--gold v2-btn--sm" type="button" onClick={() => openBooking('pkg2')}>
+              จองผู้ดูแล
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <section className="v2-hero" id="top">
+        <div className="v2-hero-glow" aria-hidden="true" />
+        <div className="v2-container v2-hero-grid">
+          <div className="v2-hero-copy">
+            <p className="v2-eyebrow v2-eyebrow--light">GO CARES · โรงพยาบาลเอกชล</p>
+            <h1 className="v2-hero-title">
+              {headlineBreak ? (
+                <>
+                  {content.hero.headline.slice(0, -headlineTail.length)}
+                  <br className="v2-hero-br" />
+                  {headlineTail}
+                </>
+              ) : (
+                content.hero.headline
+              )}
+              <em>{content.hero.headlineAccent}</em>
+            </h1>
+            <p className="v2-hero-lead">
+              ผู้ดูแลมืออาชีพไปรับท่านถึงบ้าน อยู่ข้าง ๆ ทุกขั้นตอนในโรงพยาบาล
+              และส่งรายงานกลับถึงครอบครัวผ่าน LINE — คุณทำงานได้ โดยไม่ต้องเลือกอย่างใดอย่างหนึ่ง
+            </p>
+            <div className="v2-hero-actions">
+              <button className="v2-btn v2-btn--gold" type="button" onClick={() => openBooking('pkg2')}>
+                จองผู้ดูแล
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12" strokeLinecap="round" />
+                  <polyline points="12 5 19 12 12 19" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <a className="v2-btn v2-btn--ghost" href={lineUrl} target="_blank" rel="noopener">
+                LINE ปรึกษา
+              </a>
+            </div>
+            <div className="v2-hero-meta">
+              <span>
+                <CheckIcon /> เริ่มต้น {content.packages.pkg2.price5h} บาท · 5 ชั่วโมง
+              </span>
+              <span>
+                <CheckIcon /> ประเมินราคาฟรีก่อนยืนยัน
+              </span>
+            </div>
+          </div>
+
+          <div className="v2-hero-visual">
+            <div className="v2-arch-outline" aria-hidden="true" />
+            <figure className="v2-arch">
+              <img src={img(heroPhoto)} alt="ผู้ดูแล GO CARES วัดความดันให้ผู้สูงอายุที่บ้าน" />
+            </figure>
+            <figure className="v2-hero-inset">
+              <img src={img(heroInset)} alt="ผู้ดูแลพาผู้สูงอายุเข้าพบแพทย์ที่โรงพยาบาลเอกชล" />
+            </figure>
+            <div className="v2-line-card">
+              <span className="v2-line-dot" />
+              <div>
+                <strong>LINE Report</strong>
+                <span>แจ้งครอบครัวทุกขั้นตอน</span>
+              </div>
+            </div>
+            <div className="v2-seal" aria-hidden="true">
+              <span>CHONBURI</span>
+              <strong>AHC</strong>
+              <span>HOSPITAL CARE</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="v2-container">
+          <ul className="v2-trust">
+            <li>ก่อตั้งโดยโรงพยาบาลเอกชล</li>
+            <li>ผู้ดูแลผ่านการฝึกอบรม</li>
+            <li>LINE Report ทุกขั้นตอน</li>
+            <li>ครอบคลุม 8 อำเภอชลบุรี</li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="v2-section v2-standard" id="standard">
+        <div className="v2-container v2-standard-grid">
+          <div className="v2-standard-intro" data-reveal>
+            <p className="v2-eyebrow">THE GO CARES STANDARD</p>
+            <h2 className="v2-section-title">
+              ความอุ่นใจ
+              <br />
+              ถูกออกแบบไว้<span className="v2-underline">ทุกขั้นตอน</span>
+            </h2>
+            <p className="v2-section-lead">
+              GO CARES คือบริการผู้ดูแลและพาผู้สูงอายุไปโรงพยาบาลแบบครบวงจร
+              ที่เกิดจากโรงพยาบาลเอกชล โดยตรง — ไม่ใช่แค่รถรับจ้าง
+            </p>
+            <blockquote className="v2-quote">
+              “เราไม่ได้แค่พาท่านไปโรงพยาบาล — เราพาคนที่คุณรักไป ในฐานะตัวแทนของคุณ”
+            </blockquote>
+          </div>
+          <ol className="v2-pillars">
+            {PILLARS.map((pillar, i) => (
+              <li
+                className="v2-pillar"
+                key={pillar.num}
+                data-reveal
+                style={{ '--d': `${i * 90}ms` } as React.CSSProperties}
+              >
+                <span className="v2-pillar-num">{pillar.num}</span>
+                <div>
+                  <h3>{pillar.title}</h3>
+                  <p>{pillar.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="v2-journey" id="journey">
+        <div className="v2-container">
+          <div className="v2-section-head" data-reveal>
+            <p className="v2-eyebrow v2-eyebrow--light">A DAY WITH GO CARES</p>
+            <h2 className="v2-section-title v2-section-title--light">
+              หนึ่งวันของท่าน
+              <br />
+              <span className="v2-cyan">ในมือของเรา</span>
+            </h2>
+            <p className="v2-section-lead v2-section-lead--light">
+              ทุกขั้นตอนถูกวางแผนไว้ล่วงหน้า และรายงานให้ครอบครัวทราบแบบเรียลไทม์
+            </p>
+          </div>
+
+          <div className="v2-journey-grid">
+            <div className="v2-journey-list" role="tablist" aria-label="ขั้นตอนการดูแล">
+              {moments.map((m, i) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  role="tab"
+                  id={`v2-journey-tab-${m.id}`}
+                  aria-controls="v2-journey-panel"
+                  aria-selected={i === step}
+                  className={`v2-journey-btn${i === step ? ' is-active' : ''}`}
+                  onClick={() => setStep(i)}
+                >
+                  <span className="v2-journey-num">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="v2-journey-label">
+                    <strong>{m.tag.replace(/^Step\s*\d+\s*:\s*/i, '')}</strong>
+                    <span>{m.title}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {moment && (
+              <div
+                className="v2-journey-panel"
+                data-reveal
+                role="tabpanel"
+                id="v2-journey-panel"
+                aria-labelledby={`v2-journey-tab-${moment.id}`}
+              >
+                <div className="v2-journey-media">
+                  <img src={img(moment.image)} alt={moment.title} />
+                  <span className="v2-journey-tag">{moment.tag}</span>
+                </div>
+                <div className="v2-journey-body">
+                  <h3>{moment.title}</h3>
+                  <p>{moment.desc}</p>
+                  <ul>
+                    <li>
+                      <CheckIcon />
+                      {moment.bullet1}
+                    </li>
+                    <li>
+                      <CheckIcon />
+                      {moment.bullet2}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="v2-section v2-risks" id="why">
+        <div className="v2-container">
+          <div className="v2-section-head" data-reveal>
+            <p className="v2-eyebrow">WHY WE STAY</p>
+            <h2 className="v2-section-title">
+              ทำไมเราไม่ปล่อยให้ท่าน
+              <br />
+              ไปโรงพยาบาล<span className="v2-underline">คนเดียว</span>
+            </h2>
+            <p className="v2-section-lead">
+              ความเสี่ยงส่วนใหญ่ไม่ได้อยู่ที่การรักษา แต่อยู่ที่การเดินทางและรายละเอียดระหว่างวัน
+            </p>
+          </div>
+          <div className="v2-risk-grid">
+            {RISKS.map((item, i) => (
+              <article
+                key={item.risk}
+                className="v2-risk"
+                data-reveal
+                style={{ '--d': `${i * 90}ms` } as React.CSSProperties}
+              >
+                <span className="v2-risk-idx">{String(i + 1).padStart(2, '0')}</span>
+                <h3>{item.risk}</h3>
+                <p className="v2-risk-impact">{item.impact}</p>
+                <div className="v2-risk-fix">
+                  <span>GO CARES</span>
+                  <p>{item.fix}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="v2-section v2-pricing" id="pricing">
+        <div className="v2-container">
+          <div className="v2-section-head" data-reveal>
+            <p className="v2-eyebrow">TRANSPARENT PRICING</p>
+            <h2 className="v2-section-title">
+              ราคาชัดเจน
+              <br />
+              <span className="v2-underline">ไม่มีค่าใช้จ่ายแอบแฝง</span>
+            </h2>
+            <p className="v2-section-lead">
+              เลือกระยะเวลาที่เหมาะกับนัดของท่าน ทีมงานยืนยันราคาก่อนให้บริการทุกครั้ง
+            </p>
+          </div>
+
+          <div className="v2-toggle" role="group" aria-label="ระยะเวลาบริการ" data-reveal>
+            {(['5', '8'] as Hours[]).map((h) => (
+              <button
+                key={h}
+                type="button"
+                className={hours === h ? 'is-active' : ''}
+                aria-pressed={hours === h}
+                onClick={() => setHours(h)}
+              >
+                {h} ชั่วโมง <span>{h === '5' ? 'ครึ่งวัน' : 'เต็มวัน'}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="v2-price-grid">
+            {PKG_KEYS.map((key, i) => {
+              const pkg = content.packages[key];
+              const featured = key === 'pkg2';
+              return (
+                <article
+                  key={key}
+                  className={`v2-price-card${featured ? ' v2-price-card--featured' : ''}`}
+                  data-reveal
+                  style={{ '--d': `${i * 90}ms` } as React.CSSProperties}
+                >
+                  {featured && <span className="v2-crown">แนะนำ · ยอดนิยม</span>}
+                  <div className="v2-price-head">
+                    <span className="v2-price-num">{String(i + 1).padStart(2, '0')}</span>
+                    <h3>{pkg.name}</h3>
+                    <p>{pkg.sub}</p>
+                  </div>
+                  <div className="v2-price-amount">
+                    <strong>{hours === '5' ? pkg.price5h : pkg.price8h}</strong>
+                    <span>บาท / {hours} ชั่วโมง</span>
+                  </div>
+                  <ul className="v2-price-feats">
+                    {FEATURES[key].map((feature) => (
+                      <li key={feature}>
+                        <CheckIcon />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    type="button"
+                    className={`v2-btn ${featured ? 'v2-btn--gold' : 'v2-btn--outline'}`}
+                    onClick={() => openBooking(key, hours)}
+                  >
+                    จองแพ็กเกจนี้
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+          <p className="v2-pricing-note">
+            * ค่าที่จอดรถ ค่ารักษาพยาบาล ค่ายา และค่าอาหาร ไม่รวมในแพ็กเกจ — แจ้งล่วงหน้าทุกครั้งหากมีค่าใช้จ่ายเพิ่ม
+          </p>
+        </div>
+      </section>
+
+      <section className="v2-section v2-report" id="report">
+        <div className="v2-container v2-report-grid">
+          <div className="v2-report-media" data-reveal>
+            <div className="v2-report-frame">
+              <img src={img(content.images.reportMockup)} alt="ตัวอย่าง Service Report ที่ส่งให้ครอบครัวผ่าน LINE" />
+            </div>
+            <span className="v2-report-badge">
+              <span className="v2-line-dot" /> ส่งถึงมือครอบครัว ผ่าน LINE
+            </span>
+          </div>
+          <div className="v2-report-copy" data-reveal>
+            <p className="v2-eyebrow">FAMILY TRANSPARENCY</p>
+            <h2 className="v2-section-title">
+              คุณไม่ต้องโทรถาม
+              <br />
+              <span className="v2-underline">ทุกอย่างถูกส่งให้ดู</span>
+            </h2>
+            <p className="v2-section-lead">
+              ครอบครัวที่ติดงานหรืออยู่ต่างจังหวัด เห็นทุกความคืบหน้าเหมือนนั่งอยู่ข้าง ๆ
+            </p>
+            <ol className="v2-timeline">
+              {TIMELINE.map((item) => (
+                <li key={item.time}>
+                  <span className="v2-timeline-time">{item.time}</span>
+                  <div>
+                    <strong>{item.title}</strong>
+                    <p>{item.desc}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section className="v2-section v2-coverage" id="coverage">
+        <div className="v2-container">
+          <div className="v2-section-head" data-reveal>
+            <p className="v2-eyebrow">SERVICE AREA</p>
+            <h2 className="v2-section-title">
+              ครอบคลุมทั้งชลบุรี
+              <br />
+              <span className="v2-underline">8 อำเภอ</span>
+            </h2>
+          </div>
+          <div className="v2-cover-grid">
+            <figure className="v2-map" data-reveal>
+              <img src={img(content.images.mapImage)} alt="แผนที่พื้นที่ให้บริการ GO CARES จังหวัดชลบุรี" />
+            </figure>
+            <div className="v2-cover-side" data-reveal>
+              <div className="v2-districts">
+                {DISTRICTS.map((d) => (
+                  <span key={d}>{d}</span>
+                ))}
+              </div>
+              <div className="v2-prep">
+                <h3>เตรียม 5 อย่างก่อนเดินทาง</h3>
+                <ol>
+                  {CHECKLIST.map((item, i) => (
+                    <li key={item}>
+                      <span>{i + 1}</span>
+                      {item}
+                    </li>
+                  ))}
+                </ol>
+                <p className="v2-prep-note">
+                  ยาที่ใช้อยู่ทั้งหมดสำคัญที่สุด — แพทย์ต้องเห็นก่อนสั่งยาใหม่
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="v2-section v2-faq" id="faq">
+        <div className="v2-container v2-faq-grid">
+          <div data-reveal>
+            <p className="v2-eyebrow">QUESTIONS</p>
+            <h2 className="v2-section-title">
+              ยังมีคำถาม
+              <br />
+              <span className="v2-underline">เราพร้อมตอบ</span>
+            </h2>
+            <p className="v2-section-lead">หรือโทรหาทีมงานได้โดยตรงทุกวัน</p>
+            <a className="v2-phone-link" href={tel}>
+              {content.contact.hotlinePhone}
+            </a>
+          </div>
+          <div className="v2-faq-list" data-reveal>
+            {FAQS.map((faq, i) => (
+              <div key={faq.q} className={`v2-faq-item${openFaq === i ? ' is-open' : ''}`}>
+                <button
+                  type="button"
+                  aria-expanded={openFaq === i}
+                  onClick={() => setOpenFaq(openFaq === i ? -1 : i)}
+                >
+                  <span>{faq.q}</span>
+                  <i aria-hidden="true" />
+                </button>
+                <div className="v2-faq-a">
+                  <div>
+                    <p>{faq.a}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="v2-final">
+        <img src={img(finalPhoto)} alt="" aria-hidden="true" />
+        <div className="v2-container">
+          <div className="v2-final-inner" data-reveal>
+            <p className="v2-eyebrow v2-eyebrow--light">READY WHEN YOU ARE</p>
+            <h2>
+              พรุ่งนี้มีนัดหมอ
+              <br />
+              <em>ให้เราพาไปนะครับ</em>
+            </h2>
+            <p>
+              จองวันนี้ ทีมงานติดต่อกลับเพื่อวางแผนการเดินทาง
+              และประเมินราคาให้ทราบก่อนยืนยันทุกครั้ง
+            </p>
+            <div className="v2-final-actions">
+              <button className="v2-btn v2-btn--gold" type="button" onClick={() => openBooking('pkg2')}>
+                จองผู้ดูแล
+              </button>
+              <a className="v2-btn v2-btn--ghost" href={tel}>
+                โทร {content.contact.hotlinePhone}
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="v2-footer">
+        <div className="v2-container v2-footer-grid">
+          <div className="v2-footer-brand">
+            <a className="v2-brand" href="#top">
+              <img src={img(content.images.logo)} alt="" width={42} height={42} />
+              <span className="v2-brand-text">
+                <strong>GO CARES</strong>
+                <span>โดยโรงพยาบาลเอกชล</span>
+              </span>
+            </a>
+            <p>
+              บริการผู้ดูแลและพาผู้สูงอายุไปโรงพยาบาลแบบครบวงจร
+              โดยโรงพยาบาลเอกชล จังหวัดชลบุรี
+            </p>
+          </div>
+          <div>
+            <h4>บริการ</h4>
+            <ul>
+              <li>
+                <a href="#standard">มาตรฐานการดูแล</a>
+              </li>
+              <li>
+                <a href="#journey">หนึ่งวันกับเรา</a>
+              </li>
+              <li>
+                <a href="#pricing">ค่าบริการ</a>
+              </li>
+              <li>
+                <a href="#coverage">พื้นที่ให้บริการ</a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4>ติดต่อ</h4>
+            <ul>
+              <li>
+                <a href={tel}>สายด่วน {content.contact.hotlinePhone}</a>
+              </li>
+              <li>
+                <a href={lineUrl} target="_blank" rel="noopener">
+                  LINE {content.contact.lineOaId}
+                </a>
+              </li>
+              <li>โรงพยาบาลเอกชล · อ.เมืองชลบุรี</li>
+              <li>เปิดบริการทุกวัน</li>
+            </ul>
+          </div>
+        </div>
+        <div className="v2-container v2-footer-bottom">
+          <span>© 2026 AIKCHOL HOSPITAL PUBLIC COMPANY LIMITED.</span>
+          <a className="v2-eco-link" href="/">
+            AIKCHOL NEXT Health Ecosystem
+          </a>
+        </div>
+      </footer>
+
+      <div className="v2-sticky">
+        <a className="v2-sticky-call" href={tel} aria-label={`โทร ${content.contact.hotlinePhone}`}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          โทร
+        </a>
+        <button className="v2-btn v2-btn--gold" type="button" onClick={() => openBooking('pkg2')}>
+          จองผู้ดูแล
+        </button>
+      </div>
+
+      {drawer.open && (
+        <div className="v2-drawer" role="dialog" aria-modal="true" aria-labelledby="v2DrawerTitle">
+          <button className="v2-drawer-backdrop" type="button" aria-label="ปิดหน้าต่างจอง" onClick={closeBooking} />
+          <div className="v2-drawer-card">
+            <div className="v2-drawer-head">
+              <div>
+                <p className="v2-eyebrow">PRIVATE BOOKING</p>
+                <h3 id="v2DrawerTitle">จองผู้ดูแล GO CARES</h3>
+                <p>เจ้าหน้าที่จะติดต่อกลับเพื่อยืนยันนัดและประเมินเส้นทาง — ไม่มีค่าใช้จ่ายล่วงหน้า</p>
+              </div>
+              <button className="v2-drawer-close" type="button" onClick={closeBooking} aria-label="ปิด">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" strokeLinecap="round" />
+                  <line x1="6" y1="6" x2="18" y2="18" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            {status === 'done' ? (
+              <div className="v2-drawer-done">
+                <span className="v2-drawer-check">
+                  <CheckIcon />
+                </span>
+                <h4>รับข้อมูลเรียบร้อยแล้ว</h4>
+                <p>เจ้าหน้าที่ GO CARES จะติดต่อกลับภายในเวลาทำการ เพื่อยืนยันการนัดหมาย</p>
+                <button className="v2-btn v2-btn--gold" type="button" onClick={closeBooking}>
+                  ปิด
+                </button>
+              </div>
+            ) : (
+              <form className="v2-form" onSubmit={submitBooking}>
+                <div className="v2-form-pkg">
+                  {PKG_KEYS.map((key) => (
+                    <button
+                      key={key}
+                      type="button"
+                      className={drawer.pkg === key ? 'is-active' : ''}
+                      onClick={() => setDrawer((d) => ({ ...d, pkg: key }))}
+                    >
+                      {content.packages[key].name.replace('แพ็กเกจ', '').trim()}
+                    </button>
+                  ))}
+                </div>
+                <div className="v2-form-hours">
+                  {(['5', '8'] as Hours[]).map((h) => (
+                    <button
+                      key={h}
+                      type="button"
+                      className={drawer.hours === h ? 'is-active' : ''}
+                      onClick={() => setDrawer((d) => ({ ...d, hours: h }))}
+                    >
+                      {h} ชั่วโมง
+                    </button>
+                  ))}
+                </div>
+
+                <div className="v2-form-row">
+                  <label>
+                    ชื่อผู้ป่วย / ผู้สูงอายุ *
+                    <input name="patientName" required placeholder="เช่น คุณแม่สมศรี ใจดี" />
+                  </label>
+                  <label>
+                    ความสัมพันธ์
+                    <select name="patientRelation" defaultValue="บุตร / ธิดา">
+                      <option>บุตร / ธิดา</option>
+                      <option>คู่สมรส</option>
+                      <option>ญาติ / หลาน</option>
+                      <option>ผู้ดูแลประจำ</option>
+                      <option>ตนเอง</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div className="v2-form-row">
+                  <label>
+                    ชื่อผู้ติดต่อ *
+                    <input name="contactName" required placeholder="เช่น คุณวิภา (ลูกสาว)" />
+                  </label>
+                  <label>
+                    เบอร์โทรติดต่อกลับ *
+                    <input name="contactPhone" type="tel" required placeholder="08X-XXX-XXXX" />
+                  </label>
+                </div>
+
+                <div className="v2-form-row">
+                  <label>
+                    LINE ID (สำหรับส่งรายงาน)
+                    <input name="contactLineId" placeholder="เช่น wipha_care" />
+                  </label>
+                  <label>
+                    อำเภอที่พัก *
+                    <select name="district" required>
+                      {DISTRICTS.map((d) => (
+                        <option key={d}>{d}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                <label>
+                  โรงพยาบาลปลายทาง
+                  <select name="hospital" value={hospital} onChange={(e) => setHospital(e.target.value)}>
+                    {HOSPITALS.map((h) => (
+                      <option key={h}>{h}</option>
+                    ))}
+                  </select>
+                </label>
+
+                {hospital === 'อื่นๆ' && (
+                  <label>
+                    ระบุชื่อโรงพยาบาล / คลินิก *
+                    <input name="otherHospital" required maxLength={120} placeholder="เช่น รพ.กรุงเทพพัทยา" />
+                  </label>
+                )}
+
+                {status === 'error' && (
+                  <p className="v2-form-error">
+                    ส่งข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง หรือโทร {content.contact.hotlinePhone}
+                  </p>
+                )}
+
+                <button className="v2-btn v2-btn--gold v2-form-submit" type="submit" disabled={status === 'sending'}>
+                  {status === 'sending' ? 'กำลังส่ง...' : 'ยืนยันการจอง'}
+                </button>
+                <p className="v2-form-note">
+                  หรือโทร <a href={tel}>{content.contact.hotlinePhone}</a> · LINE {content.contact.lineOaId}
+                </p>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

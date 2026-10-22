@@ -66,11 +66,6 @@ export default function Footer({ content }: { content: SiteContent }) {
                   โรงพยาบาลเอกชล (อ่างศิลา)
                 </a>
               </li>
-              <li>
-                <a href="#" className="ahc-footer-link">
-                  AIKCHOL NEXT Health Ecosystem
-                </a>
-              </li>
             </ul>
           </div>
 
@@ -107,6 +102,13 @@ export default function Footer({ content }: { content: SiteContent }) {
         <div className="ahc-footer-bottom">
           <div>© 2026 AIKCHOL HOSPITAL PUBLIC COMPANY LIMITED. All Rights Reserved.</div>
           <div>Enhancing Family Happiness • Care Beyond the Hospital</div>
+          <a
+            href="/v2"
+            aria-label="AIKCHOL NEXT Health Ecosystem"
+            style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.04em' }}
+          >
+            AIKCHOL NEXT Health Ecosystem
+          </a>
         </div>
       </div>
     </footer>

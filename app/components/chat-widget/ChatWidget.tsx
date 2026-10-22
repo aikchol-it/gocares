@@ -342,6 +342,7 @@ export default function ChatWidget() {
     <>
       {/* Floating Action Button (bottom-right) */}
       <div
+        className="ahc-chat-fab"
         style={{
           position: 'fixed',
           bottom: '24px',
