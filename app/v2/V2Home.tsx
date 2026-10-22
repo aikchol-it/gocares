@@ -332,10 +332,20 @@ export default function V2Home({ content }: { content: SiteContent }) {
           <div className="v2-hero-visual">
             <div className="v2-arch-outline" aria-hidden="true" />
             <figure className="v2-arch">
-              <img src={img(heroPhoto)} alt="ผู้ดูแล GO CARES วัดความดันให้ผู้สูงอายุที่บ้าน" />
+              <img
+                src={img(heroPhoto)}
+                alt="ผู้ดูแล GO CARES วัดความดันให้ผู้สูงอายุที่บ้าน"
+                fetchPriority="high"
+                decoding="async"
+              />
             </figure>
             <figure className="v2-hero-inset">
-              <img src={img(heroInset)} alt="ผู้ดูแลพาผู้สูงอายุเข้าพบแพทย์ที่โรงพยาบาลเอกชล" />
+              <img
+                src={img(heroInset)}
+                alt="ผู้ดูแลพาผู้สูงอายุเข้าพบแพทย์ที่โรงพยาบาลเอกชล"
+                loading="lazy"
+                decoding="async"
+              />
             </figure>
             <div className="v2-line-card">
               <span className="v2-line-dot" />
@@ -443,7 +453,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
                 aria-labelledby={`v2-journey-tab-${moment.id}`}
               >
                 <div className="v2-journey-media">
-                  <img src={img(moment.image)} alt={moment.title} />
+                  <img src={img(moment.image)} alt={moment.title} loading="lazy" decoding="async" />
                   <span className="v2-journey-tag">{moment.tag}</span>
                 </div>
                 <div className="v2-journey-body">
@@ -585,7 +595,12 @@ export default function V2Home({ content }: { content: SiteContent }) {
         <div className="v2-container v2-report-grid">
           <div className="v2-report-media" data-reveal>
             <div className="v2-report-frame">
-              <img src={img(content.images.reportMockup)} alt="ตัวอย่าง Service Report ที่ส่งให้ครอบครัวผ่าน LINE" />
+              <img
+                src={img(content.images.reportMockup)}
+                alt="ตัวอย่าง Service Report ที่ส่งให้ครอบครัวผ่าน LINE"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <span className="v2-report-badge">
               <span className="v2-line-dot" /> ส่งถึงมือครอบครัว ผ่าน LINE
@@ -628,7 +643,12 @@ export default function V2Home({ content }: { content: SiteContent }) {
           </div>
           <div className="v2-cover-grid">
             <figure className="v2-map" data-reveal>
-              <img src={img(content.images.mapImage)} alt="แผนที่พื้นที่ให้บริการ GO CARES จังหวัดชลบุรี" />
+              <img
+                src={img(content.images.mapImage)}
+                alt="แผนที่พื้นที่ให้บริการ GO CARES จังหวัดชลบุรี"
+                loading="lazy"
+                decoding="async"
+              />
               <span className="v2-map-glow" style={{ left: `${activeSpot.x}%`, top: `${activeSpot.y}%` }} />
               {MAP_DISTRICTS.map((d) => (
                 <button
@@ -730,7 +750,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
       </section>
 
       <section className="v2-final">
-        <img src={img(finalPhoto)} alt="" aria-hidden="true" />
+        <img src={img(finalPhoto)} alt="" aria-hidden="true" loading="lazy" decoding="async" />
         <div className="v2-container">
           <div className="v2-final-inner" data-reveal>
             <p className="v2-eyebrow v2-eyebrow--light">READY WHEN YOU ARE</p>
