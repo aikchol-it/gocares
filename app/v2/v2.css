@@ -1791,6 +1791,10 @@
 
 .v2-form-pkg button,
 .v2-form-hours button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
   min-height: 46px;
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -1800,6 +1804,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.v2-form-pkg button small {
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0.75;
 }
 
 .v2-form-pkg button.is-active,

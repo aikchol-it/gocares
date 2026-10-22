@@ -509,6 +509,10 @@ export default function V2Home({ content }: { content: SiteContent }) {
               <br />
               <span className="v2-underline">ไม่มีบวกเพิ่มทีหลัง</span>
             </h2>
+            <p className="v2-section-lead">
+              ราคาขึ้นกับเวลาที่ใช้และระยะทางจากบ้านถึงโรงพยาบาล
+              ถ้าเกินเวลา 150 บาท/ชม. เกินระยะ 12 บาท/กม. ทีมงานแจ้งก่อนคิดทุกครั้ง
+            </p>
           </div>
 
           <div className="v2-price-grid">
@@ -838,7 +842,10 @@ export default function V2Home({ content }: { content: SiteContent }) {
                       className={drawer.pkg === key ? 'is-active' : ''}
                       onClick={() => setDrawer((d) => ({ ...d, pkg: key }))}
                     >
-                      {content.packages[key].name}
+                      <span>{content.packages[key].name}</span>
+                      <small>
+                        {content.packages[key].hours} ชม. · {content.packages[key].price} บ.
+                      </small>
                     </button>
                   ))}
                 </div>
