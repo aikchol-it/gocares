@@ -19,6 +19,17 @@ const DISTRICTS = [
   'อำเภอหนองใหญ่',
 ];
 
+const MAP_DISTRICTS = [
+  { key: 'mueang', name: 'อำเภอเมืองชลบุรี', x: 31.08, y: 24.03, low: true },
+  { key: 'phanthong', name: 'อำเภอพานทอง', x: 41.06, y: 13.26, below: true },
+  { key: 'phanat', name: 'อำเภอพนัสนิคม', x: 54.49, y: 9.53, below: true },
+  { key: 'banbueng', name: 'อำเภอบ้านบึง', x: 47.97, y: 26.93, low: true },
+  { key: 'bothong', name: 'อำเภอบ่อทอง', x: 77.13, y: 27.75, low: true },
+  { key: 'sriracha', name: 'อำเภอศรีราชา', x: 34.15, y: 39.35 },
+  { key: 'nongyai', name: 'อำเภอหนองใหญ่', x: 59.86, y: 45.98 },
+  { key: 'banglamung', name: 'อำเภอบางละมุง (พัทยา)', x: 32.62, y: 59.24 },
+];
+
 const HOSPITALS = [
   'โรงพยาบาลเอกชล (ถ.พระยาสัจจา)',
   'โรงพยาบาลเอกชล อ่างศิลา (ถ.อ่างศิลา)',
@@ -150,6 +161,8 @@ export default function V2Home({ content }: { content: SiteContent }) {
   });
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
   const [hospital, setHospital] = useState(HOSPITALS[0]);
+  const [district, setDistrict] = useState(MAP_DISTRICTS[0].key);
+  const activeSpot = MAP_DISTRICTS.find((d) => d.key === district) || MAP_DISTRICTS[0];
 
   const tel = `tel:${content.contact.hotlinePhone.replace(/\s+/g, '')}`;
   const lineUrl = content.contact.lineOaUrl;
@@ -606,11 +619,49 @@ export default function V2Home({ content }: { content: SiteContent }) {
           <div className="v2-cover-grid">
             <figure className="v2-map" data-reveal>
               <img src={img(content.images.mapImage)} alt="แผนที่พื้นที่ให้บริการ GO CARES จังหวัดชลบุรี" />
+              <span className="v2-map-glow" style={{ left: `${activeSpot.x}%`, top: `${activeSpot.y}%` }} />
+              {MAP_DISTRICTS.map((d) => (
+                <button
+                  key={d.key}
+                  type="button"
+                  className={`v2-map-hotspot${district === d.key ? ' is-active' : ''}`}
+                  style={{ left: `${d.x}%`, top: `${d.y}%` }}
+                  aria-label={d.name}
+                  aria-pressed={district === d.key}
+                  onClick={() => setDistrict(d.key)}
+                />
+              ))}
+              <span
+                className={`v2-map-pin${activeSpot.below ? ' is-below' : ''}${activeSpot.low ? ' is-low' : ''}`}
+                style={{ left: `${activeSpot.x}%`, top: `max(${activeSpot.y}%, 52px)` }}
+                aria-hidden="true"
+              >
+                <span className="v2-map-ring" />
+                <span className="v2-map-marker">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="#ffffff">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                  </svg>
+                </span>
+                <span className="v2-map-badge">
+                  <strong>{activeSpot.name}</strong>
+                  <span>
+                    <i />พื้นที่ให้บริการ GO CARES
+                  </span>
+                </span>
+              </span>
             </figure>
             <div className="v2-cover-side" data-reveal>
               <div className="v2-districts">
-                {DISTRICTS.map((d) => (
-                  <span key={d}>{d}</span>
+                {MAP_DISTRICTS.map((d) => (
+                  <button
+                    key={d.key}
+                    type="button"
+                    className={district === d.key ? 'is-active' : undefined}
+                    aria-pressed={district === d.key}
+                    onClick={() => setDistrict(d.key)}
+                  >
+                    {d.name}
+                  </button>
                 ))}
               </div>
               <div className="v2-prep">
