@@ -42,12 +42,12 @@ const HOSPITALS = [
 const PILLARS = [
   {
     num: 'I',
-    title: 'ผู้ดูแลจากมาตรฐานโรงพยาบาล',
+    title: 'ผู้ดูแลที่ผ่านมาตรฐานโรงพยาบาล',
     desc: 'คัดกรองประวัติอย่างเข้มงวด ผ่านการอบรมการดูแลผู้สูงอายุ การปฐมพยาบาล และการเคลื่อนย้ายผู้ป่วยตามมาตรฐานโรงพยาบาลเอกชล',
   },
   {
     num: 'II',
-    title: 'รถรับ-ส่งเฉพาะ ไม่ใช่รถโดยสาร',
+    title: 'รถรับ-ส่งเฉพาะ ไม่มีผู้โดยสารร่วม',
     desc: 'รถตู้ GO CARES สะอาด แอร์เย็น รองรับรถเข็น พร้อมผู้ดูแลช่วยพยุงขึ้น-ลงอย่างถูกวิธีในทุกเที่ยว',
   },
   {
@@ -304,8 +304,8 @@ export default function V2Home({ content }: { content: SiteContent }) {
               <em>{content.hero.headlineAccent}</em>
             </h1>
             <p className="v2-hero-lead">
-              ผู้ดูแลมืออาชีพไปรับท่านถึงบ้าน อยู่ข้าง ๆ ทุกขั้นตอนในโรงพยาบาล
-              และส่งรายงานกลับถึงครอบครัวผ่าน LINE — คุณทำงานได้ โดยไม่ต้องเลือกอย่างใดอย่างหนึ่ง
+              ผู้ดูแลมารับท่านถึงบ้าน อยู่ข้าง ๆ ทุกขั้นตอนในโรงพยาบาล
+              และส่งรายงานให้ครอบครัวผ่าน LINE คุณจึงทำงานได้เต็มวันโดยไม่ต้องลางาน
             </p>
             <div className="v2-hero-actions">
               <button className="v2-btn v2-btn--gold" type="button" onClick={() => openBooking('pkg2')}>
@@ -382,11 +382,11 @@ export default function V2Home({ content }: { content: SiteContent }) {
               ถูกออกแบบไว้<span className="v2-underline">ทุกขั้นตอน</span>
             </h2>
             <p className="v2-section-lead">
-              GO CARES คือบริการผู้ดูแลและพาผู้สูงอายุไปโรงพยาบาลแบบครบวงจร
-              ที่เกิดจากโรงพยาบาลเอกชล โดยตรง — ไม่ใช่แค่รถรับจ้าง
+              GO CARES เป็นบริการของโรงพยาบาลเอกชลโดยตรง ผู้ดูแลจะอยู่กับท่าน
+              ตั้งแต่หน้าบ้าน ระหว่างตรวจ ไปจนถึงส่งกลับเข้าบ้าน
             </p>
             <blockquote className="v2-quote">
-              “เราไม่ได้แค่พาท่านไปโรงพยาบาล — เราพาคนที่คุณรักไป ในฐานะตัวแทนของคุณ”
+              “เราพาคนที่คุณรักไปโรงพยาบาล ในฐานะตัวแทนของคุณ”
             </blockquote>
           </div>
           <ol className="v2-pillars">
@@ -418,7 +418,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
               <span className="v2-cyan">ในมือของเรา</span>
             </h2>
             <p className="v2-section-lead v2-section-lead--light">
-              ทุกขั้นตอนถูกวางแผนไว้ล่วงหน้า และรายงานให้ครอบครัวทราบแบบเรียลไทม์
+              ทุกขั้นตอนถูกวางแผนไว้ล่วงหน้า และแจ้งให้ครอบครัวรู้ระหว่างวัน
             </p>
           </div>
 
@@ -481,7 +481,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
           <div className="v2-section-head" data-reveal>
             <p className="v2-eyebrow">VDO PRESENTATION • 1:47 นาที</p>
             <h2 className="v2-section-title">
-              หนึ่งวันกับ GO CARES
+              เส้นทางการดูแลทั้งหมด
               <br />
               <span className="v2-underline">ใน 1:47 นาที</span>
             </h2>
@@ -609,9 +609,9 @@ export default function V2Home({ content }: { content: SiteContent }) {
           <div className="v2-report-copy" data-reveal>
             <p className="v2-eyebrow">FAMILY TRANSPARENCY</p>
             <h2 className="v2-section-title">
-              คุณไม่ต้องโทรถาม
+              ทุกความคืบหน้า
               <br />
-              <span className="v2-underline">ทุกอย่างถูกส่งให้ดู</span>
+              <span className="v2-underline">ส่งถึงมือครอบครัว</span>
             </h2>
             <p className="v2-section-lead">
               ครอบครัวที่ติดงานหรืออยู่ต่างจังหวัด เห็นทุกความคืบหน้าเหมือนนั่งอยู่ข้าง ๆ
@@ -705,7 +705,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
                   ))}
                 </ol>
                 <p className="v2-prep-note">
-                  ยาที่ใช้อยู่ทั้งหมดสำคัญที่สุด — แพทย์ต้องเห็นก่อนสั่งยาใหม่
+                  ยาที่ใช้อยู่ทั้งหมดสำคัญที่สุด เพราะแพทย์ต้องเห็นก่อนสั่งยาใหม่
                 </p>
               </div>
             </div>
@@ -786,7 +786,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
               </span>
             </a>
             <p>
-              บริการผู้ดูแลและพาผู้สูงอายุไปโรงพยาบาลแบบครบวงจร
+              ผู้ดูแลพาผู้สูงอายุไปโรงพยาบาล ตั้งแต่ออกจากบ้านจนถึงส่งกลับ
               โดยโรงพยาบาลเอกชล จังหวัดชลบุรี
             </p>
           </div>
