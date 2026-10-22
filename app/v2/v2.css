@@ -899,7 +899,7 @@
 
 .v2-price-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 22px;
   align-items: stretch;
 }
@@ -978,6 +978,7 @@
 
 .v2-price-amount {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 8px;
   margin: 20px 0 22px;
@@ -998,6 +999,7 @@
 
 .v2-price-amount span {
   font-size: 0.8rem;
+  line-height: 1.35;
   color: var(--ink-soft);
 }
 
@@ -1783,7 +1785,7 @@
 
 .v2-form-pkg {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
 
@@ -1924,6 +1926,10 @@
 }
 
 @media (max-width: 1080px) {
+  .v2-price-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .v2-hero-grid {
     gap: 40px;
   }

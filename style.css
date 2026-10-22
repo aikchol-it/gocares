@@ -1784,7 +1784,7 @@ button, input, select, textarea {
 
 .ahc-pricing-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 28px;
   align-items: stretch;
 }
@@ -2993,7 +2993,7 @@ button, input, select, textarea {
 
 .ahc-package-select-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
@@ -3272,5 +3272,11 @@ button, input, select, textarea {
   }
   body {
     padding-bottom: 70px;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1240px) {
+  .ahc-pricing-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

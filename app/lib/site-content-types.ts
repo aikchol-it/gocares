@@ -26,8 +26,9 @@ export interface SitePackageItem {
   id: string;
   name: string;
   sub: string;
-  price5h: string;
-  price8h: string;
+  price: string;
+  hours: string;
+  distance: string;
 }
 
 export interface SiteMomentItem {
@@ -81,6 +82,7 @@ export interface SiteContent {
     pkg1: SitePackageItem;
     pkg2: SitePackageItem;
     pkg3: SitePackageItem;
+    pkg4: SitePackageItem;
   };
   moments: SiteMomentItem[];
   personas: SitePersonaItem[];
@@ -109,7 +111,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     bullet1: '<strong>รถรับ-ส่งถึงบ้าน</strong> พร้อมผู้ดูแล 1:1 ช่วยพยุง รองรับรถเข็น',
     bullet2: '<strong>เข้าห้องตรวจ &amp; จดคำสั่งหมอ</strong> ทวนยา ป้องกันกินผิด',
     bullet3: '<strong>LINE Report สดทุกขั้นตอน</strong> แม้ติดงานก็อุ่นใจ',
-    bookBtnText: 'จองเดี๋ยวนี้  เริ่ม 1,300.-',
+    bookBtnText: 'จองเดี๋ยวนี้ เริ่ม 500.-',
     lineBtnText: 'LINE ปรึกษา',
     callBtnText: 'โทรฟรี',
   },
@@ -121,24 +123,35 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   packages: {
     pkg1: {
       id: 'pkg1',
-      name: 'แพ็กเกจมาตรฐาน',
-      sub: 'พาผู้สูงอายุไปพบแพทย์ ณ โรงพยาบาล',
-      price5h: '1,000',
-      price8h: '1,500',
+      name: 'Economic',
+      sub: 'นัดสั้น ใกล้บ้าน · รหัส GOC0001',
+      price: '500',
+      hours: '3',
+      distance: 'ฟรี 10 กม.',
     },
     pkg2: {
       id: 'pkg2',
-      name: 'แพ็กเกจผู้ดูแล + รถ',
-      sub: 'พาพบแพทย์ พร้อมรถรับ-ส่งเฉพาะตลอดเส้นทาง',
-      price5h: '1,300',
-      price8h: '1,900',
+      name: 'Standard I',
+      sub: 'นัดครึ่งวันทั่วไป · รหัส GOC0002',
+      price: '900',
+      hours: '5',
+      distance: 'ฟรี 10 กม.',
     },
     pkg3: {
       id: 'pkg3',
-      name: 'แพ็กเกจพาทำกิจกรรม',
-      sub: 'พาไปทำธุระ นัดหมายพิเศษ หรือพักผ่อน',
-      price5h: '1,500',
-      price8h: '2,200',
+      name: 'Standard II',
+      sub: 'นัดครึ่งวันที่ไปไกลขึ้น · รหัส GOC0003',
+      price: '1,200',
+      hours: '5',
+      distance: 'รวม 30 กม.',
+    },
+    pkg4: {
+      id: 'pkg4',
+      name: 'บริการอื่นๆ',
+      sub: 'ธุระส่วนตัว ราชการ หรือพาเที่ยว · รหัส GOC0004',
+      price: '1,400',
+      hours: '8',
+      distance: 'ฟรี 10 กม. แรก',
     },
   },
   moments: [

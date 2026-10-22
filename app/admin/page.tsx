@@ -825,7 +825,7 @@ export default function AdminDashboardPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
                 {/* Package 1 */}
                 <div style={{ padding: '16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', background: '#f8fafc' }}>
-                  <h4 style={{ margin: '0 0 10px', color: '#004680', fontWeight: 700 }}>แพ็กเกจ 1: มาตรฐาน</h4>
+                  <h4 style={{ margin: '0 0 10px', color: '#004680', fontWeight: 700 }}>แพ็กเกจ 1: Economic</h4>
                   <div style={{ marginBottom: '10px' }}>
                     <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ชื่อแพ็กเกจ</label>
                     <input
@@ -839,13 +839,13 @@ export default function AdminDashboardPage() {
                     />
                   </div>
                   <div style={{ marginBottom: '10px' }}>
-                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ราคา (5 ชั่วโมง)</label>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ราคา (บาท)</label>
                     <input
                       type="text"
-                      value={siteContent.packages.pkg1.price5h}
+                      value={siteContent.packages.pkg1.price}
                       onChange={(e) => setSiteContent({
                         ...siteContent,
-                        packages: { ...siteContent.packages, pkg1: { ...siteContent.packages.pkg1, price5h: e.target.value } }
+                        packages: { ...siteContent.packages, pkg1: { ...siteContent.packages.pkg1, price: e.target.value } }
                       })}
                       style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
                     />
@@ -855,7 +855,7 @@ export default function AdminDashboardPage() {
                 {/* Package 2 */}
                 <div style={{ padding: '16px', border: '2px solid #2DCCD3', borderRadius: '10px', background: '#f0fdfa' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <h4 style={{ margin: 0, color: '#004680', fontWeight: 700 }}>แพ็กเกจ 2: ผู้ดูแล + รถตู้</h4>
+                    <h4 style={{ margin: 0, color: '#004680', fontWeight: 700 }}>แพ็กเกจ 2: Standard I</h4>
                     <span style={{ fontSize: '10px', background: '#FFB81C', color: '#002d54', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>ยอดนิยม</span>
                   </div>
                   <div style={{ marginBottom: '10px' }}>
@@ -871,13 +871,13 @@ export default function AdminDashboardPage() {
                     />
                   </div>
                   <div style={{ marginBottom: '10px' }}>
-                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ราคา (5 ชั่วโมง)</label>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ราคา (บาท)</label>
                     <input
                       type="text"
-                      value={siteContent.packages.pkg2.price5h}
+                      value={siteContent.packages.pkg2.price}
                       onChange={(e) => setSiteContent({
                         ...siteContent,
-                        packages: { ...siteContent.packages, pkg2: { ...siteContent.packages.pkg2, price5h: e.target.value } }
+                        packages: { ...siteContent.packages, pkg2: { ...siteContent.packages.pkg2, price: e.target.value } }
                       })}
                       style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
                     />
@@ -886,7 +886,7 @@ export default function AdminDashboardPage() {
 
                 {/* Package 3 */}
                 <div style={{ padding: '16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', background: '#f8fafc' }}>
-                  <h4 style={{ margin: '0 0 10px', color: '#004680', fontWeight: 700 }}>แพ็กเกจ 3: พาทำกิจกรรม</h4>
+                  <h4 style={{ margin: '0 0 10px', color: '#004680', fontWeight: 700 }}>แพ็กเกจ 3: Standard II</h4>
                   <div style={{ marginBottom: '10px' }}>
                     <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ชื่อแพ็กเกจ</label>
                     <input
@@ -900,13 +900,42 @@ export default function AdminDashboardPage() {
                     />
                   </div>
                   <div style={{ marginBottom: '10px' }}>
-                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ราคา (5 ชั่วโมง)</label>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ราคา (บาท)</label>
                     <input
                       type="text"
-                      value={siteContent.packages.pkg3.price5h}
+                      value={siteContent.packages.pkg3.price}
                       onChange={(e) => setSiteContent({
                         ...siteContent,
-                        packages: { ...siteContent.packages, pkg3: { ...siteContent.packages.pkg3, price5h: e.target.value } }
+                        packages: { ...siteContent.packages, pkg3: { ...siteContent.packages.pkg3, price: e.target.value } }
+                      })}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Package 4 */}
+                <div style={{ padding: '16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', background: '#f8fafc' }}>
+                  <h4 style={{ margin: '0 0 10px', color: '#004680', fontWeight: 700 }}>แพ็กเกจ 4: บริการอื่นๆ</h4>
+                  <div style={{ marginBottom: '10px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ชื่อแพ็กเกจ</label>
+                    <input
+                      type="text"
+                      value={siteContent.packages.pkg4.name}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        packages: { ...siteContent.packages, pkg4: { ...siteContent.packages.pkg4, name: e.target.value } }
+                      })}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '10px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ราคา (บาท)</label>
+                    <input
+                      type="text"
+                      value={siteContent.packages.pkg4.price}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        packages: { ...siteContent.packages, pkg4: { ...siteContent.packages.pkg4, price: e.target.value } }
                       })}
                       style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
                     />

@@ -25,32 +25,22 @@ export default function LegacyBookingModal({ content }: { content: SiteContent }
         </div>
 
         <form id="ahcBookingForm" className="ahc-modal-body">
-          <input
-            type="hidden"
-            id="ahcSelectedPackage"
-            defaultValue="แพ็กเกจผู้ดูแล + รถ (แนะนำ)"
-          />
+          <input type="hidden" id="ahcSelectedPackage" defaultValue="pkg2" />
 
           <div className="ahc-form-group">
             <label className="ahc-form-label">เลือกแพ็กเกจที่ต้องการ:</label>
             <div className="ahc-package-select-grid">
-              <div className="ahc-pkg-choice" data-pkg="pkg1">
-                <div>มาตรฐาน</div>
-                <div style={{ fontSize: '11px', color: 'var(--ahc-text-muted)' }}>เริ่ม 1,000 บ.</div>
-              </div>
-              <div className="ahc-pkg-choice selected" data-pkg="pkg2">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                  <svg className="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" style={{ color: 'var(--ahc-yellow)' }}>
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                  </svg>
-                  <span>ผู้ดูแล + รถ</span>
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--ahc-blue)', fontWeight: 700 }}>เริ่ม 1,300 บ.</div>
-              </div>
-              <div className="ahc-pkg-choice" data-pkg="pkg3">
-                <div>ทำกิจกรรม</div>
-                <div style={{ fontSize: '11px', color: 'var(--ahc-text-muted)' }}>เริ่ม 1,500 บ.</div>
-              </div>
+              {(['pkg1', 'pkg2', 'pkg3', 'pkg4'] as const).map((key) => {
+                const pkg = content.packages[key];
+                return (
+                  <div key={key} className={`ahc-pkg-choice${key === 'pkg2' ? ' selected' : ''}`} data-pkg={key}>
+                    <div>{pkg.name}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--ahc-text-muted)' }}>
+                      {pkg.hours} ชม. · {pkg.price} บ.
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

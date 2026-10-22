@@ -14,7 +14,6 @@ function initAll() {
   initScrollReveal();
   initMomentsTabSlider();
   initVideoController();
-  initPricingToggle();
   initPricingCardSelection();
   initDistrictSelector();
   initChecklist();
@@ -392,46 +391,7 @@ function initVideoController() {
 }
 
 /* --------------------------------------------------------------------------
-   5. Pricing Duration Switcher (5 Hours vs 8 Hours)
-   -------------------------------------------------------------------------- */
-function initPricingToggle() {
-  const toggleBtns = document.querySelectorAll('.ahc-pricing-toggle-btn');
-  const pricePkg1 = document.getElementById('ahcPricePkg1');
-  const pricePkg2 = document.getElementById('ahcPricePkg2');
-  const unitPkg1 = document.getElementById('ahcUnitPkg1');
-  const unitPkg2 = document.getElementById('ahcUnitPkg2');
-
-  const prices = {
-    '5': {
-      pkg1: '1,000 บาท',
-      pkg2: '1,300 บาท',
-      unit: '/ บริการ 5 ชั่วโมง (ครึ่งวัน)'
-    },
-    '8': {
-      pkg1: '1,500 บาท',
-      pkg2: '1,800 บาท',
-      unit: '/ บริการ 8 ชั่วโมง (เต็มวัน)'
-    }
-  };
-
-  toggleBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      toggleBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const hours = btn.dataset.hours;
-      if (prices[hours]) {
-        if (pricePkg1) pricePkg1.textContent = prices[hours].pkg1;
-        if (pricePkg2) pricePkg2.textContent = prices[hours].pkg2;
-        if (unitPkg1) unitPkg1.textContent = prices[hours].unit;
-        if (unitPkg2) unitPkg2.textContent = prices[hours].unit;
-      }
-    });
-  });
-}
-
-/* --------------------------------------------------------------------------
-   5b. Pricing Card Interactive Selection (Blue Border Tracking)
+   5. Pricing Card Interactive Selection (Blue Border Tracking)
    -------------------------------------------------------------------------- */
 function initPricingCardSelection() {
   const cards = document.querySelectorAll('.ahc-price-card');
@@ -750,9 +710,10 @@ function initBookingModal() {
         : hospitalSelected;
 
       const pkgMap = {
-        'pkg1': 'แพ็กเกจ 1: มาตรฐาน (เริ่ม 1,000 บ.)',
-        'pkg2': 'แพ็กเกจ 2: ผู้ดูแล + รถ (เริ่ม 1,300 บ.)',
-        'pkg3': 'แพ็กเกจ 3: บริการพาทำกิจกรรม (เริ่ม 1,500 บ.)'
+        'pkg1': 'Economic · 3 ชั่วโมง (500 บาท)',
+        'pkg2': 'Standard I · 5 ชั่วโมง (900 บาท)',
+        'pkg3': 'Standard II · 5 ชั่วโมง 30 กม. (1,200 บาท)',
+        'pkg4': 'บริการอื่นๆ · 8 ชั่วโมง (1,400 บาท)'
       };
       const rawPkg = selectedPkgInput?.value || 'pkg2';
       const pkg = pkgMap[rawPkg] || rawPkg;
@@ -940,7 +901,7 @@ function initSmartAISearch() {
       title: 'อัตราค่าบริการและราคาแพ็กเกจ GO CARES',
       keywords: ['ราคา', 'แพ็กเกจ', 'กี่บาท', 'ค่าบริการ', 'เท่าไหร่', 'package', 'price', 'cost'],
       category: 'ค่าบริการ',
-      answer: 'GO CARES มี 3 แพ็กเกจหลัก: 1) แพ็กเกจมาตรฐาน 4 ชม. เริ่มต้น 1,000 บาท (ดูแลใน รพ.), 2) แพ็กเกจผู้ดูแล + รถรับส่ง เริ่มต้น 1,300 บาท (แนะนำ มีรถตู้รับ-ส่งถึงบ้าน), 3) บริการพาทำกิจกรรม 6 ชม. เริ่มต้น 1,500 บาท รวมประกันอุบัติเหตุและรายงาน LINE ตลอดการบริการ',
+      answer: 'GO CARES คิดตามเวลาและระยะทาง มี 4 แพ็กเกจ: Economic 3 ชม. 500 บาท (ฟรี 10 กม.), Standard I 5 ชม. 900 บาท (ฟรี 10 กม.), Standard II 5 ชม. 1,200 บาท (รวม 30 กม.), บริการอื่นๆ 8 ชม. 1,400 บาท (ฟรี 10 กม. แรก เกิน 12 บาท/กม.) เกินเวลา 150 บาท/ชม. ไม่รวมค่ารักษาพยาบาลและค่ายา',
       actionLabel: 'เปิดแบบฟอร์มจองบริการ',
       actionType: 'booking',
       actionPkg: 'pkg2'

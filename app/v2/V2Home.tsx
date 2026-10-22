@@ -3,10 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { SiteContent } from '../lib/site-content-types';
 
-type Hours = '5' | '8';
-type PkgKey = 'pkg1' | 'pkg2' | 'pkg3';
+type PkgKey = 'pkg1' | 'pkg2' | 'pkg3' | 'pkg4';
 
-const PKG_KEYS: PkgKey[] = ['pkg1', 'pkg2', 'pkg3'];
+const PKG_KEYS: PkgKey[] = ['pkg1', 'pkg2', 'pkg3', 'pkg4'];
 
 const DISTRICTS = [
   'อำเภอเมืองชลบุรี',
@@ -60,22 +59,28 @@ const PILLARS = [
 
 const FEATURES: Record<PkgKey, string[]> = {
   pkg1: [
-    'ไปรับถึงบ้าน และดูแลส่งเข้าบ้าน',
-    'ฟรีค่าเดินทางไป-กลับ 10 กม.',
-    'อยู่เคียงข้างตลอดการตรวจ',
+    '3 ชั่วโมง สำหรับนัดใกล้บ้าน',
+    'ฟรีค่าเดินทาง 10 กม.',
+    'อยู่ด้วยตลอดการตรวจ',
     'รายงานครอบครัวผ่าน LINE',
   ],
   pkg2: [
-    'รถรับ-ส่งเฉพาะ ถึงหน้าบ้าน',
-    'รวมค่าเดินทางไป-กลับ 30 กม.',
-    'ผู้ดูแลส่วนตัว 1:1 ตลอดเส้นทาง',
-    'Service Report ฉบับสมบูรณ์',
+    '5 ชั่วโมง สำหรับนัดครึ่งวัน',
+    'ฟรีค่าเดินทาง 10 กม.',
+    'ผู้ดูแล 1:1 ตลอดการเดินทาง',
+    'รายงานสรุปหลังจบเคส',
   ],
   pkg3: [
-    'ดูแลธุระ ธนาคาร ซื้อของ ครบวงจร',
-    'ผู้ช่วยเคียงข้างดูแลความปลอดภัย',
-    'รองรับนัดหมายและกิจกรรมส่วนตัว',
-    'ค่าเดินทางคิดตามระยะจริง',
+    '5 ชั่วโมง สำหรับนัดครึ่งวัน',
+    'รวมค่าเดินทาง 30 กม.',
+    'ผู้ดูแล 1:1 ตลอดการเดินทาง',
+    'รายงานสรุปหลังจบเคส',
+  ],
+  pkg4: [
+    '8 ชั่วโมง สำหรับธุระทั้งวัน',
+    'พาไปธนาคาร ราชการ หรือซื้อของ',
+    'ฟรี 10 กม. แรก เกิน 12 บาท/กม.',
+    'ไปได้ทุกที่ในจังหวัดชลบุรี',
   ],
 };
 
@@ -130,8 +135,8 @@ const FAQS = [
     a: 'ได้ ทั้งโรงพยาบาลรัฐ เอกชน และคลินิกเฉพาะทางในจังหวัดชลบุรี ทีมงานจะประเมินเวลาและระยะทางล่วงหน้าอย่างโปร่งใสก่อนยืนยัน',
   },
   {
-    q: 'หากใช้เวลาเกิน 5 หรือ 8 ชั่วโมง',
-    a: 'ทีมงานจะแจ้งครอบครัวให้ทราบล่วงหน้า และคิดค่าบริการล่วงเวลาตามชั่วโมงจริง ไม่มีการเรียกเก็บส่วนต่างโดยไม่แจ้งก่อน',
+    q: 'หากใช้เวลาเกินแพ็กเกจ',
+    a: 'คิดเพิ่มชั่วโมงละ 150 บาท ทีมงานแจ้งก่อนคิดทุกครั้ง ไม่มีบวกทีหลังโดยไม่แจ้ง',
   },
   {
     q: 'ครอบครัวจะติดตามความคืบหน้าได้อย่างไร',
@@ -152,12 +157,10 @@ function CheckIcon() {
 export default function V2Home({ content }: { content: SiteContent }) {
   const [navSolid, setNavSolid] = useState(false);
   const [step, setStep] = useState(0);
-  const [hours, setHours] = useState<Hours>('5');
   const [openFaq, setOpenFaq] = useState(0);
-  const [drawer, setDrawer] = useState<{ open: boolean; pkg: PkgKey; hours: Hours }>({
+  const [drawer, setDrawer] = useState<{ open: boolean; pkg: PkgKey }>({
     open: false,
     pkg: 'pkg2',
-    hours: '5',
   });
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
   const [hospital, setHospital] = useState(HOSPITALS[0]);
@@ -216,9 +219,9 @@ export default function V2Home({ content }: { content: SiteContent }) {
     };
   }, [drawer.open]);
 
-  const openBooking = (pkg: PkgKey = 'pkg2', hrs: Hours = '5') => {
+  const openBooking = (pkg: PkgKey = 'pkg2') => {
     setStatus('idle');
-    setDrawer({ open: true, pkg, hours: hrs });
+    setDrawer({ open: true, pkg });
   };
   const closeBooking = () => setDrawer((d) => ({ ...d, open: false }));
 
@@ -236,7 +239,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
       district: data.get('district'),
       hospital: isOther ? data.get('otherHospital') : hospital,
       isOtherHospital: isOther,
-      package: `${content.packages[drawer.pkg].name} · ${drawer.hours} ชั่วโมง`,
+      package: `${content.packages[drawer.pkg].name} · ${content.packages[drawer.pkg].hours} ชั่วโมง`,
       submittedAt: new Date().toISOString(),
     };
     setStatus('sending');
@@ -318,10 +321,10 @@ export default function V2Home({ content }: { content: SiteContent }) {
             </div>
             <div className="v2-hero-meta">
               <span>
-                <CheckIcon /> เริ่มต้น {content.packages.pkg2.price5h} บาท · 5 ชั่วโมง
+                <CheckIcon /> เริ่ม 3 ชั่วโมง {content.packages.pkg1.price} บาท
               </span>
               <span>
-                <CheckIcon /> ประเมินราคาฟรีก่อนยืนยัน
+                <CheckIcon /> ยืนยันราคาก่อนทุกครั้ง
               </span>
             </div>
           </div>
@@ -502,27 +505,14 @@ export default function V2Home({ content }: { content: SiteContent }) {
           <div className="v2-section-head" data-reveal>
             <p className="v2-eyebrow">TRANSPARENT PRICING</p>
             <h2 className="v2-section-title">
-              ราคาชัดเจน
+              ราคาตามตาราง
               <br />
-              <span className="v2-underline">ไม่มีค่าใช้จ่ายแอบแฝง</span>
+              <span className="v2-underline">ไม่มีบวกเพิ่มทีหลัง</span>
             </h2>
             <p className="v2-section-lead">
-              เลือกระยะเวลาที่เหมาะกับนัดของท่าน ทีมงานยืนยันราคาก่อนให้บริการทุกครั้ง
+              เลือกตามเวลาและระยะทางของแต่ละนัด เกินเวลา 150 บาท/ชม. เกินระยะ 12 บาท/กม.
+              ทีมงานแจ้งก่อนคิดทุกครั้ง
             </p>
-          </div>
-
-          <div className="v2-toggle" role="group" aria-label="ระยะเวลาบริการ" data-reveal>
-            {(['5', '8'] as Hours[]).map((h) => (
-              <button
-                key={h}
-                type="button"
-                className={hours === h ? 'is-active' : ''}
-                aria-pressed={hours === h}
-                onClick={() => setHours(h)}
-              >
-                {h} ชั่วโมง <span>{h === '5' ? 'ครึ่งวัน' : 'เต็มวัน'}</span>
-              </button>
-            ))}
           </div>
 
           <div className="v2-price-grid">
@@ -543,8 +533,8 @@ export default function V2Home({ content }: { content: SiteContent }) {
                     <p>{pkg.sub}</p>
                   </div>
                   <div className="v2-price-amount">
-                    <strong>{hours === '5' ? pkg.price5h : pkg.price8h}</strong>
-                    <span>บาท / {hours} ชั่วโมง</span>
+                    <strong>{pkg.price}</strong>
+                    <span>บาท / {pkg.hours} ชั่วโมง · {pkg.distance}</span>
                   </div>
                   <ul className="v2-price-feats">
                     {FEATURES[key].map((feature) => (
@@ -557,7 +547,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
                   <button
                     type="button"
                     className={`v2-btn ${featured ? 'v2-btn--gold' : 'v2-btn--outline'}`}
-                    onClick={() => openBooking(key, hours)}
+                    onClick={() => openBooking(key)}
                   >
                     จองแพ็กเกจนี้
                   </button>
@@ -566,7 +556,8 @@ export default function V2Home({ content }: { content: SiteContent }) {
             })}
           </div>
           <p className="v2-pricing-note">
-            * ค่าที่จอดรถ ค่ารักษาพยาบาล ค่ายา และค่าอาหาร ไม่รวมในแพ็กเกจ — แจ้งล่วงหน้าทุกครั้งหากมีค่าใช้จ่ายเพิ่ม
+            ราคาโปรโมชั่นถึง 31 มกราคม 2570 · ไม่รวมค่ารักษาพยาบาล ค่ายา ค่าอาหาร และค่าที่จอดรถ ·
+            พารถไปธุระได้ทุกที่ในจังหวัดชลบุรี
           </p>
         </div>
       </section>
@@ -821,7 +812,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
               <div>
                 <p className="v2-eyebrow">PRIVATE BOOKING</p>
                 <h3 id="v2DrawerTitle">จองผู้ดูแล GO CARES</h3>
-                <p>เจ้าหน้าที่จะติดต่อกลับเพื่อยืนยันนัดและประเมินเส้นทาง — ไม่มีค่าใช้จ่ายล่วงหน้า</p>
+                <p>เจ้าหน้าที่จะติดต่อกลับเพื่อยืนยันนัดและประเมินเส้นทาง ไม่ต้องจ่ายล่วงหน้า</p>
               </div>
               <button className="v2-drawer-close" type="button" onClick={closeBooking} aria-label="ปิด">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -852,19 +843,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
                       className={drawer.pkg === key ? 'is-active' : ''}
                       onClick={() => setDrawer((d) => ({ ...d, pkg: key }))}
                     >
-                      {content.packages[key].name.replace('แพ็กเกจ', '').trim()}
-                    </button>
-                  ))}
-                </div>
-                <div className="v2-form-hours">
-                  {(['5', '8'] as Hours[]).map((h) => (
-                    <button
-                      key={h}
-                      type="button"
-                      className={drawer.hours === h ? 'is-active' : ''}
-                      onClick={() => setDrawer((d) => ({ ...d, hours: h }))}
-                    >
-                      {h} ชั่วโมง
+                      {content.packages[key].name}
                     </button>
                   ))}
                 </div>
