@@ -466,6 +466,26 @@ export default function V2Home({ content }: { content: SiteContent }) {
         </div>
       </section>
 
+      <section className="v2-section v2-video" id="video">
+        <div className="v2-container">
+          <div className="v2-section-head" data-reveal>
+            <p className="v2-eyebrow">VDO PRESENTATION • 1:47 นาที</p>
+            <h2 className="v2-section-title">
+              หนึ่งวันกับ GO CARES
+              <br />
+              <span className="v2-underline">ใน 1:47 นาที</span>
+            </h2>
+          </div>
+          <figure className="v2-video-frame" data-reveal>
+            <video controls playsInline preload="none" poster={img(content.images.videoPoster)}>
+              <source src="/assets/ahc_next03_web_720p.mp4" media="(max-width: 768px)" type="video/mp4" />
+              <source src="/assets/ahc_next03_web_1080p.mp4" type="video/mp4" />
+              เบราว์เซอร์ของคุณไม่รองรับการเล่นวิดีโอ
+            </video>
+          </figure>
+        </div>
+      </section>
+
       <section className="v2-section v2-risks" id="why">
         <div className="v2-container">
           <div className="v2-section-head" data-reveal>
