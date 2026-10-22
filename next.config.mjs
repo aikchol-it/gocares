@@ -10,6 +10,7 @@ const basePath = isGithubActions && !isVercel
 
 const nextConfig = {
   reactStrictMode: true,
+  transpilePackages: ['react-markdown', 'remark-gfm'],
   images: {
     unoptimized: true
   },

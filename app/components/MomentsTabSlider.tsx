@@ -1,124 +1,142 @@
-'use client';
-
-import React, { useState } from 'react';
+import React from 'react';
+import { SiteContent } from '../lib/site-content-types';
 
 const tabs = [
   {
     key: 'book',
-    label: '1. จองและนัดหมาย',
-    tag: 'Step 1: Book & Plan',
-    title: 'จองง่าย เลือกแพ็กเกจตามความต้องการ',
-    desc: 'เลือกวัน เวลา และโรงพยาบาลปลายทางได้ล่วงหน้า แจ้งประวัติสุขภาพเบื้องต้นเพื่อให้ทีมงานจัดเตรียมผู้ดูแลและยานพาหนะที่เหมาะสมที่สุด',
-    bullet1: 'เลือกแพ็กเกจได้ตามระยะเวลา (4 ชม. หรือ 6 ชม.)',
-    bullet2: 'แจ้งข้อมูลข้อจำกัดการเคลื่อนไหว เช่น ใช้วีลแชร์ หรือต้องการความช่วยเหลือพิเศษ',
-    img: '/assets/step_1_book_plan.webp',
+    label: '1. นัดหมาย & วางแผน',
+    icon: (
+      <>
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </>
+    ),
   },
   {
-    key: 'pickup',
-    label: '2. ไปรับที่บ้าน',
-    tag: 'Step 2: Home Pickup',
-    title: 'ไปรับตรงเวลาถึงหน้าบ้าน ช่วยเตรียมตัว',
-    desc: 'ผู้ดูแลเดินทางไปถึงบ้านตามเวลานัดหมาย ช่วยจัดเตรียมยา บัตรประชาชน ใบนัดแพทย์ และช่วยพยุงขึ้นรถอย่างปลอดภัย',
-    bullet1: 'ตรวจวัดสัญญาณชีพเบื้องต้นก่อนออกเดินทาง (ความดันโลหิต, ชีพจร)',
-    bullet2: 'รถตู้มาตรฐานพร้อมทางลาดและพื้นที่สำหรับผู้ใช้วีลแชร์',
-    img: '/assets/step_2_pickup_home.webp',
+    key: 'mobility',
+    label: '2. รับส่งถึงบ้านปลอดภัย',
+    icon: (
+      <>
+        <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path>
+        <circle cx="17" cy="18" r="2"></circle>
+        <circle cx="7" cy="18" r="2"></circle>
+      </>
+    ),
   },
   {
-    key: 'arrival',
-    label: '3. ถึงโรงพยาบาล',
-    tag: 'Step 3: Hospital Care',
-    title: 'ดูแลตลอดเวลา ไม่ปล่อยให้อยู่ตามลำพัง',
-    desc: 'ช่วยกดบัตรคิว ยื่นเอกสารสิทธิการรักษา เข็นรถพาไปยังแผนกตรวจต่างๆ และอยู่เคียงข้างเป็นเพื่อนระหว่างนั่งรอ',
-    bullet1: 'พาไปตรวจเลือด เอกซเรย์ หรือตรวจพิเศษตามจุดต่างๆ ในโรงพยาบาล',
-    bullet2: 'ช่วยจัดหาน้ำดื่ม อาหารว่าง และพาเข้าห้องน้ำอย่างระมัดระวัง',
-    img: '/assets/step_3_arrival_aikchol.webp',
+    key: 'hospital',
+    label: '3. เคียงข้างในโรงพยาบาล',
+    icon: (
+      <>
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </>
+    ),
   },
   {
-    key: 'consult',
-    label: '4. พบแพทย์และรับยา',
-    tag: 'Step 4: Doctor Consult',
-    title: 'เข้าห้องตรวจด้วย สรุปคำสั่งแพทย์ชัดเจน',
-    desc: 'ได้รับความยินยอมจากครอบครัวเพื่อเข้าห้องตรวจร่วม บันทึกคำแนะนำแพทย์ ถามซ้ำจุดที่ไม่เข้าใจ และรับยากลับบ้าน',
-    bullet1: 'ทบทวนวิธีรับประทานยากับเภสัชกรอย่างละเอียด',
-    bullet2: 'ถ่ายภาพฉลากยาและบันทึกวันนัดหมายตรวจครั้งถัดไป',
-    img: '/assets/step_4_doctor_consult.webp',
+    key: 'consultation',
+    label: '4. จดคำสั่ง & ทวนวิธีใช้ยา',
+    icon: (
+      <>
+        <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path>
+        <path d="m8.5 8.5 7 7"></path>
+      </>
+    ),
   },
   {
     key: 'report',
-    label: '5. ส่งกลับและรายงาน',
-    tag: 'Step 5: Safe Return & LINE Report',
-    title: 'พาส่งถึงเตียงนอน สรุปรายงานผ่าน LINE',
-    desc: 'พาเดินทางกลับถึงบ้านอย่างปลอดภัย ดูแลจนเข้าบ้านเรียบร้อย พร้อมส่งรายงานสรุปผลการตรวจและภาพถ่ายให้ครอบครัวผ่าน LINE ทันที',
-    bullet1: 'สรุปคำวินิจฉัยแพทย์ รายการยา และวันนัดตรวจครั้งถัดไปอย่างเป็นระบบ',
-    bullet2: 'ครอบครัวที่ทำงานอยู่สามารถติดตามความคืบหน้าได้ตลอดทั้งวัน',
-    img: '/assets/step_5_service_report.webp',
+    label: '5. รายงานสด & ส่งกลับบ้าน',
+    icon: (
+      <>
+        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+      </>
+    ),
   },
 ];
 
-export default function MomentsTabSlider() {
-  const [activeTab, setActiveTab] = useState(tabs[0]);
+export default function MomentsTabSlider({ content }: { content: SiteContent }) {
+  const first = content.moments[0];
 
   return (
     <section className="ahc-moments-section" id="care-moments">
       <div className="ahc-container">
-        <div className="ahc-section-header">
-          <span className="ahc-section-tag">
-            <svg className="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
+        <div className="ahc-section-header ahc-reveal">
+          <span className="ahc-badge-medical" style={{ marginBottom: '12px' }}>
+            <svg className="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
-            <span>ประสบการณ์การดูแลแบบครบวงจร</span>
+            <span>COMPLETE CARE FROM HOME TO HOSPITAL</span>
           </span>
-          <h2 className="ahc-section-title">อุ่นใจทุกนาที ตั้งแต่ออกจากบ้านจนกลับถึงเตียง</h2>
+          <h2 className="ahc-section-title">ดูแลครบวงจรตั้งแต่ก้าวออกจากบ้าน จนถึงส่งกลับเข้าบ้าน</h2>
           <p className="ahc-section-subtitle">
-            เราออกแบบทุกขั้นตอนเพื่อลดความกังวลของลูกหลาน และมอบความสบายใจสูงสุดให้แก่ผู้สูงอายุ
+            เปลี่ยนความกังวลใจของครอบครัว เป็นความอุ่นใจที่สัมผัสได้ — ไม่ใช่แค่รถรับส่ง แต่คือ Personal Caregiver &amp;
+            Companion ที่อยู่เคียงข้างเสมือนคนในครอบครัวทุกย่างก้าว
           </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="ahc-moment-tabs">
-          {tabs.map((t) => (
+        <div className="ahc-moments-tabs-nav ahc-reveal ahc-delay-1">
+          {tabs.map((tab, index) => (
             <button
-              key={t.key}
-              type="button"
-              className={`ahc-moment-tab-btn ${activeTab.key === t.key ? 'active' : ''}`}
-              onClick={() => setActiveTab(t)}
+              key={tab.key}
+              className={`ahc-moment-tab-btn ${index === 0 ? 'active' : ''}`}
+              data-moment={tab.key}
             >
-              {t.label}
+              <svg className="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                {tab.icon}
+              </svg>
+              <span>{tab.label}</span>
             </button>
           ))}
         </div>
 
-        {/* Tab Content Card */}
-        <div className="ahc-moment-content-card">
-          <div className="ahc-moment-card-grid">
-            <div className="ahc-moment-card-info">
-              <span className="ahc-moment-tag">{activeTab.tag}</span>
-              <h3 className="ahc-moment-title">{activeTab.title}</h3>
-              <p className="ahc-moment-desc">{activeTab.desc}</p>
-              <div className="ahc-moment-bullets">
-                <div className="ahc-moment-bullet-item">
-                  <svg className="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" fill="none" stroke="var(--ahc-green)" strokeWidth="2">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  <span>{activeTab.bullet1}</span>
-                </div>
-                <div className="ahc-moment-bullet-item">
-                  <svg className="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" fill="none" stroke="var(--ahc-green)" strokeWidth="2">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  <span>{activeTab.bullet2}</span>
-                </div>
-              </div>
-            </div>
+        <div className="ahc-moment-display-card ahc-reveal ahc-delay-2">
+          <div className="ahc-moment-card-content">
+            <span id="ahcMomentTag" className="ahc-badge-sea" style={{ marginBottom: '14px' }}>
+              {first.tag}
+            </span>
+            <h3
+              id="ahcMomentTitle"
+              style={{ fontSize: '28px', fontWeight: 500, color: 'var(--ahc-blue)', marginBottom: '14px', lineHeight: 1.3 }}
+            >
+              {first.title}
+            </h3>
+            <p
+              id="ahcMomentDesc"
+              style={{ fontSize: '16px', fontWeight: 300, color: 'var(--ahc-text-secondary)', lineHeight: 1.65, marginBottom: '24px' }}
+            >
+              {first.desc}
+            </p>
 
-            <div className="ahc-moment-card-media">
-              <img
-                src={activeTab.img}
-                alt={activeTab.title}
-                className="ahc-moment-card-img"
-              />
-            </div>
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px', color: 'var(--ahc-text-secondary)' }}>
+                <svg className="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" style={{ color: 'var(--ahc-green)', marginTop: '3px' }}>
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span id="ahcMomentBullet1">{first.bullet1}</span>
+              </li>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px', color: 'var(--ahc-text-secondary)' }}>
+                <svg className="ahc-icon ahc-icon-sm" viewBox="0 0 24 24" style={{ color: 'var(--ahc-green)', marginTop: '3px' }}>
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span id="ahcMomentBullet2">{first.bullet2}</span>
+              </li>
+            </ul>
+
+            <button className="ahc-btn ahc-btn-primary" data-open-booking data-pkg="pkg2">
+              <span>จองบริการ / ปรึกษานัดหมาย</span>
+              <svg className="ahc-icon ahc-icon-sm" viewBox="0 0 24 24">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <div className="ahc-moment-card-media">
+            <img id="ahcMomentImg" src={first.image} alt={first.title} className="ahc-moment-card-img" />
           </div>
         </div>
       </div>

@@ -1,7 +1,33 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import '../globals.css';
+import {
+  SiteContent,
+  DEFAULT_SITE_CONTENT,
+  SiteMenu,
+  SiteAppointmentItem,
+} from '@/app/lib/site-content-types';
+import {
+  Menu,
+  FileText,
+  Image as ImageIcon,
+  Users,
+  Megaphone,
+  BarChart3,
+  Save,
+  RotateCcw,
+  ExternalLink,
+  Plus,
+  Trash2,
+  Upload,
+  Check,
+  ArrowUp,
+  ArrowDown,
+  Sparkles,
+  Phone,
+  MessageCircle,
+} from 'lucide-react';
 
 /* ========================================================================
    TYPE DEFINITIONS
@@ -36,8 +62,6 @@ interface ContentItem {
   campaignEndDate?: string;
   campaignTarget?: string;
   campaignObjective?: string;
-  configKey?: string;
-  configValue?: string;
 }
 
 interface TrackingData {
@@ -52,448 +76,1590 @@ interface TrackingData {
   }>;
 }
 
-type ActiveTab = 'leads' | 'content' | 'analytics' | 'campaigns';
-type ContentModalMode = 'create' | 'edit' | null;
+type ActiveTab = 'site-text' | 'site-menu' | 'site-media' | 'leads' | 'campaigns' | 'analytics';
 
-/* ========================================================================
-   STYLE HELPERS
-   ======================================================================== */
-const STATUS_BADGE: Record<string, { bg: string; color: string; label: string }> = {
-  published: { bg: '#dcfce7', color: '#166534', label: '📢 เผยแพร่แล้ว' },
-  draft: { bg: '#fef9c3', color: '#854d0e', label: '📝 ร่าง' },
-  archived: { bg: '#f1f5f9', color: '#64748b', label: '🗄️ เก็บถาวร' },
-};
-
-const TYPE_LABEL: Record<string, string> = {
-  announcement: '📣 ประกาศ',
-  campaign: '🎯 แคมเปญ',
-  faq: '❓ FAQ',
-  pricing: '💰 ราคา',
-  config: '⚙️ ตั้งค่าระบบ',
-};
-
-/* ========================================================================
-   MAIN COMPONENT
-   ======================================================================== */
 export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('leads');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('site-text');
+
+  /* ---- Site Content State (Live on Homepage) ---- */
+  const [siteContent, setSiteContent] = useState<SiteContent>(DEFAULT_SITE_CONTENT);
+  const [loadingSiteContent, setLoadingSiteContent] = useState(true);
+  const [savingSiteContent, setSavingSiteContent] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  /* ---- Media Assets State ---- */
+  type UploadTargetSection =
+    | 'logo'
+    | 'heroPoster'
+    | 'videoPoster'
+    | 'mapImage'
+    | 'reportMockup'
+    | 'moment'
+    | 'persona'
+    | 'serviceStep'
+    | 'appointment';
+
+  const [availableAssets, setAvailableAssets] = useState<string[]>([]);
+  const [uploadingFor, setUploadingFor] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [currentUploadTarget, setCurrentUploadTarget] = useState<{
+    section: UploadTargetSection;
+    index?: number;
+  } | null>(null);
+  const [mediaFilter, setMediaFilter] = useState<'all' | 'brand' | 'moments' | 'personas' | 'steps' | 'appointments'>('all');
 
   /* ---- Leads State ---- */
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [loadingLeads, setLoadingLeads] = useState(true);
+  const [loadingLeads, setLoadingLeads] = useState(false);
 
-  /* ---- Content State ---- */
-  const [contentItems, setContentItems] = useState<ContentItem[]>([]);
-  const [loadingContent, setLoadingContent] = useState(false);
-  const [contentFilter, setContentFilter] = useState<string>('');
-  const [contentModal, setContentModal] = useState<ContentModalMode>(null);
-  const [editingItem, setEditingItem] = useState<Partial<ContentItem> | null>(null);
-  const [savingContent, setSavingContent] = useState(false);
-  const [contentMsg, setContentMsg] = useState('');
+  /* ---- Campaigns State ---- */
+  const [campaigns, setCampaigns] = useState<ContentItem[]>([]);
+  const [loadingCampaigns, setLoadingCampaigns] = useState(false);
+  const [editingCampaign, setEditingCampaign] = useState<Partial<ContentItem> | null>(null);
+  const [isCampaignModalOpen, setIsCampaignModalOpen] = useState(false);
 
-  /* ---- Tracking/Analytics State ---- */
+  /* ---- Tracking State ---- */
   const [trackingData, setTrackingData] = useState<TrackingData | null>(null);
   const [loadingTracking, setLoadingTracking] = useState(false);
 
-  /* ---- Campaign State ---- */
-  const [campaigns, setCampaigns] = useState<ContentItem[]>([]);
-
-  /* ======================================================================
-     DATA FETCHING (API with LocalStorage fallback for static hosting)
-     ====================================================================== */
   const getApiUrl = (endpoint: string) => {
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
     return `${basePath}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
   };
+
+  const getAssetUrl = (url?: string) => {
+    if (!url) return '/assets/aikchol_next_logo.webp';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    let clean = url.replace(/^\/+/, '');
+    if (!clean.startsWith('assets/')) {
+      clean = `assets/${clean}`;
+    }
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+    return `${basePath}/${clean}`;
+  };
+
+  /* ======================================================================
+     FETCH INITIAL DATA
+     ====================================================================== */
+  const fetchSiteData = useCallback(async () => {
+    setLoadingSiteContent(true);
+    try {
+      const res = await fetch(getApiUrl('/api/content'));
+      if (res.ok) {
+        const data = await res.json();
+        if (data.siteContent) {
+          setSiteContent(data.siteContent);
+        }
+        if (data.items) {
+          setCampaigns(data.items.filter((i: ContentItem) => i.type === 'campaign'));
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load site content:', err);
+    } finally {
+      setLoadingSiteContent(false);
+    }
+  }, []);
+
+  const fetchAssetsList = useCallback(async () => {
+    try {
+      const res = await fetch(getApiUrl('/api/upload'));
+      if (res.ok) {
+        const data = await res.json();
+        if (data.assets) setAvailableAssets(data.assets);
+      }
+    } catch {
+      // silent
+    }
+  }, []);
 
   const fetchLeads = useCallback(async () => {
     setLoadingLeads(true);
     try {
       const res = await fetch(getApiUrl('/api/booking'));
       if (res.ok) {
-        const data = (await res.json()) as { leads: Lead[] };
-        if (data.leads && data.leads.length > 0) {
-          setLeads(data.leads);
-          return;
-        }
+        const data = await res.json();
+        if (data.leads) setLeads(data.leads);
       }
     } catch {
-      // silent fallback
-    }
-
-    // LocalStorage fallback (XAMPP / offline)
-    try {
-      const local = JSON.parse(localStorage.getItem('ahc_leads') || '[]') as Lead[];
-      setLeads(local);
-    } catch {
-      setLeads([]);
+      // silent
     } finally {
       setLoadingLeads(false);
     }
   }, []);
-
-  const fetchContent = useCallback(async () => {
-    setLoadingContent(true);
-    try {
-      const url = contentFilter ? `/api/content?type=${contentFilter}` : '/api/content';
-      const res = await fetch(getApiUrl(url));
-      if (res.ok) {
-        const data = (await res.json()) as { items: ContentItem[] };
-        setContentItems(data.items || []);
-        setCampaigns((data.items || []).filter((i) => i.type === 'campaign'));
-        return;
-      }
-    } catch {
-      // silent fallback
-    }
-
-    // LocalStorage fallback for CMS
-    try {
-      const local = JSON.parse(localStorage.getItem('ahc_cms_content') || '[]') as ContentItem[];
-      const filtered = contentFilter ? local.filter((i) => i.type === contentFilter) : local;
-      setContentItems(filtered);
-      setCampaigns(local.filter((i) => i.type === 'campaign'));
-    } catch {
-      setContentItems([]);
-      setCampaigns([]);
-    } finally {
-      setLoadingContent(false);
-    }
-  }, [contentFilter]);
 
   const fetchTracking = useCallback(async () => {
     setLoadingTracking(true);
     try {
       const res = await fetch(getApiUrl('/api/tracking?limit=1000'));
       if (res.ok) {
-        const data = (await res.json()) as TrackingData;
-        if (data && data.total > 0) {
-          setTrackingData(data);
-          return;
-        }
+        const data = await res.json();
+        setTrackingData(data);
       }
     } catch {
-      // silent fallback
-    }
-
-    // LocalStorage fallback
-    try {
-      const localEvents = JSON.parse(localStorage.getItem('ahc_marketing_events') || '[]') as Array<{
-        event: string;
-        timestamp?: string;
-        data?: Record<string, unknown>;
-      }>;
-      const counts: Record<string, number> = {};
-      const daily: Record<string, number> = {};
-      for (const ev of localEvents) {
-        counts[ev.event] = (counts[ev.event] || 0) + 1;
-        const date = ev.timestamp ? ev.timestamp.slice(0, 10) : new Date().toISOString().slice(0, 10);
-        daily[date] = (daily[date] || 0) + 1;
-      }
-      setTrackingData({
-        total: localEvents.length,
-        eventCounts: counts,
-        dailyCounts: daily,
-        events: localEvents.map((ev, i) => ({
-          id: `local-${i}`,
-          event: ev.event,
-          timestamp: ev.timestamp || new Date().toISOString(),
-          data: ev.data
-        }))
-      });
-    } catch {
-      setTrackingData(null);
+      // silent
     } finally {
       setLoadingTracking(false);
     }
   }, []);
-  useEffect(() => {
-    fetchLeads();
-  }, [fetchLeads]);
 
   useEffect(() => {
-    if (activeTab === 'content' || activeTab === 'campaigns') fetchContent();
-    if (activeTab === 'analytics') fetchTracking();
-  }, [activeTab, fetchContent, fetchTracking]);
+    fetchSiteData();
+    fetchAssetsList();
+    fetchLeads();
+    fetchTracking();
+  }, [fetchSiteData, fetchAssetsList, fetchLeads, fetchTracking]);
 
   /* ======================================================================
-     CONTENT CRUD
+     SAVE SITE CONTENT TO API & DISK
      ====================================================================== */
-  const openCreateModal = (type: ContentItem['type'] = 'announcement') => {
-    setEditingItem({ type, status: 'draft', body: '' });
-    setContentModal('create');
-  };
-
-  const openEditModal = (item: ContentItem) => {
-    setEditingItem({ ...item });
-    setContentModal('edit');
-  };
-
-  const closeModal = () => {
-    setContentModal(null);
-    setEditingItem(null);
-  };
-
-  const handleSaveContent = async () => {
-    if (!editingItem?.title) {
-      setContentMsg('❌ กรุณาระบุชื่อเนื้อหา');
-      return;
-    }
-    setSavingContent(true);
+  const handleSaveSiteContent = async () => {
+    setSavingSiteContent(true);
+    setSaveStatus(null);
     try {
-      const method = contentModal === 'edit' ? 'PUT' : 'POST';
       const res = await fetch(getApiUrl('/api/content'), {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingItem),
-      });
-      // Also persist to localStorage for offline/XAMPP
-      try {
-        const local = JSON.parse(localStorage.getItem('ahc_cms_content') || '[]') as ContentItem[];
-        if (contentModal === 'edit' && editingItem.id) {
-          const idx = local.findIndex((i) => i.id === editingItem.id);
-          if (idx >= 0) local[idx] = { ...local[idx], ...editingItem, updatedAt: new Date().toISOString() } as ContentItem;
-        } else {
-          const newItem: ContentItem = {
-            id: `cms-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            ...(editingItem as unknown as ContentItem)
-          };
-          local.unshift(newItem);
-        }
-        localStorage.setItem('ahc_cms_content', JSON.stringify(local));
-      } catch {}
-      if (res.ok) {
-        setContentMsg('✅ บันทึกเรียบร้อยแล้ว');
-        closeModal();
-        fetchContent();
-      } else {
-        setContentMsg('❌ บันทึกไม่สำเร็จ กรุณาลองใหม่');
-      }
-    } catch {
-      setContentMsg('❌ เกิดข้อผิดพลาด');
-    } finally {
-      setSavingContent(false);
-      setTimeout(() => setContentMsg(''), 3000);
-    }
-  };
-
-  const handleStatusChange = async (item: ContentItem, newStatus: ContentItem['status']) => {
-    try {
-      await fetch('/api/content', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: item.id, status: newStatus }),
+        body: JSON.stringify({ siteContent }),
       });
-      fetchContent();
-    } catch {
-      // silent
+      if (res.ok) {
+        setSaveStatus({
+          type: 'success',
+          text: '✅ บันทึกข้อมูลและอัปเดตหน้าเว็บไซต์จริงเรียบร้อยแล้ว!',
+        });
+        setTimeout(() => setSaveStatus(null), 4000);
+      } else {
+        throw new Error('Save failed');
+      }
+    } catch (err) {
+      setSaveStatus({
+        type: 'error',
+        text: '❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง',
+      });
+    } finally {
+      setSavingSiteContent(false);
     }
   };
 
-  const handleDeleteContent = async (id: string) => {
-    if (!confirm('ต้องการลบเนื้อหานี้หรือไม่?')) return;
+  const handleResetToDefault = () => {
+    if (confirm('คุณต้องการรีเซ็ตข้อความและเมนูกลับเป็นค่าเริ่มต้นของระบบใช่หรือไม่?')) {
+      setSiteContent(DEFAULT_SITE_CONTENT);
+      setSaveStatus({
+        type: 'success',
+        text: 'รีเซ็ตกลับเป็นค่าเริ่มต้นแล้ว (อย่าลืมกดปุ่มบันทึกเพื่อใช้งานจริง)',
+      });
+    }
+  };
+
+  /* ======================================================================
+     IMAGE UPLOAD HANDLER
+     ====================================================================== */
+  const triggerImageUpload = (
+    section: UploadTargetSection,
+    index?: number
+  ) => {
+    setCurrentUploadTarget({ section, index });
+    fileInputRef.current?.click();
+  };
+
+  const convertToWebP = (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      // If already webp or svg, no conversion needed
+      if (file.type === 'image/webp' || file.type === 'image/svg+xml') {
+        resolve(file);
+        return;
+      }
+      try {
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || img.width;
+          canvas.height = img.naturalHeight || img.height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(file);
+            return;
+          }
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                resolve(file);
+                return;
+              }
+              const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+              const webpFile = new File([blob], `${baseName}.webp`, { type: 'image/webp' });
+              resolve(webpFile);
+            },
+            'image/webp',
+            0.88
+          );
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(file);
+        };
+        img.src = objectUrl;
+      } catch {
+        resolve(file);
+      }
+    });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawFile = e.target.files?.[0];
+    if (!rawFile || !currentUploadTarget) return;
+
+    setUploadingFor(currentUploadTarget.section);
+
+    // Convert JPG / PNG to WebP in browser
+    const file = await convertToWebP(rawFile);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      await fetch(`/api/content?id=${id}`, { method: 'DELETE' });
-      fetchContent();
+      const res = await fetch(getApiUrl('/api/upload'), {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const uploadedUrl = data.url;
+
+        // Add to available assets list
+        setAvailableAssets((prev) => [uploadedUrl, ...prev.filter((a) => a !== uploadedUrl)]);
+
+        // Assign to siteContent
+        setSiteContent((prev) => {
+          const next = { ...prev };
+          if (currentUploadTarget.section === 'logo') {
+            next.images.logo = uploadedUrl;
+          } else if (currentUploadTarget.section === 'heroPoster') {
+            next.images.heroPoster = uploadedUrl;
+          } else if (currentUploadTarget.section === 'videoPoster') {
+            next.images.videoPoster = uploadedUrl;
+          } else if (currentUploadTarget.section === 'mapImage') {
+            next.images.mapImage = uploadedUrl;
+          } else if (currentUploadTarget.section === 'reportMockup') {
+            next.images.reportMockup = uploadedUrl;
+          } else if (
+            currentUploadTarget.section === 'moment' &&
+            currentUploadTarget.index !== undefined &&
+            next.moments?.[currentUploadTarget.index]
+          ) {
+            next.moments[currentUploadTarget.index].image = uploadedUrl;
+          } else if (
+            currentUploadTarget.section === 'persona' &&
+            currentUploadTarget.index !== undefined &&
+            next.personas?.[currentUploadTarget.index]
+          ) {
+            next.personas[currentUploadTarget.index].image = uploadedUrl;
+          } else if (
+            currentUploadTarget.section === 'serviceStep' &&
+            currentUploadTarget.index !== undefined &&
+            next.serviceSteps?.[currentUploadTarget.index]
+          ) {
+            next.serviceSteps[currentUploadTarget.index].image = uploadedUrl;
+          } else if (
+            currentUploadTarget.section === 'appointment' &&
+            currentUploadTarget.index !== undefined &&
+            next.appointments?.[currentUploadTarget.index]
+          ) {
+            next.appointments[currentUploadTarget.index].image = uploadedUrl;
+          }
+          return next;
+        });
+
+        const wasConverted = !rawFile.name.endsWith('.webp') && !rawFile.name.endsWith('.svg');
+        setSaveStatus({
+          type: 'success',
+          text: wasConverted
+            ? `⚡ แปลงไฟล์เป็น .webp และอัปโหลดสำเร็จ (${data.filename}) กดบันทึกเพื่อแสดงผลบนหน้าเว็บ`
+            : `✅ อัปโหลดรูปภาพสำเร็จ (${data.filename}) กดบันทึกเพื่อแสดงผลบนหน้าเว็บ`,
+        });
+      } else {
+        alert('อัปโหลดไฟล์ไม่สำเร็จ กรุณาใช้ไฟล์รูปภาพ PNG, JPG, WebP หรือ SVG');
+      }
     } catch {
-      // silent
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่ออัปโหลดรูปภาพ');
+    } finally {
+      setUploadingFor(null);
+      setCurrentUploadTarget(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
   /* ======================================================================
-     LEADS EXPORT
+     MENU OPERATIONS
      ====================================================================== */
-  const exportLeadsToCsv = () => {
-    if (!leads.length) return;
-    const headers = ['ID', 'วันเวลาที่ส่ง', 'ชื่อผู้ป่วย', 'ความสัมพันธ์', 'ชื่อผู้ติดต่อ', 'เบอร์โทรศัพท์', 'LINE ID', 'อำเภอ', 'โรงพยาบาลปลายทาง', 'เลือกอื่นๆ หรือไม่', 'แพ็กเกจ'];
-    const rows = leads.map((l) => [
-      l.id || '',
-      l.submittedAt || '',
-      `"${l.patientName}"`,
-      `"${l.patientRelation}"`,
-      `"${l.contactName}"`,
-      `"${l.contactPhone}"`,
-      `"${l.contactLineId || '-'}"`,
-      `"${l.district}"`,
-      `"${l.hospital}"`,
-      l.isOtherHospital ? 'ใช่' : 'ไม่ใช่',
-      `"${l.package}"`,
-    ]);
-    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `leads_gocares_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleAddMenu = () => {
+    const newMenu: SiteMenu = {
+      id: `menu_${Date.now()}`,
+      label: 'เมนูใหม่',
+      href: '#',
+    };
+    setSiteContent((prev) => ({
+      ...prev,
+      menus: [...prev.menus, newMenu],
+    }));
   };
 
-  /* ======================================================================
-     COMPUTED ANALYTICS
-     ====================================================================== */
-  const totalLeads = leads.length;
-  const packageCounts = leads.reduce<Record<string, number>>((acc, l) => {
-    acc[l.package] = (acc[l.package] || 0) + 1;
-    return acc;
-  }, {});
-  const districtCounts = leads.reduce<Record<string, number>>((acc, l) => {
-    acc[l.district] = (acc[l.district] || 0) + 1;
-    return acc;
-  }, {});
-  const otherHospitalCount = leads.filter((l) => l.isOtherHospital).length;
-  const hasLineIdCount = leads.filter((l) => l.contactLineId).length;
+  const handleUpdateMenu = (id: string, field: 'label' | 'href', value: string) => {
+    setSiteContent((prev) => ({
+      ...prev,
+      menus: prev.menus.map((m) => (m.id === id ? { ...m, [field]: value } : m)),
+    }));
+  };
 
-  const topEvents = trackingData
-    ? Object.entries(trackingData.eventCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10)
-    : [];
+  const handleDeleteMenu = (id: string) => {
+    if (confirm('คุณต้องการลบเมนูนี้ใช่หรือไม่?')) {
+      setSiteContent((prev) => ({
+        ...prev,
+        menus: prev.menus.filter((m) => m.id !== id),
+      }));
+    }
+  };
 
-  const recentDays = trackingData
-    ? Object.entries(trackingData.dailyCounts)
-        .sort((a, b) => a[0].localeCompare(b[0]))
-        .slice(-14)
-    : [];
-
-  const maxDailyCount = recentDays.length ? Math.max(...recentDays.map((d) => d[1])) : 1;
+  const handleMoveMenu = (index: number, direction: 'up' | 'down') => {
+    setSiteContent((prev) => {
+      const menus = [...prev.menus];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= menus.length) return prev;
+      const temp = menus[index];
+      menus[index] = menus[targetIndex];
+      menus[targetIndex] = temp;
+      return { ...prev, menus };
+    });
+  };
 
   /* ======================================================================
      RENDER
      ====================================================================== */
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', color: '#0f172a', fontFamily: 'var(--ahc-font-sans, sans-serif)', fontSize: '14px' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', color: '#0f172a', fontFamily: 'inherit', fontSize: '14px' }}>
+      {/* Hidden file input for media uploads */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/png, image/jpeg, image/webp, image/svg+xml"
+        style={{ display: 'none' }}
+      />
 
-      {/* ---- Top Navbar ---- */}
-      <nav style={{ background: '#002e52', color: '#fff', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/assets/aikchol_next_logo.webp" alt="Logo" style={{ height: '32px', background: '#fff', borderRadius: '6px', padding: '2px 6px' }} />
-          <div>
-            <h1 style={{ margin: 0, fontSize: '17px', fontWeight: 700 }}>GO CARES — Marketing Management &amp; Analytics</h1>
-            <span style={{ fontSize: '11px', color: '#93c5fd' }}>ระบบจัดการเนื้อหา, แคมเปญ และวิเคราะห์การตลาด (CR Items 4 &amp; 5)</span>
+      {/* Sticky Header Container: Top Brand Bar + Navigation Tabs */}
+      <header
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+          background: '#002e52',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+        }}
+      >
+        {/* Top Navbar */}
+        <div
+          style={{
+            padding: '12px 24px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <img
+              src={getAssetUrl(siteContent.images.logo)}
+              alt="Logo"
+              style={{ height: '36px', background: '#fff', borderRadius: '8px', padding: '4px 8px' }}
+            />
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h1 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#fff' }}>
+                  GO CARES — Management &amp; Marketing Console
+                </h1>
+                <span style={{ fontSize: '11px', background: '#2DCCD3', color: '#002d54', padding: '2px 8px', borderRadius: '999px', fontWeight: 700 }}>
+                  Live Editor
+                </span>
+              </div>
+              <span style={{ fontSize: '11.5px', color: '#93c5fd' }}>
+                ระบบแก้ไขเมนู, ข้อความ, รูปภาพ, ข้อมูลการจอง และวิเคราะห์การตลาด
+              </span>
+            </div>
           </div>
-        </div>
-        <a href="/" style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontSize: '13px' }}>
-          ← กลับหน้าเว็บไซต์
-        </a>
-      </nav>
 
-      {/* ---- Main Container ---- */}
-      <div style={{ maxWidth: '1300px', margin: '32px auto', padding: '0 20px' }}>
-
-        {/* ---- Navigation Tabs ---- */}
-        <div style={{ display: 'flex', gap: '4px', borderBottom: '2px solid #e2e8f0', marginBottom: '28px', flexWrap: 'wrap' }}>
-          {([
-            { id: 'leads', label: `📋 ข้อมูลลูกค้า (${totalLeads})` },
-            { id: 'content', label: '✏️ จัดการเนื้อหา (CMS)' },
-            { id: 'campaigns', label: '🎯 แคมเปญการตลาด' },
-            { id: 'analytics', label: '📊 วิเคราะห์การตลาด' },
-          ] as { id: ActiveTab; label: string }[]).map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
-                padding: '12px 18px',
-                border: 'none',
-                background: 'none',
-                fontWeight: 600,
-                fontSize: '14px',
-                color: activeTab === tab.id ? '#004680' : '#64748b',
-                borderBottom: activeTab === tab.id ? '3px solid #004680' : '3px solid transparent',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap',
+                background: 'rgba(255,255,255,0.12)',
+                color: '#fff',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontSize: '13px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                fontWeight: 500,
               }}
             >
-              {tab.label}
+              <span>ดูหน้าเว็บจริง</span>
+              <ExternalLink size={14} />
+            </a>
+
+            <button
+              type="button"
+              onClick={handleSaveSiteContent}
+              disabled={savingSiteContent}
+              style={{
+                background: '#2DCCD3',
+                color: '#002d54',
+                border: 'none',
+                padding: '8px 18px',
+                borderRadius: '8px',
+                fontWeight: 700,
+                fontSize: '13.5px',
+                cursor: savingSiteContent ? 'not-allowed' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 8px rgba(45, 204, 211, 0.4)',
+              }}
+            >
+              <Save size={15} />
+              <span>{savingSiteContent ? 'กำลังบันทึก...' : 'บันทึกขึ้นหน้าเว็บ'}</span>
             </button>
-          ))}
+          </div>
         </div>
 
+        {/* Sub-Navbar: Navigation Tabs (Stick together with header!) */}
+        <div
+          style={{
+            background: '#002542',
+            padding: '0 24px',
+            display: 'flex',
+            gap: '4px',
+            overflowX: 'auto',
+          }}
+        >
+          {[
+            { id: 'site-text', label: '📝 แก้ไขเนื้อหา & ข้อความ', icon: FileText },
+            { id: 'site-menu', label: '🧭 จัดการเมนูนำทาง', icon: Menu },
+            { id: 'site-media', label: '🖼️ จัดการรูปภาพ (Media)', icon: ImageIcon },
+            { id: 'leads', label: `📋 ข้อมูลลูกค้า (${leads.length})`, icon: Users },
+            { id: 'campaigns', label: '🎯 แคมเปญ & ประกาศ', icon: Megaphone },
+            { id: 'analytics', label: '📊 วิเคราะห์การตลาด', icon: BarChart3 },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id as ActiveTab)}
+                style={{
+                  padding: '11px 16px',
+                  border: 'none',
+                  background: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
+                  fontWeight: isActive ? 700 : 500,
+                  fontSize: '13.5px',
+                  color: isActive ? '#2DCCD3' : '#94a3b8',
+                  borderBottom: isActive ? '3px solid #2DCCD3' : '3px solid transparent',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s',
+                }}
+              >
+                <Icon size={16} color={isActive ? '#2DCCD3' : '#94a3b8'} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </header>
+
+      {/* Save Status Notification Banner */}
+      {saveStatus && (
+        <div
+          style={{
+            background: saveStatus.type === 'success' ? '#dcfce7' : '#fee2e2',
+            color: saveStatus.type === 'success' ? '#166534' : '#991b1b',
+            padding: '12px 24px',
+            textAlign: 'center',
+            fontWeight: 600,
+            fontSize: '14px',
+            borderBottom: `1px solid ${saveStatus.type === 'success' ? '#86efac' : '#fca5a5'}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+          }}
+        >
+          {saveStatus.type === 'success' ? <Check size={18} /> : <RotateCcw size={18} />}
+          <span>{saveStatus.text}</span>
+        </div>
+      )}
+
+      {/* Main Container */}
+      <div style={{ maxWidth: '1300px', margin: '24px auto', padding: '0 20px' }}>
+
+
         {/* ================================================================
-            TAB 1: LEADS
+            TAB 1: SITE TEXT & HEADINGS EDITOR
             ================================================================ */}
-        {activeTab === 'leads' && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+        {activeTab === 'site-text' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Action Bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
               <div>
-                <h2 style={{ fontSize: '18px', margin: 0, color: '#004680' }}>รายการจองบริการและประสานงานล่าสุด</h2>
+                <h2 style={{ fontSize: '18px', margin: 0, color: '#004680', fontWeight: 700 }}>
+                  แก้ไขข้อความหน้าแรก (Hero, ติดต่อ, และราคา)
+                </h2>
                 <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
-                  ข้อมูลแยกชื่อผู้ป่วย, ชื่อผู้ติดต่อ, LINE ID และโรงพยาบาลตาม CR Item 1
+                  แก้ไขข้อความแล้วกด &quot;บันทึกขึ้นหน้าเว็บ&quot; ข้อมูลจะปรากฏบนหน้าเว็บไซต์จริงทันที
                 </p>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button type="button" onClick={fetchLeads} style={{ background: '#e2e8f0', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                  🔄 รีเฟรช
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={handleResetToDefault}
+                  style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <RotateCcw size={14} />
+                  <span>รีเซ็ตเริ่มต้น</span>
                 </button>
-                <button type="button" onClick={exportLeadsToCsv} style={{ background: '#0284c7', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
-                  📥 ส่งออก CSV
+                <button
+                  type="button"
+                  onClick={handleSaveSiteContent}
+                  disabled={savingSiteContent}
+                  style={{ background: '#004680', color: '#ffffff', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Save size={14} />
+                  <span>{savingSiteContent ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}</span>
                 </button>
               </div>
             </div>
 
-            {/* KPI Row */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '20px' }}>
-              {[
-                { label: 'Lead ทั้งหมด', value: totalLeads, color: '#004680' },
-                { label: 'ระบุ LINE ID', value: hasLineIdCount, color: '#16a34a', sub: `${totalLeads ? ((hasLineIdCount / totalLeads) * 100).toFixed(0) : 0}%` },
-                { label: 'รพ. อื่นๆ', value: otherHospitalCount, color: '#b45309', sub: `${totalLeads ? ((otherHospitalCount / totalLeads) * 100).toFixed(0) : 0}%` },
-              ].map((kpi) => (
-                <div key={kpi.label} style={{ background: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>{kpi.label}</div>
-                  <div style={{ fontSize: '28px', fontWeight: 700, color: kpi.color }}>{kpi.value}</div>
-                  {kpi.sub && <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{kpi.sub}</div>}
+            {/* Hero Section Card */}
+            <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
+                <Sparkles size={18} color="#2DCCD3" />
+                <h3 style={{ margin: 0, fontSize: '16px', color: '#004680', fontWeight: 700 }}>
+                  1. ส่วนหัวเว็บไซต์ (Hero Section)
+                </h3>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}>
+                    ข้อความ Eyebrow / Kicker Tag
+                  </label>
+                  <input
+                    type="text"
+                    value={siteContent.hero.kicker}
+                    onChange={(e) => setSiteContent({ ...siteContent, hero: { ...siteContent.hero, kicker: e.target.value } })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                  />
                 </div>
+
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}>
+                    ข้อความพาดหัวหลัก (Headline บรรทัด 1)
+                  </label>
+                  <input
+                    type="text"
+                    value={siteContent.hero.headline}
+                    onChange={(e) => setSiteContent({ ...siteContent, hero: { ...siteContent.hero, headline: e.target.value } })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}>
+                    ข้อความพาดหัวรองเน้นสี (Headline Accent บรรทัด 2)
+                  </label>
+                  <input
+                    type="text"
+                    value={siteContent.hero.headlineAccent}
+                    onChange={(e) => setSiteContent({ ...siteContent, hero: { ...siteContent.hero, headlineAccent: e.target.value } })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                  />
+                </div>
+              </div>
+
+              {/* Bullet points */}
+              <div style={{ marginTop: '18px' }}>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '8px', fontSize: '13px' }}>
+                  จุดเด่นบริการ 3 ข้อ (Hero Feature Bullets)
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <input
+                    type="text"
+                    value={siteContent.hero.bullet1}
+                    onChange={(e) => setSiteContent({ ...siteContent, hero: { ...siteContent.hero, bullet1: e.target.value } })}
+                    placeholder="จุดเด่นข้อที่ 1"
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}
+                  />
+                  <input
+                    type="text"
+                    value={siteContent.hero.bullet2}
+                    onChange={(e) => setSiteContent({ ...siteContent, hero: { ...siteContent.hero, bullet2: e.target.value } })}
+                    placeholder="จุดเด่นข้อที่ 2"
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}
+                  />
+                  <input
+                    type="text"
+                    value={siteContent.hero.bullet3}
+                    onChange={(e) => setSiteContent({ ...siteContent, hero: { ...siteContent.hero, bullet3: e.target.value } })}
+                    placeholder="จุดเด่นข้อที่ 3"
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}
+                  />
+                </div>
+              </div>
+
+              {/* Button text */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginTop: '18px' }}>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}>
+                    ข้อความปุ่มจอง (Book Button)
+                  </label>
+                  <input
+                    type="text"
+                    value={siteContent.hero.bookBtnText}
+                    onChange={(e) => setSiteContent({ ...siteContent, hero: { ...siteContent.hero, bookBtnText: e.target.value } })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}>
+                    ข้อความปุ่ม LINE (LINE Button)
+                  </label>
+                  <input
+                    type="text"
+                    value={siteContent.hero.lineBtnText}
+                    onChange={(e) => setSiteContent({ ...siteContent, hero: { ...siteContent.hero, lineBtnText: e.target.value } })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}>
+                    ข้อความปุ่มโทร (Call Button)
+                  </label>
+                  <input
+                    type="text"
+                    value={siteContent.hero.callBtnText}
+                    onChange={(e) => setSiteContent({ ...siteContent, hero: { ...siteContent.hero, callBtnText: e.target.value } })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Contact & Hotline Section Card */}
+            <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
+                <Phone size={18} color="#004680" />
+                <h3 style={{ margin: 0, fontSize: '16px', color: '#004680', fontWeight: 700 }}>
+                  2. ข้อมูลติดต่อ &amp; LINE OA
+                </h3>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}>
+                    เบอร์โทรสายด่วน (Hotline Phone)
+                  </label>
+                  <input
+                    type="text"
+                    value={siteContent.contact.hotlinePhone}
+                    onChange={(e) => setSiteContent({ ...siteContent, contact: { ...siteContent.contact, hotlinePhone: e.target.value } })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}>
+                    LINE Official ID
+                  </label>
+                  <input
+                    type="text"
+                    value={siteContent.contact.lineOaId}
+                    onChange={(e) => setSiteContent({ ...siteContent, contact: { ...siteContent.contact, lineOaId: e.target.value } })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}>
+                    LINE Official Short URL (ลิงก์แอดไลน์)
+                  </label>
+                  <input
+                    type="text"
+                    value={siteContent.contact.lineOaUrl}
+                    onChange={(e) => setSiteContent({ ...siteContent, contact: { ...siteContent.contact, lineOaUrl: e.target.value } })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing Packages Card */}
+            <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
+                <span style={{ fontSize: '18px' }}>💰</span>
+                <h3 style={{ margin: 0, fontSize: '16px', color: '#004680', fontWeight: 700 }}>
+                  3. อัตราค่าบริการแพ็กเกจ (Pricing Packages)
+                </h3>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+                {/* Package 1 */}
+                <div style={{ padding: '16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', background: '#f8fafc' }}>
+                  <h4 style={{ margin: '0 0 10px', color: '#004680', fontWeight: 700 }}>แพ็กเกจ 1: มาตรฐาน</h4>
+                  <div style={{ marginBottom: '10px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ชื่อแพ็กเกจ</label>
+                    <input
+                      type="text"
+                      value={siteContent.packages.pkg1.name}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        packages: { ...siteContent.packages, pkg1: { ...siteContent.packages.pkg1, name: e.target.value } }
+                      })}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '10px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ราคา (5 ชั่วโมง)</label>
+                    <input
+                      type="text"
+                      value={siteContent.packages.pkg1.price5h}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        packages: { ...siteContent.packages, pkg1: { ...siteContent.packages.pkg1, price5h: e.target.value } }
+                      })}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Package 2 */}
+                <div style={{ padding: '16px', border: '2px solid #2DCCD3', borderRadius: '10px', background: '#f0fdfa' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <h4 style={{ margin: 0, color: '#004680', fontWeight: 700 }}>แพ็กเกจ 2: ผู้ดูแล + รถตู้</h4>
+                    <span style={{ fontSize: '10px', background: '#FFB81C', color: '#002d54', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>ยอดนิยม</span>
+                  </div>
+                  <div style={{ marginBottom: '10px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ชื่อแพ็กเกจ</label>
+                    <input
+                      type="text"
+                      value={siteContent.packages.pkg2.name}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        packages: { ...siteContent.packages, pkg2: { ...siteContent.packages.pkg2, name: e.target.value } }
+                      })}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '10px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ราคา (5 ชั่วโมง)</label>
+                    <input
+                      type="text"
+                      value={siteContent.packages.pkg2.price5h}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        packages: { ...siteContent.packages, pkg2: { ...siteContent.packages.pkg2, price5h: e.target.value } }
+                      })}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Package 3 */}
+                <div style={{ padding: '16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', background: '#f8fafc' }}>
+                  <h4 style={{ margin: '0 0 10px', color: '#004680', fontWeight: 700 }}>แพ็กเกจ 3: พาทำกิจกรรม</h4>
+                  <div style={{ marginBottom: '10px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ชื่อแพ็กเกจ</label>
+                    <input
+                      type="text"
+                      value={siteContent.packages.pkg3.name}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        packages: { ...siteContent.packages, pkg3: { ...siteContent.packages.pkg3, name: e.target.value } }
+                      })}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '10px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>ราคา (5 ชั่วโมง)</label>
+                    <input
+                      type="text"
+                      value={siteContent.packages.pkg3.price5h}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        packages: { ...siteContent.packages, pkg3: { ...siteContent.packages.pkg3, price5h: e.target.value } }
+                      })}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================
+            TAB 2: SITE MENUS EDITOR
+            ================================================================ */}
+        {activeTab === 'site-menu' && (
+          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h2 style={{ fontSize: '18px', margin: 0, color: '#004680', fontWeight: 700 }}>
+                  จัดการเมนูนำทาง (Navigation Menus)
+                </h2>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
+                  เพิ่ม ลบ แก้ไขชื่อ และจัดลำดับเมนูบน Header ของเว็บไซต์ (มีผลทั้งหน้าจอคอมพิวเตอร์และมือถือ)
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={handleAddMenu}
+                  style={{ background: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd', padding: '8px 14px', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Plus size={15} />
+                  <span>เพิ่มเมนูใหม่</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveSiteContent}
+                  disabled={savingSiteContent}
+                  style={{ background: '#004680', color: '#ffffff', border: 'none', padding: '8px 18px', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Save size={15} />
+                  <span>{savingSiteContent ? 'กำลังบันทึก...' : 'บันทึกเมนู'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Menu Items Table */}
+            <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13.5px' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
+                    <th style={{ padding: '12px 16px', width: '60px' }}>ลำดับ</th>
+                    <th style={{ padding: '12px 16px' }}>ชื่อเมนู (Label)</th>
+                    <th style={{ padding: '12px 16px' }}>ลิงก์ปลายทาง (Href / Section ID)</th>
+                    <th style={{ padding: '12px 16px', width: '140px', textAlign: 'center' }}>จัดตำแหน่ง</th>
+                    <th style={{ padding: '12px 16px', width: '80px', textAlign: 'center' }}>จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {siteContent.menus.map((menuItem, idx) => (
+                    <tr key={menuItem.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '12px 16px', fontWeight: 600, color: '#94a3b8' }}>
+                        {idx + 1}
+                      </td>
+                      <td style={{ padding: '12px 16px' }}>
+                        <input
+                          type="text"
+                          value={menuItem.label}
+                          onChange={(e) => handleUpdateMenu(menuItem.id, 'label', e.target.value)}
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}
+                        />
+                      </td>
+                      <td style={{ padding: '12px 16px' }}>
+                        <input
+                          type="text"
+                          value={menuItem.href}
+                          onChange={(e) => handleUpdateMenu(menuItem.id, 'href', e.target.value)}
+                          placeholder="เช่น #pricing หรือ https://..."
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}
+                        />
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                        <div style={{ display: 'inline-flex', gap: '4px' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveMenu(idx, 'up')}
+                            disabled={idx === 0}
+                            style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', background: idx === 0 ? '#f8fafc' : '#ffffff', cursor: idx === 0 ? 'not-allowed' : 'pointer', opacity: idx === 0 ? 0.4 : 1 }}
+                            title="เลื่อนขึ้น"
+                          >
+                            <ArrowUp size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveMenu(idx, 'down')}
+                            disabled={idx === siteContent.menus.length - 1}
+                            style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', background: idx === siteContent.menus.length - 1 ? '#f8fafc' : '#ffffff', cursor: idx === siteContent.menus.length - 1 ? 'not-allowed' : 'pointer', opacity: idx === siteContent.menus.length - 1 ? 0.4 : 1 }}
+                            title="เลื่อนลง"
+                          >
+                            <ArrowDown size={14} />
+                          </button>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteMenu(menuItem.id)}
+                          style={{ color: '#ef4444', background: '#fee2e2', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer' }}
+                          title="ลบเมนูนี้"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================
+            TAB 3: MEDIA & IMAGE MANAGER (ALL 5 SECTIONS)
+            ================================================================ */}
+        {activeTab === 'site-media' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Header info & Save bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h2 style={{ fontSize: '18px', margin: 0, color: '#004680', fontWeight: 700 }}>
+                  จัดการรูปภาพเว็บไซต์ครบทุกจุด (Media &amp; Image Manager)
+                </h2>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
+                  แก้ไขและเปลี่ยนรูปภาพได้ครบทั้ง 5 ส่วนสำคัญบนเว็บไซต์ พร้อมแปลงไฟล์เป็น .webp ให้อัตโนมัติ
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => triggerImageUpload('heroPoster')}
+                  style={{ background: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd', padding: '8px 14px', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Upload size={14} />
+                  <span>อัปโหลดรูปภาพใหม่</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveSiteContent}
+                  disabled={savingSiteContent}
+                  style={{ background: '#004680', color: '#ffffff', border: 'none', padding: '8px 18px', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Save size={14} />
+                  <span>{savingSiteContent ? 'กำลังบันทึก...' : 'บันทึกรูปภาพทั้งหมด'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Sub-filter Section Pills */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', background: '#ffffff', padding: '10px 16px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+              <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', alignSelf: 'center', marginRight: '4px' }}>หมวดหมู่รูปภาพ:</span>
+              {[
+                { id: 'all', label: 'ทั้งหมด (28 จุด)' },
+                { id: 'brand', label: '🌟 แบรนด์ & สื่อหลัก (5)' },
+                { id: 'moments', label: '⏱️ 5 ขั้นตอนการดูแล (5)' },
+                { id: 'personas', label: '👥 บริการนี้เหมาะกับใคร (4)' },
+                { id: 'steps', label: '📦 สิ่งที่รวมในบริการ (6)' },
+                { id: 'appointments', label: '🏥 ประเภทนัดหมาย (8)' },
+              ].map((btn) => (
+                <button
+                  key={btn.id}
+                  type="button"
+                  onClick={() => setMediaFilter(btn.id as any)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: mediaFilter === btn.id ? 700 : 500,
+                    border: '1px solid',
+                    borderColor: mediaFilter === btn.id ? '#004680' : '#e2e8f0',
+                    background: mediaFilter === btn.id ? '#004680' : '#f8fafc',
+                    color: mediaFilter === btn.id ? '#ffffff' : '#334155',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {btn.label}
+                </button>
               ))}
             </div>
 
-            {loadingLeads ? (
-              <p>กำลังโหลดข้อมูล...</p>
-            ) : leads.length === 0 ? (
-              <div style={{ background: '#fff', padding: '48px', textAlign: 'center', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                <p style={{ color: '#64748b', fontSize: '16px' }}>ยังไม่มีข้อมูลการจองในระบบ</p>
+            {/* ================================================================
+                SECTION 1: BRAND & CORE MEDIA (Logo, Hero, Video, Map, Report)
+                ================================================================ */}
+            {(mediaFilter === 'all' || mediaFilter === 'brand') && (
+              <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '16px', color: '#004680', fontWeight: 700 }}>
+                      1. รูปภาพแบรนด์และสื่อหลัก (Brand &amp; Core Media)
+                    </h3>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                      โลโก้หัวเว็บ, วิดีโอโปสเตอร์, แผนที่ครอบคลุมชลบุรี และภาพตัวอย่าง LINE Report
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '3px 8px', borderRadius: '999px', fontWeight: 700 }}>
+                    5 รูปภาพ
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+                  {/* Logo */}
+                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 700, fontSize: '13.5px', color: '#004680' }}>โลโก้แบรนด์ (Aikchol Next Logo)</span>
+                      <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>Header</span>
+                    </div>
+                    <div style={{ height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '10px' }}>
+                      <img src={getAssetUrl(siteContent.images.logo)} alt="Logo Preview" style={{ maxHeight: '75px', maxWidth: '85%', objectFit: 'contain' }} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontSize: '11.5px', color: '#64748b' }}>เลือกจากคลังรูปภาพ:</span>
+                        <select
+                          value={siteContent.images.logo}
+                          onChange={(e) => setSiteContent({ ...siteContent, images: { ...siteContent.images, logo: e.target.value } })}
+                          style={{ width: '100%', minWidth: 0, padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', background: '#fff' }}
+                        >
+                          {availableAssets.map((asset) => (
+                            <option key={asset} value={asset}>{asset.replace('assets/', '')}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => triggerImageUpload('logo')}
+                        style={{ width: '100%', padding: '7px 12px', background: '#ffffff', color: '#004680', border: '1px dashed #004680', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                      >
+                        <Upload size={13} />
+                        <span>อัปโหลดโลโก้ใหม่</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Hero Poster */}
+                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 700, fontSize: '13.5px', color: '#004680' }}>รูปภาพพื้นหลัง Hero (Hero Poster)</span>
+                      <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>Hero Banner</span>
+                    </div>
+                    <div style={{ height: '120px', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden', background: '#ffffff' }}>
+                      <img src={getAssetUrl(siteContent.images.heroPoster)} alt="Hero Poster Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontSize: '11.5px', color: '#64748b' }}>เลือกจากคลังรูปภาพ:</span>
+                        <select
+                          value={siteContent.images.heroPoster}
+                          onChange={(e) => setSiteContent({ ...siteContent, images: { ...siteContent.images, heroPoster: e.target.value } })}
+                          style={{ width: '100%', minWidth: 0, padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', background: '#fff' }}
+                        >
+                          {availableAssets.map((asset) => (
+                            <option key={asset} value={asset}>{asset.replace('assets/', '')}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => triggerImageUpload('heroPoster')}
+                        style={{ width: '100%', padding: '7px 12px', background: '#ffffff', color: '#004680', border: '1px dashed #004680', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                      >
+                        <Upload size={13} />
+                        <span>อัปโหลดรูปภาพใหม่</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Video Tour Poster */}
+                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 700, fontSize: '13.5px', color: '#004680' }}>ภาพปกวิดีโอแนะนำ (Video Tour)</span>
+                      <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>Video Tour</span>
+                    </div>
+                    <div style={{ height: '120px', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden', background: '#ffffff' }}>
+                      <img src={getAssetUrl(siteContent.images.videoPoster)} alt="Video Poster Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontSize: '11.5px', color: '#64748b' }}>เลือกจากคลังรูปภาพ:</span>
+                        <select
+                          value={siteContent.images.videoPoster}
+                          onChange={(e) => setSiteContent({ ...siteContent, images: { ...siteContent.images, videoPoster: e.target.value } })}
+                          style={{ width: '100%', minWidth: 0, padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', background: '#fff' }}
+                        >
+                          {availableAssets.map((asset) => (
+                            <option key={asset} value={asset}>{asset.replace('assets/', '')}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => triggerImageUpload('videoPoster')}
+                        style={{ width: '100%', padding: '7px 12px', background: '#ffffff', color: '#004680', border: '1px dashed #004680', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                      >
+                        <Upload size={13} />
+                        <span>อัปโหลดภาพปกใหม่</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Coverage Map */}
+                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 700, fontSize: '13.5px', color: '#004680' }}>แผนที่บริการชลบุรี (Coverage Map)</span>
+                      <span style={{ fontSize: '11px', background: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>Coverage</span>
+                    </div>
+                    <div style={{ height: '120px', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img src={getAssetUrl(siteContent.images.mapImage || 'assets/chonburi_map.webp')} alt="Coverage Map Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontSize: '11.5px', color: '#64748b' }}>เลือกจากคลังรูปภาพ:</span>
+                        <select
+                          value={siteContent.images.mapImage || 'assets/chonburi_map.webp'}
+                          onChange={(e) => setSiteContent({ ...siteContent, images: { ...siteContent.images, mapImage: e.target.value } })}
+                          style={{ width: '100%', minWidth: 0, padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', background: '#fff' }}
+                        >
+                          {availableAssets.map((asset) => (
+                            <option key={asset} value={asset}>{asset.replace('assets/', '')}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => triggerImageUpload('mapImage')}
+                        style={{ width: '100%', padding: '7px 12px', background: '#ffffff', color: '#004680', border: '1px dashed #004680', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                      >
+                        <Upload size={13} />
+                        <span>อัปโหลดแผนที่ใหม่</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* LINE Service Report Mockup */}
+                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 700, fontSize: '13.5px', color: '#004680' }}>LINE Report Mockup (ภาพมือถือ)</span>
+                      <span style={{ fontSize: '11px', background: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>Report Mockup</span>
+                    </div>
+                    <div style={{ height: '120px', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img src={getAssetUrl(siteContent.images.reportMockup || 'assets/mobile_report_mockup.webp')} alt="Report Mockup Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontSize: '11.5px', color: '#64748b' }}>เลือกจากคลังรูปภาพ:</span>
+                        <select
+                          value={siteContent.images.reportMockup || 'assets/mobile_report_mockup.webp'}
+                          onChange={(e) => setSiteContent({ ...siteContent, images: { ...siteContent.images, reportMockup: e.target.value } })}
+                          style={{ width: '100%', minWidth: 0, padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', background: '#fff' }}
+                        >
+                          {availableAssets.map((asset) => (
+                            <option key={asset} value={asset}>{asset.replace('assets/', '')}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => triggerImageUpload('reportMockup')}
+                        style={{ width: '100%', padding: '7px 12px', background: '#ffffff', color: '#004680', border: '1px dashed #004680', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                      >
+                        <Upload size={13} />
+                        <span>อัปโหลดภาพม็อกอัปใหม่</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ================================================================
+                SECTION 2: CARE MOMENTS (5 STEPS TABS & VIDEO TIMELINE)
+                ================================================================ */}
+            {(mediaFilter === 'all' || mediaFilter === 'moments') && (
+              <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '16px', color: '#004680', fontWeight: 700 }}>
+                      2. ภาพแท็บ 5 ขั้นตอนการดูแล (Care Moments 1 - 5)
+                    </h3>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                      แสดงบนแท็บเลื่อนสไลเดอร์ "ดูแลครบวงจรตั้งแต่ก้าวออกจากบ้าน" และไทม์ไลน์วิดีโอ
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '3px 8px', borderRadius: '999px', fontWeight: 700 }}>
+                    5 ขั้นตอน
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                  {(siteContent.moments || []).map((moment, idx) => (
+                    <div key={moment.id} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', background: '#ffffff', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontWeight: 700, fontSize: '13.5px', color: '#004680', lineHeight: 1.3 }}>
+                          {moment.title}
+                        </span>
+                        <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '999px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          Step {moment.stepNumber || idx + 1}
+                        </span>
+                      </div>
+
+                      {/* Image Preview */}
+                      <div style={{ height: '140px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <img src={getAssetUrl(moment.image)} alt={moment.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+
+                      {/* Controls: Select from assets & Upload button */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ fontSize: '11.5px', color: '#64748b' }}>เลือกจากคลังรูปภาพ:</span>
+                          <select
+                            value={moment.image}
+                            onChange={(e) => {
+                              const newUrl = e.target.value;
+                              setSiteContent((prev) => {
+                                const moments = [...(prev.moments || [])];
+                                moments[idx].image = newUrl;
+                                return { ...prev, moments };
+                              });
+                            }}
+                            style={{ width: '100%', minWidth: 0, padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', background: '#fff', color: '#0f172a' }}
+                          >
+                            {availableAssets.map((asset) => (
+                              <option key={asset} value={asset}>{asset.replace('assets/', '')}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => triggerImageUpload('moment', idx)}
+                          style={{ width: '100%', padding: '7px 12px', background: '#f8fafc', color: '#004680', border: '1px dashed #004680', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}
+                        >
+                          <Upload size={13} />
+                          <span>อัปโหลดรูปภาพใหม่</span>
+                        </button>
+                      </div>
+
+                      <p style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: 1.45, minHeight: '34px' }}>
+                        {moment.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ================================================================
+                SECTION 3: PERSONAS ("บริการนี้เหมาะกับใคร ?", 4 CARDS)
+                ================================================================ */}
+            {(mediaFilter === 'all' || mediaFilter === 'personas') && (
+              <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '16px', color: '#004680', fontWeight: 700 }}>
+                      3. ภาพกลุ่มผู้รับบริการ (Personas: บริการนี้เหมาะกับใคร ? 1 - 4)
+                    </h3>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                      แสดงในการ์ด 4 กลุ่มเป้าหมาย เช่น ครอบครัวที่ลางานไม่ได้, ผู้สูงอายุอยู่คนเดียว ฯลฯ
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '3px 8px', borderRadius: '999px', fontWeight: 700 }}>
+                    4 กลุ่ม
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                  {(siteContent.personas || []).map((persona, idx) => (
+                    <div key={persona.id} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', background: '#ffffff', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontWeight: 700, fontSize: '13.5px', color: '#004680', lineHeight: 1.3 }}>
+                          {persona.title}
+                        </span>
+                        <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '999px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          Persona #{persona.num || idx + 1}
+                        </span>
+                      </div>
+
+                      {/* Image Preview */}
+                      <div style={{ height: '140px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <img src={getAssetUrl(persona.image)} alt={persona.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+
+                      {/* Controls: Select from assets & Upload button */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ fontSize: '11.5px', color: '#64748b' }}>เลือกจากคลังรูปภาพ:</span>
+                          <select
+                            value={persona.image}
+                            onChange={(e) => {
+                              const newUrl = e.target.value;
+                              setSiteContent((prev) => {
+                                const personas = [...(prev.personas || [])];
+                                personas[idx].image = newUrl;
+                                return { ...prev, personas };
+                              });
+                            }}
+                            style={{ width: '100%', minWidth: 0, padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', background: '#fff', color: '#0f172a' }}
+                          >
+                            {availableAssets.map((asset) => (
+                              <option key={asset} value={asset}>{asset.replace('assets/', '')}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => triggerImageUpload('persona', idx)}
+                          style={{ width: '100%', padding: '7px 12px', background: '#f8fafc', color: '#004680', border: '1px dashed #004680', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}
+                        >
+                          <Upload size={13} />
+                          <span>อัปโหลดรูปภาพใหม่</span>
+                        </button>
+                      </div>
+
+                      <p style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: 1.45, minHeight: '34px' }}>
+                        {persona.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ================================================================
+                SECTION 4: SERVICE STEPS ("สิ่งที่รวมอยู่ในราคาค่าบริการ", 6 CARDS)
+                ================================================================ */}
+            {(mediaFilter === 'all' || mediaFilter === 'steps') && (
+              <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '16px', color: '#004680', fontWeight: 700 }}>
+                      4. ภาพสิ่งที่รวมอยู่ในราคาค่าบริการ (Service Steps 1 - 6)
+                    </h3>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                      แสดงในการ์ด 6 ขั้นตอนสำคัญที่รวมอยู่ในแพ็กเกจ
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '3px 8px', borderRadius: '999px', fontWeight: 700 }}>
+                    6 ขั้นตอน
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                  {(siteContent.serviceSteps || []).map((step, idx) => (
+                    <div key={step.id} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', background: '#ffffff', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontWeight: 700, fontSize: '13.5px', color: '#004680', lineHeight: 1.3 }}>
+                          {step.title}
+                        </span>
+                        <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '999px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          ขั้นตอนที่ {step.step || idx + 1}
+                        </span>
+                      </div>
+
+                      {/* Image Preview */}
+                      <div style={{ height: '140px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <img src={getAssetUrl(step.image)} alt={step.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+
+                      {/* Controls: Select from assets & Upload button */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ fontSize: '11.5px', color: '#64748b' }}>เลือกจากคลังรูปภาพ:</span>
+                          <select
+                            value={step.image}
+                            onChange={(e) => {
+                              const newUrl = e.target.value;
+                              setSiteContent((prev) => {
+                                const serviceSteps = [...(prev.serviceSteps || [])];
+                                serviceSteps[idx].image = newUrl;
+                                return { ...prev, serviceSteps };
+                              });
+                            }}
+                            style={{ width: '100%', minWidth: 0, padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', background: '#fff', color: '#0f172a' }}
+                          >
+                            {availableAssets.map((asset) => (
+                              <option key={asset} value={asset}>{asset.replace('assets/', '')}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => triggerImageUpload('serviceStep', idx)}
+                          style={{ width: '100%', padding: '7px 12px', background: '#f8fafc', color: '#004680', border: '1px dashed #004680', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}
+                        >
+                          <Upload size={13} />
+                          <span>อัปโหลดรูปภาพใหม่</span>
+                        </button>
+                      </div>
+
+                      <p style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: 1.45, minHeight: '34px' }}>
+                        {step.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ================================================================
+                SECTION 5: APPOINTMENT CARDS (1 - 8)
+                ================================================================ */}
+            {(mediaFilter === 'all' || mediaFilter === 'appointments') && (
+              <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '16px', color: '#004680', fontWeight: 700 }}>
+                      5. รูปภาพประเภทนัดหมายที่ดูแลได้ (Appointment Cards 1 - 8)
+                    </h3>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>แสดงในส่วนประเภทนัดหมายที่ GO CARES ดูแลพาไปพบแพทย์</span>
+                  </div>
+                  <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '3px 8px', borderRadius: '999px', fontWeight: 700 }}>
+                    8 การ์ด
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                  {(siteContent.appointments || []).map((apt, idx) => (
+                    <div key={apt.id} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', background: '#ffffff', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontWeight: 700, fontSize: '13.5px', color: '#004680', lineHeight: 1.3 }}>
+                          {apt.title}
+                        </span>
+                        <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '999px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          Card #{apt.num}
+                        </span>
+                      </div>
+
+                      {/* Image Preview */}
+                      <div style={{ height: '140px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <img src={getAssetUrl(apt.image)} alt={apt.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+
+                      {/* Controls: Select from assets & Upload button */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ fontSize: '11.5px', color: '#64748b' }}>เลือกจากคลังรูปภาพ:</span>
+                          <select
+                            value={apt.image}
+                            onChange={(e) => {
+                              const newUrl = e.target.value;
+                              setSiteContent((prev) => {
+                                const appointments = [...prev.appointments];
+                                appointments[idx].image = newUrl;
+                                return { ...prev, appointments };
+                              });
+                            }}
+                            style={{ width: '100%', minWidth: 0, padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', background: '#fff', color: '#0f172a' }}
+                          >
+                            {availableAssets.map((asset) => (
+                              <option key={asset} value={asset}>{asset.replace('assets/', '')}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => triggerImageUpload('appointment', idx)}
+                          style={{ width: '100%', padding: '7px 12px', background: '#f8fafc', color: '#004680', border: '1px dashed #004680', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}
+                        >
+                          <Upload size={13} />
+                          <span>อัปโหลดรูปภาพใหม่</span>
+                        </button>
+                      </div>
+
+                      <p style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: 1.45, minHeight: '34px' }}>
+                        {apt.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ================================================================
+            TAB 4: BOOKING LEADS
+            ================================================================ */}
+        {activeTab === 'leads' && (
+          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h2 style={{ fontSize: '18px', margin: 0, color: '#004680', fontWeight: 700 }}>
+                  ข้อมูลผู้รับบริการและผู้ติดต่อ (Leads)
+                </h2>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
+                  บันทึกข้อมูลจากฟอร์มจองหน้าเว็บ แยกชื่อผู้ป่วย, ชื่อผู้ติดต่อ, เบอร์โทร, LINE ID และโรงพยาบาล
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={fetchLeads}
+                style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}
+              >
+                รีเฟรชข้อมูล
+              </button>
+            </div>
+
+            {leads.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+                <Users size={32} style={{ margin: '0 auto 10px', opacity: 0.5 }} />
+                <p>ยังไม่มีข้อมูลการจองในระบบ</p>
               </div>
             ) : (
-              <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+              <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                   <thead>
-                    <tr style={{ background: '#f1f5f9', borderBottom: '1.5px solid #cbd5e1', textAlign: 'left' }}>
-                      {['เวลา', 'ผู้ป่วย', 'ผู้ติดต่อ / เบอร์', 'LINE ID', 'อำเภอ', 'โรงพยาบาล', 'แพ็กเกจ'].map((h) => (
-                        <th key={h} style={{ padding: '12px 14px', fontWeight: 600 }}>{h}</th>
-                      ))}
+                    <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                      <th style={{ padding: '10px 14px' }}>เวลาส่ง</th>
+                      <th style={{ padding: '10px 14px' }}>ชื่อผู้ป่วย (ความสัมพันธ์)</th>
+                      <th style={{ padding: '10px 14px' }}>ชื่อผู้ติดต่อ / ประสานงาน</th>
+                      <th style={{ padding: '10px 14px' }}>เบอร์โทรศัพท์</th>
+                      <th style={{ padding: '10px 14px' }}>LINE ID</th>
+                      <th style={{ padding: '10px 14px' }}>โรงพยาบาล</th>
+                      <th style={{ padding: '10px 14px' }}>แพ็กเกจ</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {leads.map((lead, i) => (
-                      <tr key={lead.id || i} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '11px 14px', color: '#64748b', whiteSpace: 'nowrap' }}>
-                          {new Date(lead.submittedAt).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}
+                    {leads.map((lead, idx) => (
+                      <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '10px 14px', color: '#64748b' }}>
+                          {new Date(lead.submittedAt).toLocaleString('th-TH')}
                         </td>
-                        <td style={{ padding: '11px 14px' }}>
-                          <strong>{lead.patientName}</strong>
-                          <div style={{ fontSize: '11px', color: '#64748b' }}>({lead.patientRelation})</div>
+                        <td style={{ padding: '10px 14px', fontWeight: 600, color: '#004680' }}>
+                          {lead.patientName} {lead.patientRelation ? `(${lead.patientRelation})` : ''}
                         </td>
-                        <td style={{ padding: '11px 14px' }}>
-                          <div>{lead.contactName}</div>
-                          <a href={`tel:${lead.contactPhone}`} style={{ color: '#0284c7', textDecoration: 'none', fontWeight: 600 }}>{lead.contactPhone}</a>
+                        <td style={{ padding: '10px 14px' }}>{lead.contactName}</td>
+                        <td style={{ padding: '10px 14px' }}>
+                          <a href={`tel:${lead.contactPhone}`} style={{ color: '#0284c7', textDecoration: 'none' }}>
+                            {lead.contactPhone}
+                          </a>
                         </td>
-                        <td style={{ padding: '11px 14px', color: lead.contactLineId ? '#15803d' : '#94a3b8' }}>
-                          {lead.contactLineId ? `🟢 ${lead.contactLineId}` : '—'}
-                        </td>
-                        <td style={{ padding: '11px 14px' }}>{lead.district}</td>
-                        <td style={{ padding: '11px 14px' }}>
-                          <span>{lead.hospital}</span>
-                          {lead.isOtherHospital && (
-                            <span style={{ marginLeft: '6px', fontSize: '10px', background: '#fef3c7', color: '#b45309', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
-                              ระบุอื่นๆ
+                        <td style={{ padding: '10px 14px' }}>
+                          {lead.contactLineId ? (
+                            <span style={{ background: '#ecfdf5', color: '#047857', padding: '2px 8px', borderRadius: '999px', fontSize: '12px' }}>
+                              {lead.contactLineId}
                             </span>
-                          )}
+                          ) : '-'}
                         </td>
-                        <td style={{ padding: '11px 14px', fontWeight: 500, color: '#004680' }}>{lead.package}</td>
+                        <td style={{ padding: '10px 14px' }}>{lead.hospital}</td>
+                        <td style={{ padding: '10px 14px' }}>{lead.package}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -504,531 +1670,128 @@ export default function AdminDashboardPage() {
         )}
 
         {/* ================================================================
-            TAB 2: CONTENT CMS
-            ================================================================ */}
-        {activeTab === 'content' && (
-          <div>
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-              <div>
-                <h2 style={{ fontSize: '18px', margin: 0, color: '#004680' }}>จัดการเนื้อหาบนเว็บไซต์ (Content CMS)</h2>
-                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
-                  Marketing สามารถเพิ่ม / แก้ไข / เผยแพร่ / ยกเลิก Content โดยไม่ต้องรอ IT
-                </p>
-              </div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <select
-                  value={contentFilter}
-                  onChange={(e) => setContentFilter(e.target.value)}
-                  style={{ padding: '8px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', cursor: 'pointer' }}
-                >
-                  <option value="">ทุกประเภท</option>
-                  <option value="announcement">📣 ประกาศ</option>
-                  <option value="campaign">🎯 แคมเปญ</option>
-                  <option value="faq">❓ FAQ</option>
-                  <option value="config">⚙️ ตั้งค่า</option>
-                </select>
-                <button type="button" onClick={fetchContent} style={{ background: '#e2e8f0', border: 'none', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                  🔄
-                </button>
-                <button type="button" onClick={() => openCreateModal('announcement')} style={{ background: '#004680', color: '#fff', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
-                  + เพิ่มเนื้อหาใหม่
-                </button>
-              </div>
-            </div>
-
-            {contentMsg && (
-              <div style={{ padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', background: contentMsg.startsWith('✅') ? '#dcfce7' : '#fef2f2', color: contentMsg.startsWith('✅') ? '#166534' : '#dc2626', fontWeight: 600 }}>
-                {contentMsg}
-              </div>
-            )}
-
-            {loadingContent ? (
-              <p>กำลังโหลดเนื้อหา...</p>
-            ) : contentItems.length === 0 ? (
-              <div style={{ background: '#fff', padding: '48px', textAlign: 'center', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                <p style={{ color: '#64748b' }}>ยังไม่มีเนื้อหาในระบบ กด &quot;+ เพิ่มเนื้อหาใหม่&quot; เพื่อเริ่มต้น</p>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {contentItems.map((item) => {
-                  const badge = STATUS_BADGE[item.status] || STATUS_BADGE.draft;
-                  return (
-                    <div key={item.id} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '6px' }}>
-                          <span style={{ fontSize: '12px', color: '#64748b', background: '#f1f5f9', padding: '2px 8px', borderRadius: '4px' }}>
-                            {TYPE_LABEL[item.type] || item.type}
-                          </span>
-                          <span style={{ fontSize: '12px', background: badge.bg, color: badge.color, padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
-                            {badge.label}
-                          </span>
-                          {item.tags?.map((t) => (
-                            <span key={t} style={{ fontSize: '11px', background: '#eff6ff', color: '#1e40af', padding: '2px 6px', borderRadius: '4px' }}>#{t}</span>
-                          ))}
-                        </div>
-                        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#0f172a' }}>{item.title}</h3>
-                        <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as 'vertical' }}>
-                          {item.body}
-                        </p>
-                        <div style={{ marginTop: '8px', fontSize: '11.5px', color: '#94a3b8', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                          <span>สร้าง: {new Date(item.createdAt).toLocaleDateString('th-TH')}</span>
-                          {item.publishedAt && <span>เผยแพร่: {new Date(item.publishedAt).toLocaleDateString('th-TH')}</span>}
-                          {item.author && <span>โดย: {item.author}</span>}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end', flexShrink: 0 }}>
-                        <button type="button" onClick={() => openEditModal(item)} style={{ background: '#f1f5f9', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}>
-                          ✏️ แก้ไข
-                        </button>
-                        {item.status !== 'published' && (
-                          <button type="button" onClick={() => handleStatusChange(item, 'published')} style={{ background: '#dcfce7', color: '#166534', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}>
-                            📢 เผยแพร่
-                          </button>
-                        )}
-                        {item.status === 'published' && (
-                          <button type="button" onClick={() => handleStatusChange(item, 'draft')} style={{ background: '#fef9c3', color: '#854d0e', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}>
-                            ⏸ ยกเลิกการเผยแพร่
-                          </button>
-                        )}
-                        {item.status !== 'archived' && (
-                          <button type="button" onClick={() => handleStatusChange(item, 'archived')} style={{ background: '#f1f5f9', color: '#64748b', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>
-                            🗄️ เก็บถาวร
-                          </button>
-                        )}
-                        <button type="button" onClick={() => handleDeleteContent(item.id)} style={{ background: '#fef2f2', color: '#dc2626', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>
-                          🗑️ ลบ
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ================================================================
-            TAB 3: CAMPAIGNS
+            TAB 5: CAMPAIGNS
             ================================================================ */}
         {activeTab === 'campaigns' && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
-                <h2 style={{ fontSize: '18px', margin: 0, color: '#004680' }}>แคมเปญการตลาด (Campaign Management)</h2>
+                <h2 style={{ fontSize: '18px', margin: 0, color: '#004680', fontWeight: 700 }}>
+                  แคมเปญการตลาด &amp; ประชาสัมพันธ์ (Marketing Campaigns)
+                </h2>
                 <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
-                  สร้างและติดตามแคมเปญ พร้อมกำหนด Objective, Target, และระยะเวลา
+                  จัดการแคมเปญและโปรโมชันตามวัตถุประสงค์การตลาด (CR Item 5)
                 </p>
               </div>
-              <button type="button" onClick={() => openCreateModal('campaign')} style={{ background: '#004680', color: '#fff', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
-                + สร้างแคมเปญใหม่
-              </button>
             </div>
 
-            {contentMsg && (
-              <div style={{ padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', background: contentMsg.startsWith('✅') ? '#dcfce7' : '#fef2f2', color: contentMsg.startsWith('✅') ? '#166534' : '#dc2626', fontWeight: 600 }}>
-                {contentMsg}
-              </div>
-            )}
-
-            {campaigns.length === 0 ? (
-              <div style={{ background: '#fff', padding: '48px', textAlign: 'center', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                <p style={{ color: '#64748b', fontSize: '16px' }}>ยังไม่มีแคมเปญในระบบ</p>
-                <p style={{ color: '#94a3b8', fontSize: '13px' }}>กด &quot;+ สร้างแคมเปญใหม่&quot; เพื่อเริ่มต้น</p>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
-                {campaigns.map((camp) => {
-                  const badge = STATUS_BADGE[camp.status] || STATUS_BADGE.draft;
-                  return (
-                    <div key={camp.id} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <span style={{ fontSize: '12px', background: badge.bg, color: badge.color, padding: '3px 10px', borderRadius: '20px', fontWeight: 600 }}>{badge.label}</span>
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          <button type="button" onClick={() => openEditModal(camp)} style={{ background: 'none', border: '1.5px solid #e2e8f0', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>
-                            ✏️
-                          </button>
-                          <button type="button" onClick={() => handleDeleteContent(camp.id)} style={{ background: 'none', border: '1.5px solid #fecaca', color: '#dc2626', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>
-                            🗑️
-                          </button>
-                        </div>
-                      </div>
-                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>{camp.title}</h3>
-                      <p style={{ margin: 0, fontSize: '13px', color: '#64748b', lineHeight: 1.5 }}>{camp.body}</p>
-                      {(camp.campaignObjective || camp.campaignTarget) && (
-                        <div style={{ background: '#f8fafc', borderRadius: '8px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          {camp.campaignObjective && (
-                            <div style={{ fontSize: '12.5px', color: '#334155' }}>
-                              <strong style={{ color: '#004680' }}>Objective:</strong> {camp.campaignObjective}
-                            </div>
-                          )}
-                          {camp.campaignTarget && (
-                            <div style={{ fontSize: '12.5px', color: '#334155' }}>
-                              <strong style={{ color: '#004680' }}>Target:</strong> {camp.campaignTarget}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      {(camp.campaignStartDate || camp.campaignEndDate) && (
-                        <div style={{ fontSize: '12px', color: '#94a3b8', display: 'flex', gap: '12px' }}>
-                          {camp.campaignStartDate && <span>📅 เริ่ม: {camp.campaignStartDate}</span>}
-                          {camp.campaignEndDate && <span>📅 สิ้นสุด: {camp.campaignEndDate}</span>}
-                        </div>
-                      )}
-                      <div style={{ display: 'flex', gap: '8px', paddingTop: '4px' }}>
-                        {camp.status !== 'published' && (
-                          <button type="button" onClick={() => handleStatusChange(camp, 'published')} style={{ flex: 1, background: '#dcfce7', color: '#166534', border: 'none', padding: '8px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}>
-                            📢 เปิดแคมเปญ
-                          </button>
-                        )}
-                        {camp.status === 'published' && (
-                          <button type="button" onClick={() => handleStatusChange(camp, 'archived')} style={{ flex: 1, background: '#f1f5f9', color: '#64748b', border: 'none', padding: '8px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}>
-                            ⏹ ปิดแคมเปญ
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ================================================================
-            TAB 4: ANALYTICS DASHBOARD
-            ================================================================ */}
-        {activeTab === 'analytics' && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-              <div>
-                <h2 style={{ fontSize: '18px', margin: 0, color: '#004680' }}>วิเคราะห์พฤติกรรมผู้ใช้งาน (Marketing Analytics)</h2>
-                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
-                  ข้อมูล Tracking Events จาก dataLayer — วิเคราะห์ Content &amp; Campaign Performance
-                </p>
-              </div>
-              <button type="button" onClick={fetchTracking} style={{ background: '#e2e8f0', border: 'none', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                🔄 รีเฟรช
-              </button>
-            </div>
-
-            {/* KPI Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-              {[
-                { label: 'Lead ทั้งหมด', value: totalLeads, color: '#004680', sub: 'ส่งต่อ LINE OA 100%' },
-                { label: 'Event รวม (Tracking)', value: trackingData?.total || 0, color: '#7c3aed', sub: 'จาก dataLayer' },
-                { label: 'Lead มี LINE ID', value: hasLineIdCount, color: '#16a34a', sub: `${totalLeads ? ((hasLineIdCount / totalLeads) * 100).toFixed(1) : 0}% ของ Lead ทั้งหมด` },
-                { label: 'เลือก รพ. อื่นๆ', value: otherHospitalCount, color: '#b45309', sub: `${totalLeads ? ((otherHospitalCount / totalLeads) * 100).toFixed(1) : 0}% ของ Lead ทั้งหมด` },
-              ].map((kpi) => (
-                <div key={kpi.label} style={{ background: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>{kpi.label}</div>
-                  <div style={{ fontSize: '30px', fontWeight: 700, color: kpi.color, margin: '4px 0' }}>{kpi.value}</div>
-                  <div style={{ fontSize: '11.5px', color: '#94a3b8' }}>{kpi.sub}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
+              {campaigns.map((camp) => (
+                <div key={camp.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', background: '#f8fafc' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <h3 style={{ margin: 0, fontSize: '15px', color: '#004680', fontWeight: 700 }}>{camp.title}</h3>
+                    <span style={{ fontSize: '11px', background: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '999px', fontWeight: 600 }}>
+                      เผยแพร่แล้ว
+                    </span>
+                  </div>
+                  <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>{camp.body}</p>
+                  <div style={{ fontSize: '12px', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div><strong>กลุ่มเป้าหมาย:</strong> {camp.campaignTarget || '-'}</div>
+                    <div><strong>วัตถุประสงค์:</strong> {camp.campaignObjective || '-'}</div>
+                    <div><strong>ระยะเวลา:</strong> {camp.campaignStartDate || '-'} ถึง {camp.campaignEndDate || '-'}</div>
+                  </div>
                 </div>
               ))}
             </div>
-
-            {/* 2-col layout */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '20px' }}>
-
-              {/* Package Distribution */}
-              <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
-                <h4 style={{ margin: '0 0 16px', fontSize: '15px', color: '#004680' }}>📦 แพ็กเกจที่เลือกมากที่สุด</h4>
-                {Object.keys(packageCounts).length === 0 ? (
-                  <p style={{ color: '#94a3b8', fontSize: '13px' }}>ยังไม่มีข้อมูล</p>
-                ) : (
-                  Object.entries(packageCounts).sort((a, b) => b[1] - a[1]).map(([pkg, count]) => (
-                    <div key={pkg} style={{ marginBottom: '12px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '4px' }}>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%' }}>{pkg}</span>
-                        <strong>{count} เคส ({((count / totalLeads) * 100).toFixed(0)}%)</strong>
-                      </div>
-                      <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
-                        <div style={{ width: `${(count / totalLeads) * 100}%`, height: '100%', background: '#0284c7', borderRadius: '4px' }} />
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* District Distribution */}
-              <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
-                <h4 style={{ margin: '0 0 16px', fontSize: '15px', color: '#004680' }}>📍 อำเภอที่ใช้บริการมากที่สุด</h4>
-                {Object.keys(districtCounts).length === 0 ? (
-                  <p style={{ color: '#94a3b8', fontSize: '13px' }}>ยังไม่มีข้อมูล</p>
-                ) : (
-                  Object.entries(districtCounts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([district, count]) => (
-                    <div key={district} style={{ marginBottom: '10px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '4px' }}>
-                        <span>{district}</span>
-                        <strong>{count}</strong>
-                      </div>
-                      <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
-                        <div style={{ width: `${(count / Math.max(...Object.values(districtCounts))) * 100}%`, height: '100%', background: '#2DCCD3', borderRadius: '4px' }} />
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Top Tracking Events */}
-              <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
-                <h4 style={{ margin: '0 0 16px', fontSize: '15px', color: '#004680' }}>🎯 Tracking Events ที่เกิดขึ้นบ่อย</h4>
-                {loadingTracking ? (
-                  <p style={{ color: '#94a3b8', fontSize: '13px' }}>กำลังโหลด...</p>
-                ) : topEvents.length === 0 ? (
-                  <p style={{ color: '#94a3b8', fontSize: '13px' }}>ยังไม่มี event ถูกบันทึก</p>
-                ) : (
-                  topEvents.map(([event, count]) => (
-                    <div key={event} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #f1f5f9', fontSize: '13px' }}>
-                      <code style={{ fontSize: '12px', background: '#f8fafc', padding: '2px 8px', borderRadius: '4px', color: '#334155' }}>{event}</code>
-                      <span style={{ fontWeight: 600, color: '#004680' }}>{count}x</span>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Daily Activity Chart */}
-              <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
-                <h4 style={{ margin: '0 0 16px', fontSize: '15px', color: '#004680' }}>📈 กิจกรรมรายวัน (14 วันล่าสุด)</h4>
-                {recentDays.length === 0 ? (
-                  <p style={{ color: '#94a3b8', fontSize: '13px' }}>ยังไม่มีข้อมูล</p>
-                ) : (
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: '100px', padding: '0 4px' }}>
-                    {recentDays.map(([day, count]) => (
-                      <div key={day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: 0 }}>
-                        <div
-                          title={`${day}: ${count} events`}
-                          style={{
-                            width: '100%',
-                            height: `${Math.max(8, (count / maxDailyCount) * 80)}px`,
-                            background: '#0284c7',
-                            borderRadius: '3px 3px 0 0',
-                            cursor: 'default',
-                          }}
-                        />
-                        <span style={{ fontSize: '9px', color: '#94a3b8', transform: 'rotate(-45deg)', transformOrigin: 'top right', whiteSpace: 'nowrap' }}>
-                          {day.slice(5)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* GTM / Tracking Setup Guide */}
-              <div style={{ background: '#fff', borderRadius: '12px', border: '1.5px dashed #cbd5e1', padding: '24px', gridColumn: 'span 2' }}>
-                <h4 style={{ margin: '0 0 12px', fontSize: '15px', color: '#004680' }}>⚙️ Tracking Setup Guide (CR Item 4)</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', fontSize: '13px', color: '#334155' }}>
-                  <div>
-                    <strong style={{ color: '#004680', display: 'block', marginBottom: '8px' }}>📌 Events ที่ระบบ Track อยู่แล้ว:</strong>
-                    <ul style={{ margin: 0, paddingLeft: '16px', lineHeight: 2 }}>
-                      <li><code style={{ fontSize: '11px', background: '#f8fafc', padding: '1px 5px', borderRadius: '3px' }}>lead_form_submitted</code> — ส่งฟอร์มจองบริการ</li>
-                      <li><code style={{ fontSize: '11px', background: '#f8fafc', padding: '1px 5px', borderRadius: '3px' }}>booking_modal_open</code> — เปิด Booking Modal</li>
-                      <li><code style={{ fontSize: '11px', background: '#f8fafc', padding: '1px 5px', borderRadius: '3px' }}>ai_search_open</code> — เปิด AI Search</li>
-                      <li><code style={{ fontSize: '11px', background: '#f8fafc', padding: '1px 5px', borderRadius: '3px' }}>ai_search_query</code> — พิมพ์ค้นหา</li>
-                      <li><code style={{ fontSize: '11px', background: '#f8fafc', padding: '1px 5px', borderRadius: '3px' }}>line_oa_click</code> — คลิก LINE OA</li>
-                      <li><code style={{ fontSize: '11px', background: '#f8fafc', padding: '1px 5px', borderRadius: '3px' }}>phone_call_click</code> — คลิกโทรสายด่วน</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <strong style={{ color: '#004680', display: 'block', marginBottom: '8px' }}>🔧 การเชื่อมต่อ GTM / GA4:</strong>
-                    <ol style={{ margin: 0, paddingLeft: '16px', lineHeight: 2 }}>
-                      <li>ติดตั้ง Google Tag Manager (GTM) ใน layout.tsx</li>
-                      <li>สร้าง Trigger ใน GTM ตาม event names ด้านซ้าย</li>
-                      <li>เชื่อม GA4 Events ผ่าน GTM Configuration Tag</li>
-                      <li>ข้อมูลพร้อม Pass ผ่าน <code style={{ fontSize: '11px', background: '#f8fafc', padding: '1px 5px', borderRadius: '3px' }}>window.dataLayer</code></li>
-                    </ol>
-                    <div style={{ marginTop: '12px', padding: '10px', background: '#fef9c3', borderRadius: '8px', fontSize: '12px', color: '#854d0e' }}>
-                      💡 Marketing ควรกำหนด Objective / Event / Data ที่ต้องการก่อน IT implement
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
           </div>
         )}
 
-      </div>
-
-      {/* ================================================================
-          CONTENT / CAMPAIGN EDIT MODAL
-          ================================================================ */}
-      {contentModal && editingItem && (
-        <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,45,84,0.7)', backdropFilter: 'blur(4px)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
-          onClick={closeModal}
-        >
-          <div
-            style={{ background: '#fff', borderRadius: '20px', maxWidth: '640px', width: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 60px rgba(0,45,84,0.2)' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div style={{ background: '#004680', color: '#fff', padding: '20px 24px', borderRadius: '20px 20px 0 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '17px' }}>
-                {contentModal === 'create' ? '+ เพิ่มเนื้อหาใหม่' : '✏️ แก้ไขเนื้อหา'}
-              </h3>
-              <button type="button" onClick={closeModal} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+        {/* ================================================================
+            TAB 6: ANALYTICS & TRACKING
+            ================================================================ */}
+        {activeTab === 'analytics' && (
+          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div>
+                <h2 style={{ fontSize: '18px', margin: 0, color: '#004680', fontWeight: 700 }}>
+                  แดชบอร์ดสถิติ &amp; Tracking พฤติกรรมผู้ใช้ (Marketing Analytics)
+                </h2>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
+                  แสดงเหตุการณ์ที่ถูกบันทึกผ่าน Tag Tracking (CR Items 4 &amp; 5)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={fetchTracking}
+                style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}
+              >
+                รีเฟรชสถิติ
+              </button>
             </div>
 
-            {/* Modal Body */}
-            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Type */}
-              <div>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', marginBottom: '6px', color: '#334155' }}>ประเภทเนื้อหา:</label>
-                <select
-                  value={editingItem.type || 'announcement'}
-                  onChange={(e) => setEditingItem({ ...editingItem, type: e.target.value as ContentItem['type'] })}
-                  style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px' }}
-                >
-                  <option value="announcement">📣 ประกาศ</option>
-                  <option value="campaign">🎯 แคมเปญการตลาด</option>
-                  <option value="faq">❓ FAQ / คำถามที่พบบ่อย</option>
-                  <option value="config">⚙️ ตั้งค่าระบบ (ราคา / ติดต่อ)</option>
-                </select>
-              </div>
-
-              {/* Title */}
-              <div>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', marginBottom: '6px', color: '#334155' }}>
-                  ชื่อ / หัวข้อ: <span style={{ color: '#dc2626' }}>*</span>
-                </label>
-                <input
-                  type="text"
-                  value={editingItem.title || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                  placeholder="ชื่อเนื้อหาหรือแคมเปญ"
-                  style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px' }}
-                />
-              </div>
-
-              {/* Body */}
-              <div>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', marginBottom: '6px', color: '#334155' }}>เนื้อหา / รายละเอียด:</label>
-                <textarea
-                  value={editingItem.body || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, body: e.target.value })}
-                  placeholder="รายละเอียดเนื้อหา..."
-                  rows={4}
-                  style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', resize: 'vertical' }}
-                />
-              </div>
-
-              {/* Campaign-specific fields */}
-              {editingItem.type === 'campaign' && (
-                <>
-                  <div style={{ background: '#f8fafc', borderRadius: '10px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <strong style={{ fontSize: '13px', color: '#004680' }}>🎯 ข้อมูลแคมเปญ (Campaign Details):</strong>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: '#64748b' }}>Objective (วัตถุประสงค์):</label>
-                      <input
-                        type="text"
-                        value={editingItem.campaignObjective || ''}
-                        onChange={(e) => setEditingItem({ ...editingItem, campaignObjective: e.target.value })}
-                        placeholder="เช่น เพิ่ม Lead จากกลุ่มผู้ดูแลผู้ป่วยฟอกไต"
-                        style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #e2e8f0', borderRadius: '6px', fontSize: '13px' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: '#64748b' }}>Target Audience:</label>
-                      <input
-                        type="text"
-                        value={editingItem.campaignTarget || ''}
-                        onChange={(e) => setEditingItem({ ...editingItem, campaignTarget: e.target.value })}
-                        placeholder="เช่น ลูกหลานอายุ 30-50 ปีในชลบุรี"
-                        style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #e2e8f0', borderRadius: '6px', fontSize: '13px' }}
-                      />
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: '#64748b' }}>วันเริ่มต้น:</label>
-                        <input
-                          type="date"
-                          value={editingItem.campaignStartDate || ''}
-                          onChange={(e) => setEditingItem({ ...editingItem, campaignStartDate: e.target.value })}
-                          style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #e2e8f0', borderRadius: '6px', fontSize: '13px' }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: '#64748b' }}>วันสิ้นสุด:</label>
-                        <input
-                          type="date"
-                          value={editingItem.campaignEndDate || ''}
-                          onChange={(e) => setEditingItem({ ...editingItem, campaignEndDate: e.target.value })}
-                          style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #e2e8f0', borderRadius: '6px', fontSize: '13px' }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Config-specific fields */}
-              {editingItem.type === 'config' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: '#64748b' }}>Config Key:</label>
-                    <input
-                      type="text"
-                      value={editingItem.configKey || ''}
-                      onChange={(e) => setEditingItem({ ...editingItem, configKey: e.target.value })}
-                      placeholder="เช่น hotlinePhone"
-                      style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #e2e8f0', borderRadius: '6px', fontSize: '13px' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: '#64748b' }}>Config Value:</label>
-                    <input
-                      type="text"
-                      value={editingItem.configValue || ''}
-                      onChange={(e) => setEditingItem({ ...editingItem, configValue: e.target.value })}
-                      placeholder="เช่น 063 920 4765"
-                      style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #e2e8f0', borderRadius: '6px', fontSize: '13px' }}
-                    />
-                  </div>
+            {/* KPI Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ padding: '18px', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '10px' }}>
+                <span style={{ fontSize: '12.5px', color: '#0369a1', fontWeight: 600 }}>Total Tracked Events</span>
+                <div style={{ fontSize: '28px', fontWeight: 800, color: '#004680', marginTop: '6px' }}>
+                  {trackingData?.total || 0}
                 </div>
-              )}
-
-              {/* Status */}
-              <div>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', marginBottom: '6px', color: '#334155' }}>สถานะการเผยแพร่:</label>
-                <select
-                  value={editingItem.status || 'draft'}
-                  onChange={(e) => setEditingItem({ ...editingItem, status: e.target.value as ContentItem['status'] })}
-                  style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px' }}
-                >
-                  <option value="draft">📝 ร่าง (Draft) — ยังไม่เผยแพร่</option>
-                  <option value="published">📢 เผยแพร่ (Published) — แสดงผลแล้ว</option>
-                  <option value="archived">🗄️ เก็บถาวร (Archived) — ปิดใช้งาน</option>
-                </select>
               </div>
-
-              {/* Author */}
-              <div>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', marginBottom: '6px', color: '#334155' }}>ผู้สร้าง (Author):</label>
-                <input
-                  type="text"
-                  value={editingItem.author || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, author: e.target.value })}
-                  placeholder="ชื่อผู้สร้างเนื้อหา"
-                  style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px' }}
-                />
+              <div style={{ padding: '18px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px' }}>
+                <span style={{ fontSize: '12.5px', color: '#15803d', fontWeight: 600 }}>Booking Form Submits</span>
+                <div style={{ fontSize: '28px', fontWeight: 800, color: '#166534', marginTop: '6px' }}>
+                  {trackingData?.eventCounts?.booking_submit || 0}
+                </div>
               </div>
-
-              {/* Actions */}
-              <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
-                <button type="button" onClick={closeModal} style={{ flex: 1, padding: '12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', background: '#fff', color: '#64748b' }}>
-                  ยกเลิก
-                </button>
-                <button type="button" onClick={handleSaveContent} disabled={savingContent} style={{ flex: 2, padding: '12px', background: '#004680', color: '#fff', border: 'none', borderRadius: '8px', cursor: savingContent ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 600, opacity: savingContent ? 0.7 : 1 }}>
-                  {savingContent ? 'กำลังบันทึก...' : contentModal === 'create' ? '+ บันทึกเนื้อหา' : '💾 บันทึกการแก้ไข'}
-                </button>
+              <div style={{ padding: '18px', background: '#fefce8', border: '1px solid #fef08a', borderRadius: '10px' }}>
+                <span style={{ fontSize: '12.5px', color: '#a16207', fontWeight: 600 }}>LINE OA Inquiries</span>
+                <div style={{ fontSize: '28px', fontWeight: 800, color: '#854d0e', marginTop: '6px' }}>
+                  {trackingData?.eventCounts?.line_oa_click || 0}
+                </div>
               </div>
+              <div style={{ padding: '18px', background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: '10px' }}>
+                <span style={{ fontSize: '12.5px', color: '#7e22ce', fontWeight: 600 }}>AI Chat Searches</span>
+                <div style={{ fontSize: '28px', fontWeight: 800, color: '#6b21a8', marginTop: '6px' }}>
+                  {trackingData?.eventCounts?.ai_search || 0}
+                </div>
+              </div>
+            </div>
+
+            {/* Top Events Breakdown */}
+            <h3 style={{ fontSize: '15px', color: '#004680', fontWeight: 700, marginBottom: '12px' }}>
+              สถิติแยกตามประเภทเหตุการณ์ (Event Breakdown)
+            </h3>
+            <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                    <th style={{ padding: '10px 14px' }}>ชื่อ Event</th>
+                    <th style={{ padding: '10px 14px', width: '120px', textAlign: 'right' }}>จำนวนครั้ง</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trackingData && trackingData.eventCounts && Object.keys(trackingData.eventCounts).length > 0 ? (
+                    Object.entries(trackingData.eventCounts)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([ev, count]) => (
+                        <tr key={ev} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#004680' }}>{ev}</td>
+                          <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700 }}>{count}</td>
+                        </tr>
+                      ))
+                  ) : (
+                    <tr>
+                      <td colSpan={2} style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>
+                        ยังไม่มีข้อมูลสถิติ
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

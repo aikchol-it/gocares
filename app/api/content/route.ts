@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { getSiteContent, saveSiteContent, SiteContent } from '@/app/lib/site-content';
 
 // CR5: Content Management API
-// Supports create/update/publish/unpublish for marketing content and campaigns
+// Supports:
+// 1. Live site content (menus, hero, texts, images, pricing)
+// 2. Marketing announcements & campaigns
 
 export interface ContentItem {
   id: string;
@@ -17,12 +20,10 @@ export interface ContentItem {
   updatedAt: string;
   author?: string;
   tags?: string[];
-  // Campaign-specific fields
   campaignStartDate?: string;
   campaignEndDate?: string;
   campaignTarget?: string;
   campaignObjective?: string;
-  // Config-specific fields (pricing, contact info, etc.)
   configKey?: string;
   configValue?: string;
 }
@@ -32,81 +33,30 @@ const contentFile = path.join(dataDir, 'content.json');
 
 const DEFAULT_CONTENT: ContentItem[] = [
   {
-    id: 'config_hotline',
-    type: 'config',
-    title: 'เบอร์โทรสายด่วน',
-    body: '063 920 4765',
-    status: 'published',
-    configKey: 'hotlinePhone',
-    configValue: '063 920 4765',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'config_line_oa',
-    type: 'config',
-    title: 'LINE Official Account',
-    body: '@407eqbwl',
-    status: 'published',
-    configKey: 'lineOaId',
-    configValue: '@407eqbwl',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'config_line_short',
-    type: 'config',
-    title: 'LINE OA Short URL',
-    body: 'https://lin.ee/RbECVC5',
-    status: 'published',
-    configKey: 'lineOaShortUrl',
-    configValue: 'https://lin.ee/RbECVC5',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'config_pkg1_price',
-    type: 'config',
-    title: 'ราคาแพ็กเกจ 1 (มาตรฐาน 4 ชม.)',
-    body: '1,000',
-    status: 'published',
-    configKey: 'pkg1Price',
-    configValue: '1,000',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'config_pkg2_price',
-    type: 'config',
-    title: 'ราคาแพ็กเกจ 2 (ผู้ดูแล + รถ)',
-    body: '1,300',
-    status: 'published',
-    configKey: 'pkg2Price',
-    configValue: '1,300',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'config_pkg3_price',
-    type: 'config',
-    title: 'ราคาแพ็กเกจ 3 (ทำกิจกรรม 6 ชม.)',
-    body: '1,500',
-    status: 'published',
-    configKey: 'pkg3Price',
-    configValue: '1,500',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
     id: 'announce_001',
     type: 'announcement',
     title: 'แบนเนอร์ประชาสัมพันธ์หลัก',
-    body: 'เปิดบริการทุกวันในเขตชลบุรี พร้อมรถรับ-ส่งถึงบ้าน',
+    body: 'เปิดบริการทุกวันในเขตชลบุรี พร้อมรถรับ-ส่งถึงบ้าน ติดต่อได้ 24 ชม.',
     status: 'published',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     author: 'Marketing',
     tags: ['banner', 'main'],
+  },
+  {
+    id: 'campaign_001',
+    type: 'campaign',
+    title: 'แคมเปญเปิดตัว GO CARES ชลบุรี',
+    body: 'ส่วนลดพิเศษสำหรับผู้ใช้บริการครั้งแรกในเขตอำเภอเมืองและศรีราชา',
+    status: 'published',
+    campaignStartDate: '2026-10-01',
+    campaignEndDate: '2026-12-31',
+    campaignTarget: 'ครอบครัวที่มีผู้สูงอายุ',
+    campaignObjective: 'สร้างการรับรู้และทดลองใช้งาน',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    author: 'Marketing',
+    tags: ['promotion', 'launch'],
   },
 ];
 
@@ -130,16 +80,31 @@ export async function GET(req: Request) {
     if (type) items = items.filter((i) => i.type === type);
     if (status) items = items.filter((i) => i.status === status);
 
-    return NextResponse.json({ items });
+    const siteContent = getSiteContent();
+
+    return NextResponse.json({
+      siteContent,
+      items,
+    });
   } catch {
-    return NextResponse.json({ items: [] });
+    return NextResponse.json({ siteContent: getSiteContent(), items: [] });
   }
 }
 
 export async function POST(req: Request) {
   try {
     ensureFile();
-    const body = await req.json() as Partial<ContentItem>;
+    const body = (await req.json()) as Partial<ContentItem> & { siteContent?: SiteContent };
+
+    // If updating siteContent directly via POST
+    if (body.siteContent) {
+      saveSiteContent(body.siteContent);
+      return NextResponse.json({
+        success: true,
+        siteContent: getSiteContent(),
+        message: 'บันทึกข้อมูลเนื้อหาเว็บไซต์เรียบร้อยแล้ว',
+      });
+    }
 
     if (!body.title || !body.type) {
       return NextResponse.json({ error: 'title and type are required' }, { status: 400 });
@@ -181,10 +146,22 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     ensureFile();
-    const body = await req.json() as Partial<ContentItem> & { id: string };
+    const body = (await req.json()) as { siteContent?: SiteContent } & Partial<ContentItem> & {
+      id?: string;
+    };
+
+    // If updating site content (menus, hero, texts, images, pricing)
+    if (body.siteContent) {
+      saveSiteContent(body.siteContent);
+      return NextResponse.json({
+        success: true,
+        siteContent: getSiteContent(),
+        message: 'อัปเดตข้อมูลเว็บไซต์เรียบร้อยแล้ว',
+      });
+    }
 
     if (!body.id) {
-      return NextResponse.json({ error: 'id is required' }, { status: 400 });
+      return NextResponse.json({ error: 'id or siteContent is required' }, { status: 400 });
     }
 
     const raw = fs.readFileSync(contentFile, 'utf-8');
@@ -201,7 +178,6 @@ export async function PUT(req: Request) {
       updatedAt: new Date().toISOString(),
     };
 
-    // Handle status transitions
     if (body.status === 'published' && !updated.publishedAt) {
       updated.publishedAt = new Date().toISOString();
     }
@@ -238,4 +214,3 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: 'Failed to delete content' }, { status: 500 });
   }
 }
-

@@ -28,14 +28,24 @@ function ensureDataFile() {
   }
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
+
 export async function GET() {
   try {
     ensureDataFile();
     const content = fs.readFileSync(leadsFile, 'utf-8');
     const leads = JSON.parse(content) as LeadData[];
-    return NextResponse.json({ leads });
+    return NextResponse.json({ leads }, { headers: corsHeaders });
   } catch (err) {
-    return NextResponse.json({ leads: [] });
+    return NextResponse.json({ leads: [] }, { headers: corsHeaders });
   }
 }
 
@@ -59,15 +69,19 @@ export async function POST(req: Request) {
 
     fs.writeFileSync(leadsFile, JSON.stringify(existing, null, 2), 'utf-8');
 
-    return NextResponse.json({
-      success: true,
-      leadId: leadWithId.id,
-      message: 'บันทึกข้อมูลเรียบร้อยแล้ว',
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        leadId: leadWithId.id,
+        message: 'บันทึกข้อมูลเรียบร้อยแล้ว',
+      },
+      { headers: corsHeaders }
+    );
   } catch (err) {
     return NextResponse.json(
       { error: 'Failed to record booking' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
+

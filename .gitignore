@@ -34,3 +34,28 @@ scratch/
 
 # Large Master Videos (>100MB)
 ahc next03.mp4
+
+# Source-only assets (not served by Vercel; runtime copies live in public/)
+/assets/
+/*.mp4
+/*.png
+/*.jpg
+/*.pdf
+
+# Unused public media / design backups
+/public/Hospital_02.mp4
+/public/assets/appointments_backup/
+/public/assets/appointments_hd/
+/public/assets/go_cares/
+/public/assets/illustrations_backup/
+/public/assets/pure_illustrations/
+/public/assets/ready_to_use/
+/public/assets/steps_hd/
+/public/assets/step_feature_backup/
+/public/assets/Gemini_Generated_Image_*.jpg
+/public/assets/mobile_report_mockup_hd.png
+/public/assets/hero_companion_mascot.webp
+/public/assets/phone_report_screen.webp
+/public/assets/clean_family_report_mockup.webp
+/public/assets/care_beyond_banner.webp
+/public/assets/hero-v2.css

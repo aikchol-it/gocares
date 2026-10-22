@@ -4,7 +4,11 @@
  * Base Design: DESIGN-main.md ("Enhancing Family Happiness")
  */
 
-((fn) => { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); })(() => {
+let ahcInitialized = false;
+
+function initAll() {
+  if (ahcInitialized) return;
+  ahcInitialized = true;
   initLenisSmoothScroll();
   initFloatingHeaderScroll();
   initScrollReveal();
@@ -20,7 +24,18 @@
   initMobileMenu();
   initMarketingTracking();
   initSmartAISearch();
-});
+}
+
+if (typeof window !== 'undefined') {
+  window.initAhcApp = initAll;
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAll);
+} else {
+  initAll();
+}
+
 
 /* --------------------------------------------------------------------------
    0. Lenis Ultra-Smooth Momentum Scrolling (Included Health & Maven Standard)
@@ -171,6 +186,18 @@ function initMomentsTabSlider() {
     }
   };
 
+  if (window.__SITE_CONTENT__ && Array.isArray(window.__SITE_CONTENT__.moments)) {
+    window.__SITE_CONTENT__.moments.forEach(m => {
+      if (momentsData[m.id]) {
+        if (m.title) momentsData[m.id].title = m.title;
+        if (m.desc) momentsData[m.id].desc = m.desc;
+        if (m.bullet1) momentsData[m.id].b1 = m.bullet1;
+        if (m.bullet2) momentsData[m.id].b2 = m.bullet2;
+        if (m.image) momentsData[m.id].img = m.image;
+      }
+    });
+  }
+
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       tabBtns.forEach(b => b.classList.remove('active'));
@@ -225,6 +252,16 @@ function initVideoController() {
     { start: 64.0, end: 86.0, num: 4, title: 'During Consultation', thTitle: '4. เคียงข้างระหว่างพบแพทย์', desc: 'เข้าห้องตรวจร่วมกับผู้ป่วย ช่วยจดบันทึกคำสั่งแพทย์และแนวทางการรักษา ไม่ตกหล่นทุกรายละเอียด', img: 'assets/step_4_doctor_consult.webp' },
     { start: 86.0, end: 115.0, num: 5, title: 'Send Back & Service Report', thTitle: '5. ส่งกลับบ้าน & สรุปรายงาน', desc: 'ส่งกลับถึงบ้านอย่างปลอดภัย ตรวจความเรียบร้อย และส่งรายงานสรุปกิจกรรมให้ครอบครัวผ่าน LINE ทันที', img: 'assets/step_5_service_report.webp' }
   ];
+
+  if (window.__SITE_CONTENT__ && Array.isArray(window.__SITE_CONTENT__.moments)) {
+    window.__SITE_CONTENT__.moments.forEach((m, idx) => {
+      if (chapters[idx]) {
+        if (m.title) chapters[idx].thTitle = m.title;
+        if (m.desc) chapters[idx].desc = m.desc;
+        if (m.image) chapters[idx].img = m.image;
+      }
+    });
+  }
 
   // Set initial chapter live card
   if (liveCardThumb && chapters[0].img) {
@@ -622,8 +659,8 @@ function initBookingModal() {
 
   if (!backdrop) return;
 
-  // CR Item 2: Configurable LINE OA ID (Aikchol Next or dedicated Go Cares)
-  const LINE_OA_ID = '@aikcholnext';
+  // CR Item 2: Configurable LINE OA ID (@407eqbwl / https://lin.ee/RbECVC5)
+  const LINE_OA_ID = '@407eqbwl';
 
   function openModal(preselectedPkg) {
     backdrop.classList.add('open');
@@ -752,6 +789,28 @@ function initBookingModal() {
         submittedAt: new Date().toISOString()
       });
 
+      // Post lead to Next.js API (/api/booking)
+      const bookingEndpoint = (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port && window.location.port !== '3000')
+        ? 'http://localhost:3000/api/booking'
+        : '/api/booking';
+
+      fetch(bookingEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patientName,
+          patientRelation,
+          contactName,
+          contactPhone,
+          contactLineId,
+          district,
+          hospital: finalHospital,
+          isOtherHospital: hospitalSelected === 'อื่นๆ',
+          package: pkg,
+          submittedAt: new Date().toISOString()
+        })
+      }).catch(() => {});
+
       // CR Item 4: Track Event in dataLayer
       trackMarketingEvent('lead_form_submitted', {
         package_name: pkg,
@@ -830,6 +889,17 @@ function trackMarketingEvent(eventName, payload = {}) {
   if (window.dataLayer) {
     window.dataLayer.push(eventData);
   }
+
+  // Push to Next.js /api/tracking server endpoint
+  fetch('/api/tracking', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      event: eventName,
+      data: payload,
+      page: window.location.pathname
+    })
+  }).catch(() => {});
 
   // Local storage logging for instant analytics without backend
   try {
@@ -1053,7 +1123,7 @@ function initSmartAISearch() {
           const bookingTrigger = document.querySelector(`[data-open-booking][data-pkg="${pkg}"]`) || document.querySelector('[data-open-booking]');
           if (bookingTrigger) bookingTrigger.click();
         } else if (action === 'line') {
-          window.open('https://line.me/R/ti/p/~@aikcholnext', '_blank');
+          window.open('https://lin.ee/RbECVC5', '_blank');
         } else if (action === 'call') {
           window.location.href = 'tel:0639204765';
         }
@@ -1124,4 +1194,3 @@ function initMobileMenu() {
     });
   });
 }
-

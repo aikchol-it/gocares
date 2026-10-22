@@ -13,6 +13,11 @@ export const metadata: Metadata = {
     locale: 'th_TH',
     images: ['/assets/web1.png'],
   },
+  icons: {
+    icon: '/assets/aikchol_next_logo.webp',
+    shortcut: '/assets/aikchol_next_logo.webp',
+    apple: '/assets/aikchol_next_logo.webp',
+  },
 };
 
 export default function RootLayout({
