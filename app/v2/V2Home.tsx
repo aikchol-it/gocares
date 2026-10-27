@@ -267,6 +267,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
     pkg: 'pkg2',
   });
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
+  const [sentText, setSentText] = useState('');
   const [priceIdx, setPriceIdx] = useState(0);
   const priceRef = useRef<HTMLDivElement>(null);
   const [hospital, setHospital] = useState(HOSPITALS[0]);
@@ -390,6 +391,20 @@ export default function V2Home({ content }: { content: SiteContent }) {
       package: `${content.packages[drawer.pkg].name} · ${content.packages[drawer.pkg].hours} ชั่วโมง`,
       submittedAt: new Date().toISOString(),
     };
+    // keep a copy of what the user typed: form.reset() clears the fields on success
+    const pkg = content.packages[drawer.pkg];
+    setSentText(
+      [
+        'แจ้งจองผู้ดูแล GO CARES',
+        `ผู้รับบริการ: ${payload.patientName} (${payload.patientRelation})`,
+        `ผู้ติดต่อ: ${payload.contactName} ${payload.contactPhone}`,
+        payload.contactLineId ? `LINE ID: ${payload.contactLineId}` : '',
+        `พื้นที่: ${payload.district} · ${payload.hospital}`,
+        `แพ็กเกจ: ${pkg.name} ${pkg.hours} ชม. (${pkg.price} บาท)`,
+      ]
+        .filter(Boolean)
+        .join('\n')
+    );
     setStatus('sending');
     try {
       const res = await fetch('/api/booking', {
@@ -1109,8 +1124,16 @@ export default function V2Home({ content }: { content: SiteContent }) {
                   <CheckIcon />
                 </span>
                 <h4>รับข้อมูลเรียบร้อยแล้ว</h4>
-                <p>เจ้าหน้าที่ GO CARES จะติดต่อกลับภายในเวลาทำการ เพื่อยืนยันการนัดหมาย</p>
-                <button className="v2-btn v2-btn--gold" type="button" onClick={closeBooking}>
+                <p>กดยืนยันเพื่อส่งรายละเอียดที่กรอกมาเข้าไปในแชท LINE ของทีมงานทันที</p>
+                <a
+                  className="v2-btn v2-btn--gold"
+                  href={`https://line.me/R/ti/p/${content.contact.lineOaId}?text=${encodeURIComponent(sentText)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  ส่งรายละเอียดใน LINE
+                </a>
+                <button className="v2-drawer-done-close" type="button" onClick={closeBooking}>
                   ปิด
                 </button>
               </div>
