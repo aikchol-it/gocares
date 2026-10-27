@@ -274,7 +274,10 @@ export default function V2Home({ content }: { content: SiteContent }) {
   const activeSpot = MAP_DISTRICTS.find((d) => d.key === district) || MAP_DISTRICTS[0];
 
   const tel = `tel:${content.contact.hotlinePhone.replace(/\s+/g, '')}`;
-  const lineUrl = content.contact.lineOaUrl;
+  // canonical OA link opens the app on mobile and lands in chat with a message ready to send
+  const lineUrl = `https://line.me/R/ti/p/${content.contact.lineOaId}?text=${encodeURIComponent(
+    'สนใจปรึกษาบริการผู้ดูแลผู้สูงอายุ GO CARES ค่ะ'
+  )}`;
   const moments = content.moments;
   const moment = moments[step] || moments[0];
   const heroPhoto = content.personas[1]?.image || content.images.heroPoster;
