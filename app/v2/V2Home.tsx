@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SiteContent } from '../lib/site-content-types';
 
 type PkgKey = 'pkg1' | 'pkg2' | 'pkg3' | 'pkg4';
 
 const PKG_KEYS: PkgKey[] = ['pkg1', 'pkg2', 'pkg3', 'pkg4'];
+
+// ลำดับที่เห็นบนมือถือ: การ์ดยอดนิยมถูกยกขึ้นเป็นใบแรกด้วย CSS order
+const PKG_SLIDE_ORDER: PkgKey[] = ['pkg2', 'pkg1', 'pkg3', 'pkg4'];
 
 const DISTRICTS = [
   'อำเภอเมืองชลบุรี',
@@ -19,14 +22,75 @@ const DISTRICTS = [
 ];
 
 const MAP_DISTRICTS = [
-  { key: 'mueang', name: 'อำเภอเมืองชลบุรี', x: 31.08, y: 24.03, low: true },
-  { key: 'phanthong', name: 'อำเภอพานทอง', x: 41.06, y: 13.26, below: true },
-  { key: 'phanat', name: 'อำเภอพนัสนิคม', x: 54.49, y: 9.53, below: true },
-  { key: 'banbueng', name: 'อำเภอบ้านบึง', x: 47.97, y: 26.93, low: true },
-  { key: 'bothong', name: 'อำเภอบ่อทอง', x: 77.13, y: 27.75, low: true },
-  { key: 'sriracha', name: 'อำเภอศรีราชา', x: 34.15, y: 39.35 },
-  { key: 'nongyai', name: 'อำเภอหนองใหญ่', x: 59.86, y: 45.98 },
-  { key: 'banglamung', name: 'อำเภอบางละมุง (พัทยา)', x: 32.62, y: 59.24 },
+  {
+    key: 'mueang',
+    name: 'อำเภอเมืองชลบุรี',
+    x: 31.08,
+    y: 24.03,
+    low: true,
+    detail: 'ครอบคลุมใจกลางเมือง โรงพยาบาลเอกชล 1 และเอกชล 2 รถรับ-ส่งถึงบ้านอย่างรวดเร็วภายใน 15-20 นาที',
+    distance: 'ฟรีระยะทาง 10 - 30 กม. ตามแพ็กเกจที่เลือก',
+  },
+  {
+    key: 'phanthong',
+    name: 'อำเภอพานทอง',
+    x: 41.06,
+    y: 13.26,
+    below: true,
+    detail: 'เชื่อมต่อนิคมอมตะนครและพื้นที่อยู่อาศัย เดินทางสู่โรงพยาบาลเอกชลสะดวกผ่านทางด่วนและมอเตอร์เวย์',
+    distance: 'ระยะทางเฉลี่ย 18 - 25 กม. อยู่ในโควตาแพ็กเกจผู้ดูแล+รถ',
+  },
+  {
+    key: 'phanat',
+    name: 'อำเภอพนัสนิคม',
+    x: 54.49,
+    y: 9.53,
+    below: true,
+    detail: 'มีผู้สูงอายุพักอาศัยหนาแน่น เหมาะสำหรับนัดหมายโรคประจำตัว ฟอกไต และตรวจสุขภาพประจำปี',
+    distance: 'ระยะทางเฉลี่ย 25 - 32 กม.',
+  },
+  {
+    key: 'banbueng',
+    name: 'อำเภอบ้านบึง',
+    x: 47.97,
+    y: 26.93,
+    low: true,
+    detail: 'บริการครอบคลุมทั้งเขตเทศบาลบ้านบึงและชุมชนโดยรอบ เดินทางสู่ รพ.เอกชล ประมาณ 25-30 นาที',
+    distance: 'ระยะทางเฉลี่ย 15 - 22 กม. ฟรีค่าเดินทางในแพ็กเกจผู้ดูแล+รถ',
+  },
+  {
+    key: 'bothong',
+    name: 'อำเภอบ่อทอง',
+    x: 77.13,
+    y: 27.75,
+    low: true,
+    detail: 'บริการนัดหมายล่วงหน้า รถรับส่งปลอดภัย ผู้ดูแลเตรียมความพร้อมก่อนออกเดินทาง',
+    distance: 'ระยะทางประมาณ 45 - 55 กม. มีการประเมินส่วนต่างระยะทางล่วงหน้าอย่างโปร่งใส',
+  },
+  {
+    key: 'sriracha',
+    name: 'อำเภอศรีราชา',
+    x: 34.15,
+    y: 39.35,
+    detail: 'ครอบคลุมทั้งตัวเมืองศรีราชา บางพระ อ่าวอุดม เดินทางสะดวก ปลอดภัยด้วยรถมาตรฐาน',
+    distance: 'ระยะทางเฉลี่ย 20 - 28 กม. อยู่ในโควตาแพ็กเกจผู้ดูแล+รถ',
+  },
+  {
+    key: 'nongyai',
+    name: 'อำเภอหนองใหญ่',
+    x: 59.86,
+    y: 45.98,
+    detail: 'บริการนัดหมายพิเศษสำหรับผู้ป่วยเคมีบำบัดและพบแพทย์เฉพาะทาง',
+    distance: 'ระยะทางประมาณ 40 - 50 กม.',
+  },
+  {
+    key: 'banglamung',
+    name: 'อำเภอบางละมุง (พัทยา)',
+    x: 32.62,
+    y: 59.24,
+    detail: 'ครอบคลุมพัทยา นาเกลือ และบางละมุง บริการพาพบแพทย์ทั้ง รพ.เอกชล และสถานพยาบาลชั้นนำ',
+    distance: 'ระยะทางประมาณ 40 - 50 กม. นัดหมายล่วงหน้าเพื่อจัดคิวรถเฉพาะ',
+  },
 ];
 
 const HOSPITALS = [
@@ -206,6 +270,8 @@ export default function V2Home({ content }: { content: SiteContent }) {
     pkg: 'pkg2',
   });
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
+  const [priceIdx, setPriceIdx] = useState(0);
+  const priceRef = useRef<HTMLDivElement>(null);
   const [hospital, setHospital] = useState(HOSPITALS[0]);
   const [district, setDistrict] = useState(MAP_DISTRICTS[0].key);
   const activeSpot = MAP_DISTRICTS.find((d) => d.key === district) || MAP_DISTRICTS[0];
@@ -276,6 +342,38 @@ export default function V2Home({ content }: { content: SiteContent }) {
     setDrawer({ open: true, pkg });
   };
   const closeBooking = () => setDrawer((d) => ({ ...d, open: false }));
+
+  const goPrice = (key: PkgKey) => {
+    const wrap = priceRef.current;
+    const card = wrap?.querySelector<HTMLElement>(`[data-pkg="${key}"]`);
+    if (!wrap || !card) return;
+    wrap.scrollTo({
+      left:
+        wrap.scrollLeft +
+        card.getBoundingClientRect().left -
+        wrap.getBoundingClientRect().left -
+        (wrap.clientWidth - card.offsetWidth) / 2,
+      behavior: 'smooth',
+    });
+  };
+
+  const onPriceScroll = () => {
+    const wrap = priceRef.current;
+    if (!wrap) return;
+    const center = wrap.getBoundingClientRect().left + wrap.clientWidth / 2;
+    let idx = 0;
+    let best = Infinity;
+    PKG_SLIDE_ORDER.forEach((key, i) => {
+      const card = wrap.querySelector<HTMLElement>(`[data-pkg="${key}"]`);
+      if (!card) return;
+      const distance = Math.abs(card.getBoundingClientRect().left + card.offsetWidth / 2 - center);
+      if (distance < best) {
+        best = distance;
+        idx = i;
+      }
+    });
+    setPriceIdx(idx);
+  };
 
   async function submitBooking(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -469,13 +567,14 @@ export default function V2Home({ content }: { content: SiteContent }) {
             </p>
           </div>
 
-          <div className="v2-price-grid">
+          <div className="v2-price-grid" ref={priceRef} onScroll={onPriceScroll}>
             {PKG_KEYS.map((key, i) => {
               const pkg = content.packages[key];
               const featured = key === 'pkg2';
               return (
                 <article
                   key={key}
+                  data-pkg={key}
                   className={`v2-price-card${featured ? ' v2-price-card--featured' : ''}`}
                   data-reveal
                   style={{ '--d': `${i * 90}ms` } as React.CSSProperties}
@@ -507,6 +606,18 @@ export default function V2Home({ content }: { content: SiteContent }) {
                 </article>
               );
             })}
+          </div>
+          <div className="v2-price-dots" role="group" aria-label="เลือกดูแพ็กเกจ">
+            {PKG_SLIDE_ORDER.map((key, i) => (
+              <button
+                key={key}
+                type="button"
+                className={priceIdx === i ? 'is-active' : undefined}
+                aria-label={`ดูแพ็กเกจ ${content.packages[key].name}`}
+                aria-pressed={priceIdx === i}
+                onClick={() => goPrice(key)}
+              />
+            ))}
           </div>
           <p className="v2-pricing-note">
             ราคาโปรโมชั่นถึง 31 มกราคม 2570 · ไม่รวมค่ารักษาพยาบาล ค่ายา ค่าอาหาร และค่าที่จอดรถ ·
@@ -813,6 +924,14 @@ export default function V2Home({ content }: { content: SiteContent }) {
                     {d.name}
                   </button>
                 ))}
+              </div>
+              <div className="v2-district-info" aria-live="polite">
+                <strong>{activeSpot.name}</strong>
+                <p>{activeSpot.detail}</p>
+                <span className="v2-district-distance">
+                  <CheckIcon />
+                  {activeSpot.distance}
+                </span>
               </div>
               <div className="v2-prep">
                 <h3>เตรียม 5 อย่างก่อนเดินทาง</h3>

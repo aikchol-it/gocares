@@ -1180,6 +1180,10 @@
   color: var(--muted);
 }
 
+.v2-price-dots {
+  display: none;
+}
+
 .v2-report {
   background: var(--ice);
   border-top: 1px solid var(--cyan-soft);
@@ -1534,6 +1538,40 @@
   border-color: var(--royal);
   background: var(--royal);
   color: #ffffff;
+}
+
+.v2-district-info {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+}
+
+.v2-district-info strong {
+  font-size: 0.95rem;
+  color: var(--navy);
+}
+
+.v2-district-info p {
+  margin-top: 4px;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+.v2-district-distance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #0a8f4d;
+}
+
+.v2-district-distance svg {
+  flex-shrink: 0;
 }
 
 .v2-prep {
@@ -2426,6 +2464,49 @@
   .v2-toggle button {
     padding: 0 15px;
     font-size: 0.82rem;
+  }
+
+  .v2-price-grid {
+    display: flex;
+    gap: 14px;
+    margin: 0 -18px;
+    padding: 4px 18px 8px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .v2-price-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .v2-price-card {
+    flex: 0 0 84%;
+    scroll-snap-align: center;
+  }
+
+  .v2-price-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .v2-price-dots button {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: #cbd5e1;
+    cursor: pointer;
+    transition: width 0.2s ease, background 0.2s ease;
+  }
+
+  .v2-price-dots button.is-active {
+    width: 24px;
+    background: var(--royal);
   }
 
   .v2-price-amount strong {
