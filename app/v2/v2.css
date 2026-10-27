@@ -2396,11 +2396,9 @@
     padding-bottom: 20px;
   }
 
+  /* the photo is edge-to-edge on phones; the hero lead already says the report goes out via LINE */
   .v2-line-card {
-    top: 14px;
-    right: 14px;
-    bottom: auto;
-    padding: 8px 12px;
+    display: none;
   }
 
   .v2-arch {
@@ -2420,10 +2418,6 @@
     bottom: 0;
     width: 118px;
     border-width: 4px;
-  }
-
-  .v2-line-card span {
-    font-size: 0.66rem;
   }
 
   .v2-seal {
