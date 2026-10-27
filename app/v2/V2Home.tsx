@@ -276,13 +276,17 @@ export default function V2Home({ content }: { content: SiteContent }) {
   const activeSpot = MAP_DISTRICTS.find((d) => d.key === district) || MAP_DISTRICTS[0];
 
   const tel = `tel:${content.contact.hotlinePhone.replace(/\s+/g, '')}`;
-  // LINE counts a friend-add under the channel ("ช่องทางเพิ่มเพื่อน") whose link was used,
-  // so a placement takes its link from contact.lineOaRoutes; until one is pasted there it
-  // falls back to the canonical OA link, which opens the chat with the message ready to send.
-  const oaBase = `https://line.me/R/ti/p/${content.contact.lineOaId}`;
-  const oaChat = (text: string) => `${oaBase}?text=${encodeURIComponent(text)}`;
-  const lineLink = (tag: string, text?: string) => ({
-    href: content.contact.lineOaRoutes?.[tag] || (text ? oaChat(text) : oaBase),
+  // LINE has two different endpoints: ti/p opens the add-friend page (it drops ?text),
+  // oaMessage opens the chat room and keeps the message in the input box. No trailing
+  // slash before ?text= — LINE folds it into the path and the message is lost.
+  const oaId = content.contact.lineOaId;
+  const oaAdd = `https://line.me/R/ti/p/${oaId}`;
+  const oaChat = (text: string) =>
+    `https://line.me/R/oaMessage/${oaId}?text=${encodeURIComponent(text)}`;
+  // a placement can also take its own "ช่องทางเพิ่มเพื่อน" link from contact.lineOaRoutes,
+  // which is what lets LINE count the friend-adds coming from that spot on the page.
+  const lineLink = (tag: string) => ({
+    href: content.contact.lineOaRoutes?.[tag] || oaAdd,
     target: '_blank',
     rel: 'noopener',
     onClick: () => trackLineOaClick(tag),
@@ -516,7 +520,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
               </button>
               <a
                 className="v2-btn v2-btn--ghost"
-                {...lineLink('hero', 'สนใจปรึกษาบริการผู้ดูแลผู้สูงอายุ GO CARES ค่ะ')}
+                {...lineLink('hero')}
               >
                 LINE ปรึกษา
               </a>
@@ -1131,7 +1135,11 @@ export default function V2Home({ content }: { content: SiteContent }) {
                   <CheckIcon />
                 </span>
                 <h4>เปิดแชท LINE ให้แล้ว</h4>
-                <p>กดส่งข้อความในแอป LINE เพื่อยืนยันการจอง — ถ้าหน้าต่างไม่เปิดอัตโนมัติ ให้กดปุ่มนี้</p>
+                <p>
+                  กดส่งข้อความในแอป LINE เพื่อยืนยันการจอง — ถ้าหน้าต่างไม่เปิดอัตโนมัติ ให้กดปุ่มนี้
+                  <br />
+                  ยังไม่ได้เพิ่มเพื่อน? <a {...lineLink('booking_add')}>แอด GO CARES ก่อน</a>
+                </p>
                 <a
                   className="v2-btn v2-btn--gold"
                   href={oaChat(sentText)}
