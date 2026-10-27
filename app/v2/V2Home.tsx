@@ -268,6 +268,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
     pkg: 'pkg2',
   });
   const [status, setStatus] = useState<'idle' | 'done'>('idle');
+  const [sentText, setSentText] = useState('');
   const [priceIdx, setPriceIdx] = useState(0);
   const priceRef = useRef<HTMLDivElement>(null);
   const [hospital, setHospital] = useState(HOSPITALS[0]);
@@ -276,11 +277,11 @@ export default function V2Home({ content }: { content: SiteContent }) {
 
   const tel = `tel:${content.contact.hotlinePhone.replace(/\s+/g, '')}`;
   // LINE has two different endpoints: ti/p opens the add-friend page, oaMessage opens the
-  // chat room. No ?text= — on a phone LINE carried the literal "text=…" into the input box
-  // instead of the message, so the customer types (or pastes) the details themselves.
+  // chat room. The app does not strip a "text=" key here — it puts everything after ? into
+  // the input box as-is, so the message goes raw (no key, no literal "text=" in the chat).
   const oaId = content.contact.lineOaId;
   const oaAdd = `https://line.me/R/ti/p/${oaId}`;
-  const oaChat = `https://line.me/R/oaMessage/${oaId}`;
+  const oaChat = (text: string) => `https://line.me/R/oaMessage/${oaId}?${encodeURIComponent(text)}`;
   // a placement can also take its own "ช่องทางเพิ่มเพื่อน" link from contact.lineOaRoutes,
   // which is what lets LINE count the friend-adds coming from that spot on the page.
   const lineLink = (tag: string) => ({
@@ -401,9 +402,22 @@ export default function V2Home({ content }: { content: SiteContent }) {
       package: `${content.packages[drawer.pkg].name} · ${content.packages[drawer.pkg].hours} ชั่วโมง`,
       submittedAt: new Date().toISOString(),
     };
+    // keep a copy of what the user typed: form.reset() clears the fields right after
+    const pkg = content.packages[drawer.pkg];
+    const text = [
+      'แจ้งจองผู้ดูแล GO CARES',
+      `ผู้รับบริการ: ${payload.patientName} (${payload.patientRelation})`,
+      `ผู้ติดต่อ: ${payload.contactName} ${payload.contactPhone}`,
+      payload.contactLineId ? `LINE ID: ${payload.contactLineId}` : '',
+      `พื้นที่: ${payload.district} · ${payload.hospital}`,
+      `แพ็กเกจ: ${pkg.name} ${pkg.hours} ชม. (${pkg.price} บาท)`,
+    ]
+      .filter(Boolean)
+      .join('\n');
+    setSentText(text);
     // the booking reaches the team through the LINE chat, so the tap itself opens it —
     // only possible from inside the submit handler, before any await
-    window.open(oaChat, '_blank', 'noopener');
+    window.open(oaChat(text), '_blank', 'noopener');
     // shortcut: /api/booking only stores where the disk is writable (local run);
     // a webhook will collect bookings later. Never let it change what the customer sees.
     fetch('/api/booking', {
@@ -1121,13 +1135,13 @@ export default function V2Home({ content }: { content: SiteContent }) {
                 </span>
                 <h4>เปิดแชท LINE ให้แล้ว</h4>
                 <p>
-                  พิมพ์รายละเอียดการจองในแชทที่เปิดขึ้นมา — ถ้าหน้าต่างไม่เปิดอัตโนมัติ ให้กดปุ่มนี้
+                  กดส่งข้อความในแอป LINE เพื่อยืนยันการจอง — ถ้าหน้าต่างไม่เปิดอัตโนมัติ ให้กดปุ่มนี้
                   <br />
                   ยังไม่ได้เพิ่มเพื่อน? <a {...lineLink('booking_add')}>แอด GO CARES ก่อน</a>
                 </p>
                 <a
                   className="v2-btn v2-btn--gold"
-                  href={oaChat}
+                  href={oaChat(sentText)}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => trackLineOaClick('booking')}
