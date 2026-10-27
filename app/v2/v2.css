@@ -2057,20 +2057,6 @@
   box-shadow: 0 0 0 3px rgba(103, 194, 204, 0.35);
 }
 
-.v2-form-error {
-  padding: 10px 12px;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  background: #fef2f2;
-  color: #dc2626;
-  font-size: 0.82rem;
-}
-
-.v2-form-error-box {
-  display: grid;
-  gap: 12px;
-}
-
 .v2-form-submit {
   width: 100%;
   margin-top: 2px;

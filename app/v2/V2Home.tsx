@@ -267,7 +267,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
     open: false,
     pkg: 'pkg2',
   });
-  const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'done'>('idle');
   const [sentText, setSentText] = useState('');
   const [priceIdx, setPriceIdx] = useState(0);
   const priceRef = useRef<HTMLDivElement>(null);
@@ -382,7 +382,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
     setPriceIdx(idx);
   };
 
-  async function submitBooking(e: React.FormEvent<HTMLFormElement>) {
+  function submitBooking(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const data = new FormData(form);
@@ -399,33 +399,31 @@ export default function V2Home({ content }: { content: SiteContent }) {
       package: `${content.packages[drawer.pkg].name} · ${content.packages[drawer.pkg].hours} ชั่วโมง`,
       submittedAt: new Date().toISOString(),
     };
-    // keep a copy of what the user typed: form.reset() clears the fields on success
+    // keep a copy of what the user typed: form.reset() clears the fields right after
     const pkg = content.packages[drawer.pkg];
-    setSentText(
-      [
-        'แจ้งจองผู้ดูแล GO CARES',
-        `ผู้รับบริการ: ${payload.patientName} (${payload.patientRelation})`,
-        `ผู้ติดต่อ: ${payload.contactName} ${payload.contactPhone}`,
-        payload.contactLineId ? `LINE ID: ${payload.contactLineId}` : '',
-        `พื้นที่: ${payload.district} · ${payload.hospital}`,
-        `แพ็กเกจ: ${pkg.name} ${pkg.hours} ชม. (${pkg.price} บาท)`,
-      ]
-        .filter(Boolean)
-        .join('\n')
-    );
-    setStatus('sending');
-    try {
-      const res = await fetch('/api/booking', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error('request failed');
-      setStatus('done');
-      form.reset();
-    } catch {
-      setStatus('error');
-    }
+    const text = [
+      'แจ้งจองผู้ดูแล GO CARES',
+      `ผู้รับบริการ: ${payload.patientName} (${payload.patientRelation})`,
+      `ผู้ติดต่อ: ${payload.contactName} ${payload.contactPhone}`,
+      payload.contactLineId ? `LINE ID: ${payload.contactLineId}` : '',
+      `พื้นที่: ${payload.district} · ${payload.hospital}`,
+      `แพ็กเกจ: ${pkg.name} ${pkg.hours} ชม. (${pkg.price} บาท)`,
+    ]
+      .filter(Boolean)
+      .join('\n');
+    setSentText(text);
+    // the booking reaches the team through the LINE chat, so the tap itself opens it —
+    // only possible from inside the submit handler, before any await
+    window.open(oaChat(text), '_blank', 'noopener');
+    // shortcut: /api/booking only stores where the disk is writable (local run);
+    // a webhook will collect bookings later. Never let it change what the customer sees.
+    fetch('/api/booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+    setStatus('done');
+    form.reset();
   }
 
   return (
@@ -1132,8 +1130,8 @@ export default function V2Home({ content }: { content: SiteContent }) {
                 <span className="v2-drawer-check">
                   <CheckIcon />
                 </span>
-                <h4>รับข้อมูลเรียบร้อยแล้ว</h4>
-                <p>กดยืนยันเพื่อส่งรายละเอียดที่กรอกมาเข้าไปในแชท LINE ของทีมงานทันที</p>
+                <h4>เปิดแชท LINE ให้แล้ว</h4>
+                <p>กดส่งข้อความในแอป LINE เพื่อยืนยันการจอง — ถ้าหน้าต่างไม่เปิดอัตโนมัติ ให้กดปุ่มนี้</p>
                 <a
                   className="v2-btn v2-btn--gold"
                   href={oaChat(sentText)}
@@ -1141,7 +1139,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
                   rel="noopener noreferrer"
                   onClick={() => trackLineOaClick('booking')}
                 >
-                  ส่งรายละเอียดใน LINE
+                  เปิดแชท LINE อีกครั้ง
                 </a>
                 <button className="v2-drawer-done-close" type="button" onClick={closeBooking}>
                   ปิด
@@ -1224,26 +1222,8 @@ export default function V2Home({ content }: { content: SiteContent }) {
                   </label>
                 )}
 
-                {status === 'error' && (
-                  <div className="v2-form-error-box">
-                    <p className="v2-form-error">
-                      ระบบบันทึกบนเว็บขัดข้องชั่วคราว ข้อมูลที่คุณกรอกยังอยู่ครบ — ส่งให้ทีมงานทาง LINE
-                      ได้ทันที หรือโทร <a href={tel}>{content.contact.hotlinePhone}</a>
-                    </p>
-                    <a
-                      className="v2-btn v2-btn--gold"
-                      href={oaChat(sentText)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => trackLineOaClick('booking_fallback')}
-                    >
-                      ส่งรายละเอียดใน LINE แทน
-                    </a>
-                  </div>
-                )}
-
-                <button className="v2-btn v2-btn--gold v2-form-submit" type="submit" disabled={status === 'sending'}>
-                  {status === 'sending' ? 'กำลังส่ง...' : 'ยืนยันการจอง'}
+                <button className="v2-btn v2-btn--gold v2-form-submit" type="submit">
+                  ยืนยันการจองผ่าน LINE
                 </button>
                 <p className="v2-form-note">
                   หรือโทร <a href={tel}>{content.contact.hotlinePhone}</a> · LINE {content.contact.lineOaId}
