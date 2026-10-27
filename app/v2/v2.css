@@ -2352,41 +2352,67 @@
   }
 
   .v2-hero {
-    padding-top: 104px;
+    padding-top: 92px;
   }
 
   .v2-hero-title {
-    font-size: 2.15rem;
+    margin: 12px 0 10px;
+    font-size: 2rem;
   }
 
   .v2-hero-title em {
-    font-size: 0.72em;
+    margin-top: 6px;
+    font-size: 0.74em;
   }
 
   .v2-hero-br {
     display: initial;
   }
 
+  .v2-hero-lead {
+    font-size: 0.94rem;
+    line-height: 1.7;
+  }
+
   .v2-hero-actions {
-    flex-direction: column;
-    align-items: stretch;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .v2-hero-actions .v2-btn {
+    flex: 1 1 0;
+    padding: 0 12px;
+    font-size: 0.88rem;
   }
 
   .v2-hero-meta {
-    flex-direction: column;
-    gap: 8px;
+    gap: 4px 16px;
+    margin-top: 16px;
+    font-size: 0.74rem;
   }
 
   .v2-hero-visual {
-    margin-top: 34px;
+    margin-top: 22px;
+    padding-bottom: 20px;
+  }
+
+  .v2-line-card {
+    top: 14px;
+    right: 14px;
+    bottom: auto;
+    padding: 8px 12px;
   }
 
   .v2-arch {
-    width: min(82%, 300px);
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 120px 120px 22px 22px;
   }
 
   .v2-arch-outline {
-    width: min(82%, 300px);
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 120px 120px 22px 22px;
   }
 
   .v2-hero-inset {
@@ -2394,12 +2420,6 @@
     bottom: 0;
     width: 118px;
     border-width: 4px;
-  }
-
-  .v2-line-card {
-    right: 0;
-    bottom: 34px;
-    padding: 10px 14px;
   }
 
   .v2-line-card span {
@@ -2418,13 +2438,9 @@
     font-size: 1.25rem;
   }
 
+  /* same facts repeat in later sections; drop the strip so the hero ends with the photo */
   .v2-trust {
-    gap: 10px;
-    padding: 22px 0 26px;
-  }
-
-  .v2-trust li {
-    font-size: 0.75rem;
+    display: none;
   }
 
   .v2-section-head {
