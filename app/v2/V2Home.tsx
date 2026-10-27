@@ -279,12 +279,10 @@ export default function V2Home({ content }: { content: SiteContent }) {
   // LINE counts a friend-add under the channel ("ช่องทางเพิ่มเพื่อน") whose link was used,
   // so a placement takes its link from contact.lineOaRoutes; until one is pasted there it
   // falls back to the canonical OA link, which opens the chat with the message ready to send.
+  const oaBase = `https://line.me/R/ti/p/${content.contact.lineOaId}`;
+  const oaChat = (text: string) => `${oaBase}?text=${encodeURIComponent(text)}`;
   const lineLink = (tag: string, text?: string) => ({
-    href:
-      content.contact.lineOaRoutes?.[tag] ||
-      `https://line.me/R/ti/p/${content.contact.lineOaId}${
-        text ? `?text=${encodeURIComponent(text)}` : ''
-      }`,
+    href: content.contact.lineOaRoutes?.[tag] || (text ? oaChat(text) : oaBase),
     target: '_blank',
     rel: 'noopener',
     onClick: () => trackLineOaClick(tag),
@@ -1138,7 +1136,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
                 <p>กดยืนยันเพื่อส่งรายละเอียดที่กรอกมาเข้าไปในแชท LINE ของทีมงานทันที</p>
                 <a
                   className="v2-btn v2-btn--gold"
-                  href={`https://line.me/R/ti/p/${content.contact.lineOaId}?text=${encodeURIComponent(sentText)}`}
+                  href={oaChat(sentText)}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => trackLineOaClick('booking')}
@@ -1227,9 +1225,21 @@ export default function V2Home({ content }: { content: SiteContent }) {
                 )}
 
                 {status === 'error' && (
-                  <p className="v2-form-error">
-                    ส่งข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง หรือโทร {content.contact.hotlinePhone}
-                  </p>
+                  <div className="v2-form-error-box">
+                    <p className="v2-form-error">
+                      ระบบบันทึกบนเว็บขัดข้องชั่วคราว ข้อมูลที่คุณกรอกยังอยู่ครบ — ส่งให้ทีมงานทาง LINE
+                      ได้ทันที หรือโทร <a href={tel}>{content.contact.hotlinePhone}</a>
+                    </p>
+                    <a
+                      className="v2-btn v2-btn--gold"
+                      href={oaChat(sentText)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackLineOaClick('booking_fallback')}
+                    >
+                      ส่งรายละเอียดใน LINE แทน
+                    </a>
+                  </div>
                 )}
 
                 <button className="v2-btn v2-btn--gold v2-form-submit" type="submit" disabled={status === 'sending'}>
