@@ -144,6 +144,48 @@ const FAQS = [
   },
 ];
 
+const STEP_SHORT: Record<string, string> = {
+  book: 'นัดหมาย',
+  mobility: 'รับที่บ้าน',
+  hospital: 'ถึงโรงพยาบาล',
+  consultation: 'เข้าห้องตรวจ',
+  report: 'ส่งกลับบ้าน',
+};
+
+const NAV_LINKS = [
+  { href: '#pricing', label: 'ค่าบริการ' },
+  { href: '#standard', label: 'มาตรฐานการดูแล' },
+  { href: '#journey', label: 'หนึ่งวันกับเรา' },
+  { href: '#news', label: 'กิจกรรมและข่าวสาร' },
+  { href: '#coverage', label: 'พื้นที่ให้บริการ' },
+  { href: '#faq', label: 'คำถาม' },
+];
+
+// ตัวอย่างเนื้อหา รอลูกค้ายืนยันหัวข้อ รูป และวันที่จริงก่อนเผยแพร่
+const NEWS = [
+  {
+    tag: 'อบรมทีม',
+    date: 'กันยายน 2569',
+    title: 'อบรมผู้ดูแลประจำไตรมาส 3',
+    desc: 'ทบทวนการเคลื่อนย้ายผู้ป่วย การปฐมพยาบาล และการรายงานผลให้ครอบครัว ตามมาตรฐานโรงพยาบาลเอกชล',
+    image: 'assets/step_4_doctor_consult.webp',
+  },
+  {
+    tag: 'พื้นที่ให้บริการ',
+    date: 'สิงหาคม 2569',
+    title: 'ขยายพื้นที่ให้บริการครบ 8 อำเภอชลบุรี',
+    desc: 'เพิ่มทีมผู้ดูแลในอำเภอบ่อทองและหนองใหญ่ พร้อมประเมินเส้นทางและแจ้งราคาก่อนยืนยันทุกครั้ง',
+    image: 'assets/step_2_pickup_home.webp',
+  },
+  {
+    tag: 'กิจกรรมชุมชน',
+    date: 'กรกฎาคม 2569',
+    title: 'ให้คำปรึกษาผู้สูงอายุในชุมชน',
+    desc: 'ทีมงานออกบูธให้คำแนะนำการเตรียมตัวก่อนไปโรงพยาบาล และวิธีสังเกตอาการที่ควรพบแพทย์',
+    image: 'assets/step_3_arrival_aikchol.webp',
+  },
+];
+
 const img = (src: string) => '/' + src.replace(/^\/+/, '');
 
 function CheckIcon() {
@@ -156,6 +198,7 @@ function CheckIcon() {
 
 export default function V2Home({ content }: { content: SiteContent }) {
   const [navSolid, setNavSolid] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [openFaq, setOpenFaq] = useState(0);
   const [drawer, setDrawer] = useState<{ open: boolean; pkg: PkgKey }>({
@@ -204,6 +247,15 @@ export default function V2Home({ content }: { content: SiteContent }) {
     nodes.forEach((n) => io.observe(n));
     return () => io.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
 
   useEffect(() => {
     if (!drawer.open) return;
@@ -269,11 +321,11 @@ export default function V2Home({ content }: { content: SiteContent }) {
             </span>
           </a>
           <nav className="v2-nav-links" aria-label="เมนูหลัก">
-            <a href="#standard">มาตรฐานการดูแล</a>
-            <a href="#journey">หนึ่งวันกับเรา</a>
-            <a href="#pricing">ค่าบริการ</a>
-            <a href="#coverage">พื้นที่ให้บริการ</a>
-            <a href="#faq">คำถาม</a>
+            {NAV_LINKS.map((item) => (
+              <a key={item.href} href={item.href}>
+                {item.label}
+              </a>
+            ))}
           </nav>
           <div className="v2-nav-actions">
             <a className="v2-nav-phone" href={tel}>
@@ -282,8 +334,38 @@ export default function V2Home({ content }: { content: SiteContent }) {
             <button className="v2-btn v2-btn--gold v2-btn--sm" type="button" onClick={() => openBooking('pkg2')}>
               จองผู้ดูแล
             </button>
+            <button
+              className="v2-menu-toggle"
+              type="button"
+              aria-label={menuOpen ? 'ปิดเมนู' : 'เปิดเมนู'}
+              aria-expanded={menuOpen}
+              aria-controls="v2-mobile-menu"
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              {menuOpen ? (
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" strokeLinecap="round" />
+                  <line x1="6" y1="6" x2="18" y2="18" strokeLinecap="round" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <line x1="4" y1="7" x2="20" y2="7" strokeLinecap="round" />
+                  <line x1="4" y1="12" x2="20" y2="12" strokeLinecap="round" />
+                  <line x1="4" y1="17" x2="20" y2="17" strokeLinecap="round" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
+        {menuOpen && (
+          <nav className="v2-mobile-menu" id="v2-mobile-menu" aria-label="เมนูมือถือ">
+            {NAV_LINKS.map((item) => (
+              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        )}
       </header>
 
       <section className="v2-hero" id="top">
@@ -372,6 +454,67 @@ export default function V2Home({ content }: { content: SiteContent }) {
         </div>
       </section>
 
+      <section className="v2-section v2-pricing" id="pricing">
+        <div className="v2-container">
+          <div className="v2-section-head" data-reveal>
+            <p className="v2-eyebrow">TRANSPARENT PRICING</p>
+            <h2 className="v2-section-title">
+              ราคาตามตาราง
+              <br />
+              <span className="v2-underline">ไม่มีบวกเพิ่มทีหลัง</span>
+            </h2>
+            <p className="v2-section-lead">
+              ราคาขึ้นกับเวลาที่ใช้และระยะทางจากบ้านถึงโรงพยาบาล
+              ถ้าเกินเวลา 150 บาท/ชม. เกินระยะ 12 บาท/กม. ทีมงานแจ้งก่อนคิดทุกครั้ง
+            </p>
+          </div>
+
+          <div className="v2-price-grid">
+            {PKG_KEYS.map((key, i) => {
+              const pkg = content.packages[key];
+              const featured = key === 'pkg2';
+              return (
+                <article
+                  key={key}
+                  className={`v2-price-card${featured ? ' v2-price-card--featured' : ''}`}
+                  data-reveal
+                  style={{ '--d': `${i * 90}ms` } as React.CSSProperties}
+                >
+                  {featured && <span className="v2-crown">แนะนำ · ยอดนิยม</span>}
+                  <div className="v2-price-head">
+                    <h3>{pkg.name}</h3>
+                    <p>{pkg.sub}</p>
+                  </div>
+                  <div className="v2-price-amount">
+                    <strong>{pkg.price}</strong>
+                    <span>บาท / {pkg.hours} ชั่วโมง · {pkg.distance}</span>
+                  </div>
+                  <ul className="v2-price-feats">
+                    {FEATURES[key].map((feature) => (
+                      <li key={feature}>
+                        <CheckIcon />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    type="button"
+                    className={`v2-btn ${featured ? 'v2-btn--gold' : 'v2-btn--outline'}`}
+                    onClick={() => openBooking(key)}
+                  >
+                    จองแพ็กเกจนี้
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+          <p className="v2-pricing-note">
+            ราคาโปรโมชั่นถึง 31 มกราคม 2570 · ไม่รวมค่ารักษาพยาบาล ค่ายา ค่าอาหาร และค่าที่จอดรถ ·
+            พารถไปธุระได้ทุกที่ในจังหวัดชลบุรี
+          </p>
+        </div>
+      </section>
+
       <section className="v2-section v2-standard" id="standard">
         <div className="v2-container v2-standard-grid">
           <div className="v2-standard-intro" data-reveal>
@@ -440,6 +583,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
                     <strong>{m.tag.replace(/^Step\s*\d+\s*:\s*/i, '')}</strong>
                     <span>{m.title}</span>
                   </span>
+                  <span className="v2-journey-short">{STEP_SHORT[m.id] || m.title}</span>
                 </button>
               ))}
             </div>
@@ -472,6 +616,43 @@ export default function V2Home({ content }: { content: SiteContent }) {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </section>
+
+      <section className="v2-section v2-news" id="news">
+        <div className="v2-container">
+          <div className="v2-section-head" data-reveal>
+            <p className="v2-eyebrow">ACTIVITIES &amp; NEWS</p>
+            <h2 className="v2-section-title">
+              กิจกรรมและข่าวสาร
+              <br />
+              <span className="v2-underline">จากทีม GO CARES</span>
+            </h2>
+            <p className="v2-section-lead">
+              ติดตามการอบรมทีมผู้ดูแล พื้นที่ให้บริการใหม่ และกิจกรรมในชุมชนชลบุรี
+            </p>
+          </div>
+          <div className="v2-news-grid">
+            {NEWS.map((item, i) => (
+              <article
+                key={item.title}
+                className="v2-news-card"
+                data-reveal
+                style={{ '--d': `${i * 90}ms` } as React.CSSProperties}
+              >
+                <figure>
+                  <img src={img(item.image)} alt="" loading="lazy" decoding="async" />
+                </figure>
+                <div className="v2-news-body">
+                  <span className="v2-news-meta">
+                    {item.tag} · {item.date}
+                  </span>
+                  <h3>{item.title}</h3>
+                  <p>{item.desc}</p>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -527,67 +708,6 @@ export default function V2Home({ content }: { content: SiteContent }) {
               </article>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="v2-section v2-pricing" id="pricing">
-        <div className="v2-container">
-          <div className="v2-section-head" data-reveal>
-            <p className="v2-eyebrow">TRANSPARENT PRICING</p>
-            <h2 className="v2-section-title">
-              ราคาตามตาราง
-              <br />
-              <span className="v2-underline">ไม่มีบวกเพิ่มทีหลัง</span>
-            </h2>
-            <p className="v2-section-lead">
-              ราคาขึ้นกับเวลาที่ใช้และระยะทางจากบ้านถึงโรงพยาบาล
-              ถ้าเกินเวลา 150 บาท/ชม. เกินระยะ 12 บาท/กม. ทีมงานแจ้งก่อนคิดทุกครั้ง
-            </p>
-          </div>
-
-          <div className="v2-price-grid">
-            {PKG_KEYS.map((key, i) => {
-              const pkg = content.packages[key];
-              const featured = key === 'pkg2';
-              return (
-                <article
-                  key={key}
-                  className={`v2-price-card${featured ? ' v2-price-card--featured' : ''}`}
-                  data-reveal
-                  style={{ '--d': `${i * 90}ms` } as React.CSSProperties}
-                >
-                  {featured && <span className="v2-crown">แนะนำ · ยอดนิยม</span>}
-                  <div className="v2-price-head">
-                    <h3>{pkg.name}</h3>
-                    <p>{pkg.sub}</p>
-                  </div>
-                  <div className="v2-price-amount">
-                    <strong>{pkg.price}</strong>
-                    <span>บาท / {pkg.hours} ชั่วโมง · {pkg.distance}</span>
-                  </div>
-                  <ul className="v2-price-feats">
-                    {FEATURES[key].map((feature) => (
-                      <li key={feature}>
-                        <CheckIcon />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    type="button"
-                    className={`v2-btn ${featured ? 'v2-btn--gold' : 'v2-btn--outline'}`}
-                    onClick={() => openBooking(key)}
-                  >
-                    จองแพ็กเกจนี้
-                  </button>
-                </article>
-              );
-            })}
-          </div>
-          <p className="v2-pricing-note">
-            ราคาโปรโมชั่นถึง 31 มกราคม 2570 · ไม่รวมค่ารักษาพยาบาล ค่ายา ค่าอาหาร และค่าที่จอดรถ ·
-            พารถไปธุระได้ทุกที่ในจังหวัดชลบุรี
-          </p>
         </div>
       </section>
 
@@ -794,13 +914,16 @@ export default function V2Home({ content }: { content: SiteContent }) {
             <h4>บริการ</h4>
             <ul>
               <li>
+                <a href="#pricing">ค่าบริการ</a>
+              </li>
+              <li>
                 <a href="#standard">มาตรฐานการดูแล</a>
               </li>
               <li>
                 <a href="#journey">หนึ่งวันกับเรา</a>
               </li>
               <li>
-                <a href="#pricing">ค่าบริการ</a>
+                <a href="#news">กิจกรรมและข่าวสาร</a>
               </li>
               <li>
                 <a href="#coverage">พื้นที่ให้บริการ</a>
