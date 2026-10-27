@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { SiteContent } from '../lib/site-content-types';
+import { trackLineOaClick } from '../lib/tracking';
 
 type PkgKey = 'pkg1' | 'pkg2' | 'pkg3' | 'pkg4';
 
@@ -275,10 +276,19 @@ export default function V2Home({ content }: { content: SiteContent }) {
   const activeSpot = MAP_DISTRICTS.find((d) => d.key === district) || MAP_DISTRICTS[0];
 
   const tel = `tel:${content.contact.hotlinePhone.replace(/\s+/g, '')}`;
-  // canonical OA link opens the app on mobile and lands in chat with a message ready to send
-  const lineUrl = `https://line.me/R/ti/p/${content.contact.lineOaId}?text=${encodeURIComponent(
-    'สนใจปรึกษาบริการผู้ดูแลผู้สูงอายุ GO CARES ค่ะ'
-  )}`;
+  // LINE counts a friend-add under the channel ("ช่องทางเพิ่มเพื่อน") whose link was used,
+  // so a placement takes its link from contact.lineOaRoutes; until one is pasted there it
+  // falls back to the canonical OA link, which opens the chat with the message ready to send.
+  const lineLink = (tag: string, text?: string) => ({
+    href:
+      content.contact.lineOaRoutes?.[tag] ||
+      `https://line.me/R/ti/p/${content.contact.lineOaId}${
+        text ? `?text=${encodeURIComponent(text)}` : ''
+      }`,
+    target: '_blank',
+    rel: 'noopener',
+    onClick: () => trackLineOaClick(tag),
+  });
   const moments = content.moments;
   const moment = moments[step] || moments[0];
   const heroPhoto = content.personas[1]?.image || content.images.heroPoster;
@@ -508,7 +518,10 @@ export default function V2Home({ content }: { content: SiteContent }) {
                   <polyline points="12 5 19 12 12 19" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
-              <a className="v2-btn v2-btn--ghost" href={lineUrl} target="_blank" rel="noopener">
+              <a
+                className="v2-btn v2-btn--ghost"
+                {...lineLink('hero', 'สนใจปรึกษาบริการผู้ดูแลผู้สูงอายุ GO CARES ค่ะ')}
+              >
                 LINE ปรึกษา
               </a>
             </div>
@@ -1071,9 +1084,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
                 <a href={tel}>สายด่วน {content.contact.hotlinePhone}</a>
               </li>
               <li>
-                <a href={lineUrl} target="_blank" rel="noopener">
-                  LINE {content.contact.lineOaId}
-                </a>
+                <a {...lineLink('contact')}>LINE {content.contact.lineOaId}</a>
               </li>
               <li>โรงพยาบาลเอกชล · อ.เมืองชลบุรี</li>
               <li>เปิดบริการทุกวัน</li>
@@ -1130,6 +1141,7 @@ export default function V2Home({ content }: { content: SiteContent }) {
                   href={`https://line.me/R/ti/p/${content.contact.lineOaId}?text=${encodeURIComponent(sentText)}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackLineOaClick('booking')}
                 >
                   ส่งรายละเอียดใน LINE
                 </a>

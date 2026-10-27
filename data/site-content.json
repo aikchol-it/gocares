@@ -40,7 +40,11 @@
   "contact": {
     "hotlinePhone": "063 920 4765",
     "lineOaId": "@407eqbwl",
-    "lineOaUrl": "https://lin.ee/RbECVC5"
+    "lineOaUrl": "https://lin.ee/RbECVC5",
+    "lineOaRoutes": {
+      "hero": "",
+      "contact": ""
+    }
   },
   "packages": {
     "pkg1": {

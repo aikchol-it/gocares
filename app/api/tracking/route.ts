@@ -24,6 +24,11 @@ function ensureFile() {
   if (!fs.existsSync(eventsFile)) fs.writeFileSync(eventsFile, '[]', 'utf-8');
 }
 
+// a BOM (written by some Windows editors) makes JSON.parse throw and silently kills every event
+function readEvents(): TrackingEvent[] {
+  return JSON.parse(fs.readFileSync(eventsFile, 'utf-8').replace(/^﻿/, '')) as TrackingEvent[];
+}
+
 export async function GET(req: Request) {
   try {
     ensureFile();
@@ -33,9 +38,7 @@ export async function GET(req: Request) {
     const from = url.searchParams.get('from') || '';
     const to = url.searchParams.get('to') || '';
 
-    const raw = fs.readFileSync(eventsFile, 'utf-8');
-    let events = JSON.parse(raw) as TrackingEvent[];
-
+    let events = readEvents();
     if (eventType) events = events.filter((e) => e.event === eventType);
     if (from) events = events.filter((e) => e.timestamp >= from);
     if (to) events = events.filter((e) => e.timestamp <= to);
@@ -77,8 +80,7 @@ export async function POST(req: Request) {
       timestamp: new Date().toISOString(),
     };
 
-    const raw = fs.readFileSync(eventsFile, 'utf-8');
-    const existing = JSON.parse(raw) as TrackingEvent[];
+    const existing = readEvents();
     existing.unshift(newEvent);
 
     // Keep last 5000 events
