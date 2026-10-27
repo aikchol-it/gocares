@@ -7,9 +7,6 @@ type PkgKey = 'pkg1' | 'pkg2' | 'pkg3' | 'pkg4';
 
 const PKG_KEYS: PkgKey[] = ['pkg1', 'pkg2', 'pkg3', 'pkg4'];
 
-// ลำดับที่เห็นบนมือถือ: การ์ดยอดนิยมถูกยกขึ้นเป็นใบแรกด้วย CSS order
-const PKG_SLIDE_ORDER: PkgKey[] = ['pkg2', 'pkg1', 'pkg3', 'pkg4'];
-
 const DISTRICTS = [
   'อำเภอเมืองชลบุรี',
   'อำเภอพานทอง',
@@ -343,16 +340,16 @@ export default function V2Home({ content }: { content: SiteContent }) {
   };
   const closeBooking = () => setDrawer((d) => ({ ...d, open: false }));
 
-  const goPrice = (key: PkgKey) => {
+  const goPrice = (index: number) => {
     const wrap = priceRef.current;
-    const card = wrap?.querySelector<HTMLElement>(`[data-pkg="${key}"]`);
+    const card = wrap?.querySelectorAll<HTMLElement>('[data-pkg]')[index];
     if (!wrap || !card) return;
     wrap.scrollTo({
       left:
         wrap.scrollLeft +
         card.getBoundingClientRect().left -
         wrap.getBoundingClientRect().left -
-        (wrap.clientWidth - card.offsetWidth) / 2,
+        parseFloat(getComputedStyle(wrap).paddingLeft || '0'),
       behavior: 'smooth',
     });
   };
@@ -360,13 +357,11 @@ export default function V2Home({ content }: { content: SiteContent }) {
   const onPriceScroll = () => {
     const wrap = priceRef.current;
     if (!wrap) return;
-    const center = wrap.getBoundingClientRect().left + wrap.clientWidth / 2;
+    const anchor = wrap.getBoundingClientRect().left + parseFloat(getComputedStyle(wrap).paddingLeft || '0');
     let idx = 0;
     let best = Infinity;
-    PKG_SLIDE_ORDER.forEach((key, i) => {
-      const card = wrap.querySelector<HTMLElement>(`[data-pkg="${key}"]`);
-      if (!card) return;
-      const distance = Math.abs(card.getBoundingClientRect().left + card.offsetWidth / 2 - center);
+    wrap.querySelectorAll<HTMLElement>('[data-pkg]').forEach((card, i) => {
+      const distance = Math.abs(card.getBoundingClientRect().left - anchor);
       if (distance < best) {
         best = distance;
         idx = i;
@@ -608,14 +603,14 @@ export default function V2Home({ content }: { content: SiteContent }) {
             })}
           </div>
           <div className="v2-price-dots" role="group" aria-label="เลือกดูแพ็กเกจ">
-            {PKG_SLIDE_ORDER.map((key, i) => (
+            {PKG_KEYS.map((key, i) => (
               <button
                 key={key}
                 type="button"
                 className={priceIdx === i ? 'is-active' : undefined}
                 aria-label={`ดูแพ็กเกจ ${content.packages[key].name}`}
                 aria-pressed={priceIdx === i}
-                onClick={() => goPrice(key)}
+                onClick={() => goPrice(i)}
               />
             ))}
           </div>
