@@ -7,6 +7,8 @@ import { trackLineOaClick } from '../lib/tracking';
 type PkgKey = 'pkg1' | 'pkg2' | 'pkg3' | 'pkg4';
 
 const PKG_KEYS: PkgKey[] = ['pkg1', 'pkg2', 'pkg3', 'pkg4'];
+/** how long a package card holds the stage before the rail slides to the next one */
+const PRICE_DWELL = 6000;
 
 const DISTRICTS = [
   'อำเภอเมืองชลบุรี',
@@ -258,6 +260,18 @@ function CheckIcon() {
   );
 }
 
+function ChevronIcon({ back = false }: { back?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <polyline
+        points={back ? '15 18 9 12 15 6' : '9 18 15 12 9 6'}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function V2Home({ content }: { content: SiteContent }) {
   const [navSolid, setNavSolid] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -384,6 +398,16 @@ export default function V2Home({ content }: { content: SiteContent }) {
     });
     setPriceIdx(idx);
   };
+
+  // the rail walks through the packages on its own, but stops while the pointer is on it
+  // (or the booking drawer is open) so it never slides away mid-tap
+  const [pricePaused, setPricePaused] = useState(false);
+  useEffect(() => {
+    if (pricePaused || drawer.open) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const timer = setInterval(() => goPrice((priceIdx + 1) % PKG_KEYS.length), PRICE_DWELL);
+    return () => clearInterval(timer);
+  }, [priceIdx, pricePaused, drawer.open]);
 
   function submitBooking(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -594,7 +618,13 @@ export default function V2Home({ content }: { content: SiteContent }) {
             </p>
           </div>
 
-          <div className="v2-price-grid" ref={priceRef} onScroll={onPriceScroll}>
+          <div
+            className="v2-price-grid"
+            ref={priceRef}
+            onScroll={onPriceScroll}
+            onMouseEnter={() => setPricePaused(true)}
+            onMouseLeave={() => setPricePaused(false)}
+          >
             {PKG_KEYS.map((key, i) => {
               const pkg = content.packages[key];
               const featured = key === 'pkg2';
@@ -634,17 +664,35 @@ export default function V2Home({ content }: { content: SiteContent }) {
               );
             })}
           </div>
-          <div className="v2-price-dots" role="group" aria-label="เลือกดูแพ็กเกจ">
-            {PKG_KEYS.map((key, i) => (
-              <button
-                key={key}
-                type="button"
-                className={priceIdx === i ? 'is-active' : undefined}
-                aria-label={`ดูแพ็กเกจ ${content.packages[key].name}`}
-                aria-pressed={priceIdx === i}
-                onClick={() => goPrice(i)}
-              />
-            ))}
+          <div className="v2-price-nav">
+            <button
+              className="v2-price-arrow"
+              type="button"
+              aria-label="แพ็กเกจก่อนหน้า"
+              onClick={() => goPrice((priceIdx - 1 + PKG_KEYS.length) % PKG_KEYS.length)}
+            >
+              <ChevronIcon back />
+            </button>
+            <div className="v2-price-dots" role="group" aria-label="เลือกดูแพ็กเกจ">
+              {PKG_KEYS.map((key, i) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={priceIdx === i ? 'is-active' : undefined}
+                  aria-label={`ดูแพ็กเกจ ${content.packages[key].name}`}
+                  aria-pressed={priceIdx === i}
+                  onClick={() => goPrice(i)}
+                />
+              ))}
+            </div>
+            <button
+              className="v2-price-arrow"
+              type="button"
+              aria-label="แพ็กเกจถัดไป"
+              onClick={() => goPrice((priceIdx + 1) % PKG_KEYS.length)}
+            >
+              <ChevronIcon />
+            </button>
           </div>
           <p className="v2-pricing-note">
             ราคาโปรโมชั่นถึง 31 มกราคม 2570 · ไม่รวมค่ารักษาพยาบาล ค่ายา ค่าอาหาร และค่าที่จอดรถ ·
