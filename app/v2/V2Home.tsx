@@ -606,9 +606,9 @@ export default function V2Home({ content }: { content: SiteContent }) {
           <div className="v2-section-head" data-reveal>
             <p className="v2-eyebrow">TRANSPARENT PRICING</p>
             <h2 className="v2-section-title">
-              ค่าบริการมาตรฐาน คำนวณตามจริง โปร่งใส
+              ค่าบริการมาตรฐาน 
               <br />
-              <span className="v2-underline">ไม่มีบวกเพิ่มทีหลัง</span>
+              <span className="v2-underline">คำนวณตามจริง โปร่งใส</span>
             </h2>
             <p className="v2-section-lead">
               รายละเอียดเพิ่มเติม: อ้างอิงเรทราคาตามตารางมาตรฐาน (เกินเวลา 150 บาท/ชม.,
