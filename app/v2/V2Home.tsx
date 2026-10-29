@@ -606,13 +606,11 @@ export default function V2Home({ content }: { content: SiteContent }) {
           <div className="v2-section-head" data-reveal>
             <p className="v2-eyebrow">TRANSPARENT PRICING</p>
             <h2 className="v2-section-title">
-              ราคาตามตาราง
+              ค่าบริการมาตรฐาน คำนวณตามจริง โปร่งใส
               <br />
               <span className="v2-underline">ไม่มีบวกเพิ่มทีหลัง</span>
             </h2>
             <p className="v2-section-lead">
-              ค่าบริการมาตรฐาน คำนวณตามจริง โปร่งใส
-              <br />
               รายละเอียดเพิ่มเติม: อ้างอิงเรทราคาตามตารางมาตรฐาน (เกินเวลา 150 บาท/ชม.,
               เกินระยะทาง 12 บาท/กม.) โดยทีมงานจะแจ้งยอดให้ทราบและยืนยันก่อนเริ่มดำเนินการทุกครั้ง
             </p>
